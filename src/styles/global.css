@@ -86,8 +86,3 @@ h1, h2, h3, h4 {
   border-radius: 3px;
 }
 
-/* Invisible initial state for GSAP animations */
-.gsap-fade {
-  opacity: 0;
-  transform: translateY(30px);
-}

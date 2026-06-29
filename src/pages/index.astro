@@ -109,17 +109,20 @@ import '../styles/global.css';
 
   // ScrollTrigger for all .gsap-fade elements
   gsap.utils.toArray<HTMLElement>('.gsap-fade').forEach((el) => {
-    gsap.from(el, {
-      scrollTrigger: {
-        trigger: el,
-        start: 'top 88%',
-        toggleActions: 'play none none none',
-      },
-      opacity: 0,
-      y: 35,
-      duration: 0.85,
-      ease: 'power2.out',
-    });
+    gsap.fromTo(el,
+      { opacity: 0, y: 35 },
+      {
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          toggleActions: 'play none none none',
+        },
+        opacity: 1,
+        y: 0,
+        duration: 0.85,
+        ease: 'power2.out',
+      }
+    );
   });
 
   // Smooth scroll for nav links
