@@ -1,0 +1,186 @@
+---
+---
+<section id="detalles" class="details-section">
+  <div class="container">
+    <p class="section-subtitle gsap-fade">la celebración</p>
+    <h2 class="section-title gsap-fade">El gran día</h2>
+    <div class="ornament gsap-fade">
+      <span style="color: var(--gold); font-size:1.2rem;">✦</span>
+    </div>
+
+    <div class="schedule gsap-fade">
+      <div class="schedule-item">
+        <div class="schedule-icon">⚭</div>
+        <div class="schedule-time">19:00h</div>
+        <div class="schedule-name">Ceremonia</div>
+      </div>
+      <div class="schedule-connector"></div>
+      <div class="schedule-item">
+        <div class="schedule-icon">🥂</div>
+        <div class="schedule-time">20:00h</div>
+        <div class="schedule-name">Cóctel</div>
+      </div>
+      <div class="schedule-connector"></div>
+      <div class="schedule-item">
+        <div class="schedule-icon">🍽️</div>
+        <div class="schedule-time">21:30h</div>
+        <div class="schedule-name">Cena</div>
+      </div>
+      <div class="schedule-connector"></div>
+      <div class="schedule-item">
+        <div class="schedule-icon">🎶</div>
+        <div class="schedule-time">06:00h</div>
+        <div class="schedule-name">Fin de fiesta</div>
+      </div>
+    </div>
+
+    <div class="details-grid">
+      <div class="detail-card gsap-fade">
+        <div class="detail-icon">📍</div>
+        <h3>Lugar</h3>
+        <p>Cortijo El Alamillo</p>
+        <p class="detail-sub">Villarrubia, Córdoba</p>
+        <a href="https://share.google/S2dETBj80LCp9TyRZ" target="_blank" rel="noopener" class="detail-link">Ver en el mapa →</a>
+      </div>
+      <div class="detail-card gsap-fade">
+        <div class="detail-icon">📅</div>
+        <h3>Fecha</h3>
+        <p>Sábado, 3 de octubre</p>
+        <p class="detail-sub">2026</p>
+      </div>
+      <div class="detail-card gsap-fade">
+        <div class="detail-icon">📸</div>
+        <h3>Fotógrafo</h3>
+        <p>Rafael Badia</p>
+        <p class="detail-sub">Si tienes pensado hacernos una sorpresa durante la cena, contacta con él antes:</p>
+        <a href="tel:+34637352642" class="detail-link">637 35 26 42</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .details-section {
+    padding: 6rem 1.5rem;
+    background: var(--ivory);
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-subtitle { margin-bottom: 0.25rem; }
+  .section-title { margin-bottom: 0; }
+
+  /* Schedule timeline */
+  .schedule {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 3rem 0 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .schedule-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0 1.2rem;
+  }
+
+  .schedule-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+
+  .schedule-time {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--brown);
+  }
+
+  .schedule-name {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-dark);
+  }
+
+  .schedule-connector {
+    flex: 0 0 40px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.4;
+  }
+
+  /* Detail cards */
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    margin-top: 1.5rem;
+  }
+
+  .detail-card {
+    background: var(--cream);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid var(--gold);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .detail-icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .detail-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--brown);
+  }
+
+  .detail-card p {
+    font-family: 'Lato', sans-serif;
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+
+  .detail-sub {
+    font-size: 0.82rem !important;
+    color: var(--brown-light) !important;
+    margin-top: 0.2rem;
+  }
+
+  .detail-link {
+    display: inline-block;
+    margin-top: 0.6rem;
+    color: var(--gold-dark);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 1px;
+    transition: color 0.2s;
+  }
+
+  .detail-link:hover { color: var(--brown); }
+
+  @media (max-width: 600px) {
+    .schedule { gap: 0.5rem; }
+    .schedule-connector { flex: 0 0 20px; }
+    .schedule-item { padding: 0 0.5rem; }
+  }
+</style>

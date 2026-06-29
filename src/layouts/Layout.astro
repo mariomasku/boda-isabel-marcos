@@ -1,0 +1,20 @@
+---
+interface Props {
+  title?: string;
+}
+const { title = 'Isabel & Marcos · 03.10.2026' } = Astro.props;
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Os invitamos a celebrar con nosotros el día más especial de nuestras vidas. Isabel & Marcos, 3 de octubre de 2026." />
+    <link rel="icon" href="/favicon.ico" />
+    <title>{title}</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

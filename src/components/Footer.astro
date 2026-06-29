@@ -1,0 +1,105 @@
+---
+---
+<footer class="footer-section">
+  <div class="footer-container">
+    <div class="footer-names gsap-fade">Isabel <span class="amp">&</span> Marcos</div>
+    <div class="footer-date gsap-fade">03 · 10 · 2026</div>
+    <div class="divider" style="margin: 1.5rem auto;"></div>
+    <div class="footer-contacts gsap-fade">
+      <div class="contact-item">
+        <span class="contact-label">Isabel</span>
+        <a href="tel:+34658350693">658 35 06 93</a>
+      </div>
+      <div class="contact-sep">·</div>
+      <div class="contact-item">
+        <span class="contact-label">Marcos</span>
+        <a href="tel:+34675474544">675 47 45 44</a>
+      </div>
+    </div>
+    <p class="footer-copy gsap-fade">Hecho con amor para el día más especial</p>
+  </div>
+</footer>
+
+<style>
+  .footer-section {
+    padding: 5rem 1.5rem 3rem;
+    background: linear-gradient(160deg, #2C1810, #1E0F08);
+    text-align: center;
+  }
+
+  .footer-container {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .footer-names {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    color: #F9F5EF;
+    font-weight: 400;
+  }
+
+  .amp {
+    color: #C4A882;
+    font-style: italic;
+  }
+
+  .footer-date {
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.4em;
+    color: rgba(196,168,130,0.7);
+    font-size: 0.9rem;
+  }
+
+  .footer-contacts {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.5rem 0;
+  }
+
+  .contact-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  .contact-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-family: 'Lato', sans-serif;
+  }
+
+  .contact-item a {
+    color: rgba(249,245,239,0.8);
+    text-decoration: none;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+
+  .contact-item a:hover { color: #C4A882; }
+
+  .contact-sep {
+    color: rgba(196,168,130,0.3);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-copy {
+    margin-top: 1.5rem;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    color: rgba(196,168,130,0.35);
+    font-style: italic;
+    letter-spacing: 0.1em;
+  }
+</style>

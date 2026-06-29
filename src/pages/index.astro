@@ -1,17 +1,135 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Details from '../components/Details.astro';
+import Bus from '../components/Bus.astro';
+import RSVP from '../components/RSVP.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout>
+  <!-- Nav -->
+  <nav id="navbar" class="navbar">
+    <div class="nav-names">I & M</div>
+    <div class="nav-links">
+      <a href="#detalles">El día</a>
+      <a href="#autobus">Autobús</a>
+      <a href="#rsvp">Confirmar</a>
+    </div>
+  </nav>
+
+  <main>
+    <Hero />
+    <Details />
+    <Bus />
+    <RSVP />
+    <Footer />
+  </main>
+</Layout>
+
+<style>
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 2rem;
+    transition: background 0.4s ease, backdrop-filter 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  .navbar.scrolled {
+    background: rgba(44, 24, 16, 0.92);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 1px 0 rgba(196,168,130,0.15);
+  }
+
+  .nav-names {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: #C4A882;
+    letter-spacing: 0.1em;
+    font-style: italic;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .nav-links a {
+    color: rgba(249,245,239,0.8);
+    text-decoration: none;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover {
+    color: #C4A882;
+  }
+
+  @media (max-width: 480px) {
+    .nav-links { gap: 1rem; }
+    .nav-links a { font-size: 0.7rem; }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Navbar scroll effect
+  const navbar = document.getElementById('navbar')!;
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 60) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+  });
+
+  // Hero animations (staggered entrance)
+  gsap.from('.gsap-hero', {
+    opacity: 0,
+    y: 40,
+    duration: 1,
+    stagger: 0.18,
+    ease: 'power3.out',
+    delay: 0.3,
+  });
+
+  // ScrollTrigger for all .gsap-fade elements
+  gsap.utils.toArray<HTMLElement>('.gsap-fade').forEach((el) => {
+    gsap.from(el, {
+      scrollTrigger: {
+        trigger: el,
+        start: 'top 88%',
+        toggleActions: 'play none none none',
+      },
+      opacity: 0,
+      y: 35,
+      duration: 0.85,
+      ease: 'power2.out',
+    });
+  });
+
+  // Smooth scroll for nav links
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector((anchor as HTMLAnchorElement).getAttribute('href')!);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
