@@ -36,32 +36,54 @@
 
     <div class="details-grid">
       <div class="detail-card gsap-fade">
-        <div class="detail-icon">📍</div>
-        <h3>Lugar</h3>
-        <p>Cortijo El Alamillo</p>
-        <p class="detail-sub">Villarrubia, Córdoba</p>
-        <a href="https://share.google/S2dETBj80LCp9TyRZ" target="_blank" rel="noopener" class="detail-link">Ver en el mapa →</a>
-      </div>
-      <div class="detail-card gsap-fade">
         <div class="detail-icon">📅</div>
         <h3>Fecha</h3>
         <p>Sábado, 3 de octubre</p>
         <p class="detail-sub">2026</p>
       </div>
       <div class="detail-card gsap-fade">
+        <div class="detail-icon">📍</div>
+        <h3>Lugar</h3>
+        <p>Cortijo El Alamillo</p>
+        <p class="detail-sub">Villarrubia, Córdoba</p>
+      </div>
+      <div class="detail-card gsap-fade">
         <div class="detail-icon">📸</div>
         <h3>Fotógrafo</h3>
         <p>Rafael Badia</p>
-        <p class="detail-sub">Si tienes pensado hacernos una sorpresa durante la cena, contacta con él antes:</p>
+        <p class="detail-sub">Si tienes pensado darnos una sorpresa, contacta con él:</p>
         <a href="tel:+34637352642" class="detail-link">637 35 26 42</a>
       </div>
     </div>
+  </div>
+
+  <!-- Mapa -->
+  <div class="map-wrapper gsap-fade">
+    <div class="map-label">
+      <span>📍 Cortijo El Alamillo · Villarrubia, Córdoba</span>
+      <a
+        href="https://share.google/S2dETBj80LCp9TyRZ"
+        target="_blank"
+        rel="noopener"
+        class="map-open-link"
+      >Abrir en Google Maps →</a>
+    </div>
+    <iframe
+      title="Localización del Cortijo El Alamillo"
+      src="https://maps.google.com/maps?q=Cortijo+El+Alamillo,+Villarrubia,+Córdoba,+Spain&output=embed&z=14"
+      width="100%"
+      height="400"
+      style="border:0"
+      allowfullscreen
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
   </div>
 </section>
 
 <style>
   .details-section {
-    padding: 6rem 1.5rem;
+    padding: 6rem 1.5rem 0;
     background: var(--ivory);
   }
 
@@ -72,12 +94,12 @@
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+    padding-bottom: 4rem;
   }
 
   .section-subtitle { margin-bottom: 0.25rem; }
   .section-title { margin-bottom: 0; }
 
-  /* Schedule timeline */
   .schedule {
     display: flex;
     align-items: center;
@@ -95,10 +117,7 @@
     padding: 0 1.2rem;
   }
 
-  .schedule-icon {
-    font-size: 1.6rem;
-    line-height: 1;
-  }
+  .schedule-icon { font-size: 1.6rem; line-height: 1; }
 
   .schedule-time {
     font-family: 'Playfair Display', serif;
@@ -121,7 +140,6 @@
     opacity: 0.4;
   }
 
-  /* Detail cards */
   .details-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -141,10 +159,7 @@
     gap: 0.4rem;
   }
 
-  .detail-icon {
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
-  }
+  .detail-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
 
   .detail-card h3 {
     font-family: 'Playfair Display', serif;
@@ -170,7 +185,6 @@
     color: var(--gold-dark);
     text-decoration: none;
     font-size: 0.85rem;
-    letter-spacing: 0.05em;
     border-bottom: 1px solid var(--gold);
     padding-bottom: 1px;
     transition: color 0.2s;
@@ -178,9 +192,44 @@
 
   .detail-link:hover { color: var(--brown); }
 
+  /* Mapa */
+  .map-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .map-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1rem;
+    background: var(--cream);
+    border-top: 2px solid var(--gold);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.85rem;
+    color: var(--brown);
+  }
+
+  .map-open-link {
+    color: var(--gold-dark);
+    text-decoration: none;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+
+  .map-open-link:hover { color: var(--brown); }
+
+  .map-wrapper iframe {
+    display: block;
+    filter: grayscale(20%) contrast(1.05);
+  }
+
   @media (max-width: 600px) {
     .schedule { gap: 0.5rem; }
     .schedule-connector { flex: 0 0 20px; }
     .schedule-item { padding: 0 0.5rem; }
+    .map-label { flex-direction: column; gap: 0.4rem; text-align: center; }
   }
 </style>

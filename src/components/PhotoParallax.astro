@@ -1,0 +1,37 @@
+---
+interface Props {
+  foto: string;
+  height?: string;
+  id?: string;
+}
+const { foto, height = '55vh', id = '' } = Astro.props;
+---
+<div class="parallax-section" style={`height: ${height}`} id={id}>
+  <div
+    class="parallax-bg"
+    style={`background-image: url('${foto}')`}
+  ></div>
+  <div class="parallax-overlay"></div>
+</div>
+
+<style>
+  .parallax-section {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .parallax-bg {
+    position: absolute;
+    inset: -20% 0;
+    background-size: cover;
+    background-position: center;
+    will-change: transform;
+  }
+
+  .parallax-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(28, 14, 6, 0.25);
+  }
+</style>

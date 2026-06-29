@@ -1,10 +1,35 @@
 ---
 ---
 <section id="hero" class="hero-section">
+  <div class="hero-bg parallax-hero-bg" style="background-image: url('/fotos/foto1.webp')"></div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <p class="hero-pre gsap-hero">nos casamos</p>
-    <h1 class="hero-names gsap-hero">Isabel <span class="amp">&</span> Marcos</h1>
+
+    <!-- Texto SVG: se dibuja letra a letra con stroke-dashoffset -->
+    <svg
+      class="hero-names-svg"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 1000 130"
+      aria-label="Isabel y Marcos"
+      role="img"
+    >
+      <text
+        id="hero-name-text"
+        x="500"
+        y="100"
+        font-family="Playfair Display, Georgia, serif"
+        font-size="120px"
+        font-weight="400"
+        text-anchor="middle"
+        fill="transparent"
+        stroke="#F9F5EF"
+        stroke-width="0.6"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        letter-spacing="-1"
+      >Isabel &amp; Marcos</text>
+    </svg>
     <div class="hero-date gsap-hero">
       <span class="date-line"></span>
       <span class="date-text">03 · 10 · 2026</span>
@@ -50,27 +75,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(
-      160deg,
-      #2C1810 0%,
-      #4A2C1A 35%,
-      #3D2415 65%,
-      #1E0F08 100%
-    );
     overflow: hidden;
   }
 
-  .hero-section::before {
-    content: '';
+  .hero-bg {
     position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C4A882' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    inset: -20% 0;
+    background-size: cover;
+    background-position: center;
+    will-change: transform;
   }
 
   .hero-overlay {
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.4) 100%);
+    background: linear-gradient(
+      160deg,
+      rgba(28,12,4,0.72) 0%,
+      rgba(44,24,16,0.65) 50%,
+      rgba(20,8,2,0.78) 100%
+    );
   }
 
   .hero-content {
@@ -94,18 +118,10 @@
     text-transform: lowercase;
   }
 
-  .hero-names {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(3rem, 10vw, 7rem);
-    font-weight: 400;
-    line-height: 1.1;
-    color: #F9F5EF;
-    letter-spacing: -0.01em;
-  }
-
-  .amp {
-    color: #C4A882;
-    font-style: italic;
+  .hero-names-svg {
+    width: clamp(280px, 85vw, 780px);
+    height: auto;
+    overflow: visible;
   }
 
   .hero-date {
@@ -137,7 +153,6 @@
     text-transform: uppercase;
   }
 
-  /* Countdown */
   .countdown {
     display: flex;
     align-items: center;
@@ -197,7 +212,6 @@
     color: #2C1810;
   }
 
-  /* Scroll indicator */
   .hero-scroll {
     position: absolute;
     bottom: 2rem;
@@ -211,6 +225,7 @@
     font-size: 0.65rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;
+    z-index: 1;
   }
 
   .scroll-line {
@@ -232,6 +247,40 @@
 </style>
 
 <script>
+  import { gsap } from 'gsap';
+
+  // Efecto de escritura SVG: stroke-dashoffset
+  document.fonts.ready.then(() => {
+    const textEl = document.getElementById('hero-name-text') as SVGTextElement | null;
+    if (!textEl) return;
+
+    // Calculamos la longitud real del trazo para un dash preciso
+    const strokeLen = textEl.getComputedTextLength() * 1;
+    textEl.setAttribute('stroke-dasharray', String(strokeLen));
+    textEl.setAttribute('stroke-dashoffset', String(strokeLen));
+
+    gsap.timeline({ delay: 1 })
+      // Fase 1: se dibuja el trazo de los caracteres
+      .to(textEl, {
+        attr: { 'stroke-dashoffset': 0 },
+        duration: 2,
+        ease: 'power1.inOut',
+      })
+      // Fase 2: el relleno aparece y el trazo se desvanece
+      .to(textEl, {
+        attr: {
+          fill: '#F9F5EF',
+          'stroke-opacity': 0,
+        },
+        duration: 1,
+        ease: 'power2.out',
+        // Colorear el & de dorado al completar
+        onComplete: () => {
+          textEl.setAttribute('stroke', 'none');
+        },
+      }, '-=0.4');
+  });
+
   function initCountdown() {
     const weddingDate = new Date('2026-10-03T19:00:00');
 

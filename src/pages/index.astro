@@ -5,11 +5,11 @@ import Details from '../components/Details.astro';
 import Bus from '../components/Bus.astro';
 import RSVP from '../components/RSVP.astro';
 import Footer from '../components/Footer.astro';
+import PhotoParallax from '../components/PhotoParallax.astro';
 import '../styles/global.css';
 ---
 
 <Layout>
-  <!-- Nav -->
   <nav id="navbar" class="navbar">
     <div class="nav-names">I & M</div>
     <div class="nav-links">
@@ -22,8 +22,11 @@ import '../styles/global.css';
   <main>
     <Hero />
     <Details />
+    <PhotoParallax foto="/fotos/foto2.webp" height="60vh" />
     <Bus />
+    <PhotoParallax foto="/fotos/foto3.webp" height="60vh" />
     <RSVP />
+    <PhotoParallax foto="/fotos/foto4.webp" height="50vh" />
     <Footer />
   </main>
 </Layout>
@@ -71,9 +74,7 @@ import '../styles/global.css';
     transition: color 0.2s;
   }
 
-  .nav-links a:hover {
-    color: #C4A882;
-  }
+  .nav-links a:hover { color: #C4A882; }
 
   @media (max-width: 480px) {
     .nav-links { gap: 1rem; }
@@ -90,24 +91,54 @@ import '../styles/global.css';
   // Navbar scroll effect
   const navbar = document.getElementById('navbar')!;
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 60) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Hero: entrada escalonada del texto
+  gsap.fromTo('.gsap-hero',
+    { opacity: 0, y: 40 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 1,
+      stagger: 0.18,
+      ease: 'power3.out',
+      delay: 0.3,
     }
+  );
+
+  // Hero: parallax del fondo al hacer scroll
+  gsap.to('.parallax-hero-bg', {
+    yPercent: 25,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#hero',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: true,
+    },
   });
 
-  // Hero animations (staggered entrance)
-  gsap.from('.gsap-hero', {
-    opacity: 0,
-    y: 40,
-    duration: 1,
-    stagger: 0.18,
-    ease: 'power3.out',
-    delay: 0.3,
+  // Parallax en secciones de foto
+  gsap.utils.toArray<HTMLElement>('.parallax-section').forEach((section) => {
+    const bg = section.querySelector<HTMLElement>('.parallax-bg');
+    if (!bg) return;
+    gsap.fromTo(bg,
+      { yPercent: -15 },
+      {
+        yPercent: 15,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        },
+      }
+    );
   });
 
-  // ScrollTrigger for all .gsap-fade elements
+  // Fade-in en scroll para elementos de contenido
   gsap.utils.toArray<HTMLElement>('.gsap-fade').forEach((el) => {
     gsap.fromTo(el,
       { opacity: 0, y: 35 },
@@ -125,14 +156,12 @@ import '../styles/global.css';
     );
   });
 
-  // Smooth scroll for nav links
+  // Smooth scroll
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener('click', (e) => {
       e.preventDefault();
       const target = document.querySelector((anchor as HTMLAnchorElement).getAttribute('href')!);
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
 </script>

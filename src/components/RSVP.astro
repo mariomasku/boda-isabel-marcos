@@ -14,7 +14,7 @@
     <form
       id="rsvp-form"
       class="rsvp-form gsap-fade"
-      action="https://formspree.io/f/XXXXXXXXX"
+      action="https://formspree.io/f/xjgqopnb"
       method="POST"
     >
       <!-- 1. Nombre -->
@@ -71,10 +71,24 @@
         </div>
       </div>
 
-      <!-- 5. Datos niños -->
-      <div class="form-group conditional" id="ninos-block" style="display:none">
-        <label for="ninos_info">5. ¿Cuántos niños, qué edades tienen y sus nombres?</label>
-        <textarea id="ninos_info" name="ninos_info" rows="3" placeholder="Ej: 2 niños — Laura (5 años) y Pedro (8 años)"></textarea>
+      <!-- 5. Datos niños (dinámico) -->
+      <div id="ninos-block" style="display:none" class="ninos-wrapper">
+        <div class="form-group">
+          <label for="ninos_count">5. ¿Cuántos niños traes?</label>
+          <select id="ninos_count" name="ninos_count">
+            <option value="">Selecciona...</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+          </select>
+        </div>
+        <div id="ninos-names-container"></div>
       </div>
 
       <!-- 6. Alergias -->
@@ -325,6 +339,46 @@
     transform: translateY(-2px);
   }
 
+  .ninos-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    padding: 1.2rem;
+    background: rgba(196,168,130,0.08);
+    border-left: 2px solid var(--gold);
+  }
+
+  #ninos-names-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .nino-entry label {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    color: var(--brown-light);
+  }
+
+  .nino-fields {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .nino-fields input {
+    padding: 0.9rem 1rem;
+    background: var(--ivory);
+    border: 1px solid rgba(196,168,130,0.5);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    outline: none;
+  }
+
+  .nino-fields input:focus {
+    border-color: var(--gold);
+  }
+
   .form-message {
     text-align: center;
     padding: 1rem;
@@ -354,13 +408,51 @@
   acSi?.addEventListener('change', () => { acBlock.style.display = 'block'; });
   acNo?.addEventListener('change', () => { acBlock.style.display = 'none'; });
 
-  // Toggle niños info
+  // Toggle niños block
   const ninosSi = document.getElementById('ninos-si') as HTMLInputElement;
   const ninosNo = document.getElementById('ninos-no') as HTMLInputElement;
   const ninosBlock = document.getElementById('ninos-block')!;
 
   ninosSi?.addEventListener('change', () => { ninosBlock.style.display = 'flex'; });
-  ninosNo?.addEventListener('change', () => { ninosBlock.style.display = 'none'; });
+  ninosNo?.addEventListener('change', () => {
+    ninosBlock.style.display = 'none';
+    (document.getElementById('ninos_count') as HTMLSelectElement).value = '';
+    document.getElementById('ninos-names-container')!.innerHTML = '';
+  });
+
+  // Campos dinámicos por número de niños
+  document.getElementById('ninos_count')?.addEventListener('change', (e) => {
+    const count = parseInt((e.target as HTMLSelectElement).value) || 0;
+    const container = document.getElementById('ninos-names-container')!;
+    container.innerHTML = '';
+
+    for (let i = 1; i <= count; i++) {
+      const group = document.createElement('div');
+      group.className = 'form-group nino-entry';
+      group.innerHTML = `
+        <label>Niño/a ${i}</label>
+        <div class="nino-fields">
+          <input
+            type="text"
+            name="nino_${i}_nombre"
+            placeholder="Nombre"
+            required
+            style="flex:2"
+          />
+          <input
+            type="number"
+            name="nino_${i}_edad"
+            placeholder="Edad"
+            min="0"
+            max="17"
+            required
+            style="flex:1"
+          />
+        </div>
+      `;
+      container.appendChild(group);
+    }
+  });
 
   // Toggle bus plazas
   const busPlazasBlock = document.getElementById('bus-plazas-block')!;
