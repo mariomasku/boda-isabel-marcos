@@ -8,30 +8,99 @@
       <span style="color: var(--gold); font-size:1.2rem;">✦</span>
     </div>
 
-    <div class="schedule gsap-fade">
-      <div class="schedule-item">
-        <div class="schedule-icon">⚭</div>
-        <div class="schedule-time">19:00h</div>
-        <div class="schedule-name">Ceremonia</div>
+    <div class="timeline-v gsap-fade">
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-icon-wrap">
+            <img src="/icons/position.svg" alt="" class="tl-icon" aria-hidden="true" />
+          </div>
+          <div class="tl-stem"></div>
+        </div>
+        <div class="tl-right">
+          <time class="tl-time">17:30h</time>
+          <p class="tl-label">Salida de autocar<br>Puente Genil · Córdoba</p>
+        </div>
       </div>
-      <div class="schedule-connector"></div>
-      <div class="schedule-item">
-        <div class="schedule-icon">🥂</div>
-        <div class="schedule-time">20:00h</div>
-        <div class="schedule-name">Cóctel</div>
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-icon-wrap">
+            <img src="/icons/anillos.svg" alt="" class="tl-icon" aria-hidden="true" />
+          </div>
+          <div class="tl-stem"></div>
+        </div>
+        <div class="tl-right">
+          <time class="tl-time tl-time--main">19:00h</time>
+          <p class="tl-label">Ceremonia</p>
+        </div>
       </div>
-      <div class="schedule-connector"></div>
-      <div class="schedule-item">
-        <div class="schedule-icon">🍽️</div>
-        <div class="schedule-time">21:30h</div>
-        <div class="schedule-name">Cena</div>
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-icon-wrap">
+            <img src="/icons/coctel.svg" alt="" class="tl-icon" aria-hidden="true" />
+          </div>
+          <div class="tl-stem"></div>
+        </div>
+        <div class="tl-right">
+          <time class="tl-time">20:00h</time>
+          <p class="tl-label">Cóctel</p>
+        </div>
       </div>
-      <div class="schedule-connector"></div>
-      <div class="schedule-item">
-        <div class="schedule-icon">🎶</div>
-        <div class="schedule-time">06:00h</div>
-        <div class="schedule-name">Fin de fiesta</div>
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-icon-wrap">
+            <img src="/icons/fotos.svg" alt="" class="tl-icon" aria-hidden="true" />
+          </div>
+          <div class="tl-stem"></div>
+        </div>
+        <div class="tl-right">
+          <time class="tl-time">21:30h</time>
+          <p class="tl-label">Cena</p>
+        </div>
       </div>
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-icon-wrap">
+            <img src="/icons/bus.svg" alt="" class="tl-icon" aria-hidden="true" />
+          </div>
+          <div class="tl-stem"></div>
+        </div>
+        <div class="tl-right">
+          <time class="tl-time">03:00h</time>
+          <p class="tl-label">Primer autocar<br>Córdoba · Puente Genil</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-icon-wrap">
+            <img src="/icons/bus.svg" alt="" class="tl-icon" aria-hidden="true" />
+          </div>
+          <div class="tl-stem"></div>
+        </div>
+        <div class="tl-right">
+          <time class="tl-time">06:00h</time>
+          <p class="tl-label">Segundo autocar<br>Córdoba · Puente Genil</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-icon-wrap">
+            <img src="/icons/ceremonia.svg" alt="" class="tl-icon" aria-hidden="true" />
+          </div>
+          <!-- sin stem: último ítem -->
+        </div>
+        <div class="tl-right">
+          <time class="tl-time">06:00h</time>
+          <p class="tl-label">Fin de fiesta</p>
+        </div>
+      </div>
+
     </div>
 
     <div class="details-grid">
@@ -100,46 +169,89 @@
   .section-subtitle { margin-bottom: 0.25rem; }
   .section-title { margin-bottom: 0; }
 
-  .schedule {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    margin: 3rem 0 2.5rem;
-    flex-wrap: wrap;
+  /* ── Vertical timeline ── */
+  .timeline-v {
+    width: 100%;
+    max-width: 380px;
+    margin: 2.5rem auto;
   }
 
-  .schedule-item {
+  .tl-item {
+    display: flex;
+    gap: 1.4rem;
+  }
+
+  /* Columna izquierda: icono + línea vertical */
+  .tl-left {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0 1.2rem;
+    flex-shrink: 0;
+    width: 80px;
   }
 
-  .schedule-icon { font-size: 1.6rem; line-height: 1; }
-
-  .schedule-time {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    color: var(--brown);
+  .tl-icon-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 1px solid rgba(196,168,130,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
 
-  .schedule-name {
-    font-family: 'Lato', sans-serif;
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold-dark);
+  .tl-icon {
+    width: 48px;
+    height: 48px;
+    filter: brightness(0) sepia(1) saturate(0.5) brightness(0.65);
   }
 
-  .schedule-connector {
-    flex: 0 0 40px;
-    height: 1px;
+  /* Línea que conecta con el siguiente icono */
+  .tl-stem {
+    flex: 1;
+    width: 1px;
+    min-height: 24px;
     background: var(--gold);
     opacity: 0.4;
+    margin: 5px 0;
   }
 
+  /* Columna derecha: hora encima, etiqueta debajo */
+  .tl-right {
+    width: max-content;
+    padding-top: 0.75rem;
+    padding-bottom: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .tl-time {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--brown);
+    font-style: italic;
+    display: block;
+    line-height: 1;
+  }
+
+  .tl-time--main {
+    font-size: 1.45rem;
+  }
+
+  .tl-label {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.76rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-dark);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* ── Info cards ── */
   .details-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -192,7 +304,7 @@
 
   .detail-link:hover { color: var(--brown); }
 
-  /* Mapa */
+  /* ── Mapa ── */
   .map-wrapper {
     width: 100%;
     max-width: 1000px;
@@ -226,10 +338,10 @@
     filter: grayscale(20%) contrast(1.05);
   }
 
-  @media (max-width: 600px) {
-    .schedule { gap: 0.5rem; }
-    .schedule-connector { flex: 0 0 20px; }
-    .schedule-item { padding: 0 0.5rem; }
+  @media (max-width: 480px) {
+    .tl-icon-wrap { width: 44px; height: 44px; }
+    .tl-icon { width: 24px; height: 24px; }
+    .tl-left { width: 44px; }
     .map-label { flex-direction: column; gap: 0.4rem; text-align: center; }
   }
 </style>
