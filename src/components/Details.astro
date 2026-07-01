@@ -8,6 +8,15 @@
       <span style="color: var(--gold); font-size:1.2rem;">✦</span>
     </div>
 
+    <p class="event-date gsap-fade">Sábado · 3 de octubre · 2026</p>
+    <button class="cal-btn gsap-fade" id="cal-btn">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="1" y="3" width="14" height="12" rx="1.5"/>
+        <path d="M1 7h14M5 1v4M11 1v4"/>
+      </svg>
+      Añadir a mi calendario
+    </button>
+
     <div class="timeline-v gsap-fade">
 
       <div class="tl-item">
@@ -44,8 +53,21 @@
           <div class="tl-stem"></div>
         </div>
         <div class="tl-right">
+          
           <time class="tl-time">20:00h</time>
           <p class="tl-label">Cóctel</p>
+          <a
+            href="https://share.google/S2dETBj80LCp9TyRZ"
+            target="_blank"
+            rel="noopener"
+            class="tl-maps-link"
+          >
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8 1a5 5 0 0 1 5 5c0 4-5 9-5 9S3 10 3 6a5 5 0 0 1 5-5z"/>
+              <circle cx="8" cy="6" r="2"/>
+            </svg>
+            Cortijo El Alamillo · Villarrubia
+          </a>
         </div>
       </div>
 
@@ -103,27 +125,6 @@
 
     </div>
 
-    <div class="details-grid">
-      <div class="detail-card gsap-fade">
-        <div class="detail-icon">📅</div>
-        <h3>Fecha</h3>
-        <p>Sábado, 3 de octubre</p>
-        <p class="detail-sub">2026</p>
-      </div>
-      <div class="detail-card gsap-fade">
-        <div class="detail-icon">📍</div>
-        <h3>Lugar</h3>
-        <p>Cortijo El Alamillo</p>
-        <p class="detail-sub">Villarrubia, Córdoba</p>
-      </div>
-      <div class="detail-card gsap-fade">
-        <div class="detail-icon">📸</div>
-        <h3>Fotógrafo</h3>
-        <p>Rafael Badia</p>
-        <p class="detail-sub">Si tienes pensado darnos una sorpresa, contacta con él:</p>
-        <a href="tel:+34637352642" class="detail-link">637 35 26 42</a>
-      </div>
-    </div>
   </div>
 
   <!-- Mapa -->
@@ -149,6 +150,43 @@
     ></iframe>
   </div>
 </section>
+
+<script>
+  const ICS = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Boda Isabel y Marcos//ES',
+    'CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT',
+    'DTSTART;TZID=Europe/Madrid:20261003T190000',
+    'DTEND;TZID=Europe/Madrid:20261004T060000',
+    'SUMMARY:Boda de Isabel y Marcos',
+    'LOCATION:Cortijo El Alamillo\\, Villarrubia\\, Córdoba\\, España',
+    'DESCRIPTION:Ceremonia a las 19:00h\\nCóctel a las 20:00h\\nCena a las 21:30h',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n');
+
+  document.getElementById('cal-btn')?.addEventListener('click', async () => {
+    const blob = new Blob([ICS], { type: 'text/calendar;charset=utf-8' });
+    const file = new File([blob], 'Boda-Isabel-y-Marcos.ics', { type: 'text/calendar' });
+
+    // Intento 1: Web Share API con archivo → lanza el selector nativo del SO
+    if (navigator.share) {
+      try {
+        await navigator.share({ files: [file] });
+        return;
+      } catch (err) {
+        if ((err as DOMException).name === 'AbortError') return; // el usuario canceló
+        // Si falla por tipo de archivo no soportado, continúa al fallback
+      }
+    }
+
+    // Fallback: protocolo webcal:// → el SO lo enruta a las apps de calendario registradas
+    // (Calendar en iOS, Google Calendar / Samsung Calendar en Android)
+    window.location.href = `webcal://${window.location.host}/boda.ics`;
+  });
+</script>
 
 <style>
   .details-section {
@@ -253,58 +291,57 @@
     margin: 0;
   }
 
-  /* ── Info cards ── */
-  .details-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-    width: 100%;
-    margin-top: 1.5rem;
-  }
-
-  .detail-card {
-    background: var(--cream);
-    padding: 2rem 1.5rem;
-    text-align: center;
-    border-bottom: 2px solid var(--gold);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.4rem;
-  }
-
-  .detail-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
-
-  .detail-card h3 {
+  /* ── Fecha y botón calendario ── */
+  .event-date {
     font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
+    font-size: 2rem;
+    font-style: italic;
     color: var(--brown);
+    text-align: center;
+    letter-spacing: 0.03em;
+    margin: 0;
   }
 
-  .detail-card p {
+  .cal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.65rem 1.5rem;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--brown);
     font-family: 'Lato', sans-serif;
-    color: var(--text);
-    font-size: 0.95rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    margin-bottom: 0.5rem;
   }
 
-  .detail-sub {
-    font-size: 0.82rem !important;
-    color: var(--brown-light) !important;
-    margin-top: 0.2rem;
+  .cal-btn:hover {
+    background: var(--gold);
+    color: #fff;
   }
 
-  .detail-link {
-    display: inline-block;
-    margin-top: 0.6rem;
+  /* ── Maps link en timeline ── */
+  .tl-maps-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
     color: var(--gold-dark);
     text-decoration: none;
-    font-size: 0.85rem;
-    border-bottom: 1px solid var(--gold);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(196,168,130,0.4);
     padding-bottom: 1px;
+    margin-bottom: 0.4rem;
     transition: color 0.2s;
   }
 
-  .detail-link:hover { color: var(--brown); }
+  .tl-maps-link:hover { color: var(--brown); }
 
   /* ── Mapa ── */
   .map-wrapper {
@@ -345,6 +382,6 @@
     .tl-icon { width: 60px; height: 60px; }
     .tl-left { width: 44px; }
     .map-label { flex-direction: column; gap: 0.4rem; text-align: center; }
-    .timeline-v { margin-left: 2rem;}
+    .timeline-v { padding-left: 1.2rem; padding-right: 1.2rem}
   }
 </style>

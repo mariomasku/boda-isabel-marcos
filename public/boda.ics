@@ -1,0 +1,13 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Boda Isabel y Marcos//ES
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+DTSTART;TZID=Europe/Madrid:20261003T190000
+DTEND;TZID=Europe/Madrid:20261004T060000
+SUMMARY:Boda de Isabel y Marcos
+LOCATION:Cortijo El Alamillo, Villarrubia, Córdoba, España
+DESCRIPTION:Ceremonia a las 19:00h\nCóctel a las 20:00h\nCena a las 21:30h\nPrimer autocar a las 03:00h · Segundo autocar a las 06:00h
+URL:https://share.google/S2dETBj80LCp9TyRZ
+END:VEVENT
+END:VCALENDAR
