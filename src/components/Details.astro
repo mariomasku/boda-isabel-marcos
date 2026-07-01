@@ -17,7 +17,7 @@
       Añadir a mi calendario
     </button>
 
-    <div class="timeline-v gsap-fade">
+    <div class="timeline-v">
 
       <div class="tl-item">
         <div class="tl-left">
@@ -185,6 +185,35 @@
     // Fallback: protocolo webcal:// → el SO lo enruta a las apps de calendario registradas
     // (Calendar en iOS, Google Calendar / Samsung Calendar en Android)
     window.location.href = `webcal://${window.location.host}/boda.ics`;
+  });
+</script>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.utils.toArray<HTMLElement>('.tl-item').forEach((item) => {
+    const left  = item.querySelector<HTMLElement>('.tl-left');
+    const right = item.querySelector<HTMLElement>('.tl-right');
+
+    // Estado inicial: oculto
+    gsap.set(item, { opacity: 0 });
+    if (left)  gsap.set(left,  { x: -18, opacity: 0 });
+    if (right) gsap.set(right, { x:  18, opacity: 0 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: item,
+        start: 'top 86%',
+        toggleActions: 'play none none reverse',
+      },
+    });
+
+    tl.to(item,  { opacity: 1, duration: 0.01 })          // saca el contenedor del display:none implícito
+      .to(left,  { x: 0, opacity: 1, duration: 0.45, ease: 'power2.out' }, 0)
+      .to(right, { x: 0, opacity: 1, duration: 0.45, ease: 'power2.out' }, 0.1);
   });
 </script>
 
