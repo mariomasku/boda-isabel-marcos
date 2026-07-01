@@ -31,7 +31,7 @@
           <div class="tl-stem"></div>
         </div>
         <div class="tl-right">
-          <time class="tl-time tl-time--main">19:00h</time>
+          <time class="tl-time">19:00h</time>
           <p class="tl-label">Ceremonia</p>
         </div>
       </div>
@@ -154,6 +154,7 @@
   .details-section {
     padding: 6rem 1.5rem 0;
     background: var(--ivory);
+    background: #f6f1e8;
   }
 
   .container {
@@ -191,10 +192,11 @@
   }
 
   .tl-icon-wrap {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     background: var(--cream);
+    background: #fbf8f2;
     border: 1px solid rgba(196,168,130,0.45);
     display: flex;
     align-items: center;
@@ -203,8 +205,8 @@
   }
 
   .tl-icon {
-    width: 48px;
-    height: 48px;
+    width: 60px;
+    height: 60px;
     filter: brightness(0) sepia(1) saturate(0.5) brightness(0.65);
   }
 
@@ -230,7 +232,7 @@
 
   .tl-time {
     font-family: 'Playfair Display', serif;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     color: var(--brown);
     font-style: italic;
     display: block;
@@ -339,10 +341,10 @@
   }
 
   @media (max-width: 480px) {
-    .tl-icon-wrap { width: 80px; height: 80px; }
-    .tl-icon { width: 48px; height: 48px; }
+    .tl-icon-wrap { width: 100px; height: 100px; }
+    .tl-icon { width: 60px; height: 60px; }
     .tl-left { width: 44px; }
     .map-label { flex-direction: column; gap: 0.4rem; text-align: center; }
-    .timeline-v { margin-left: 4rem;}
+    .timeline-v { margin-left: 2rem;}
   }
 </style>
