@@ -175,10 +175,14 @@
       <div class="form-group">
         <label for="comentarios">11. ¿Tienes alguna otra duda o comentario?</label>
         <textarea id="comentarios" name="comentarios" rows="4" placeholder="Cuéntanos..."></textarea>
-        <p class="form-hint photo-hint">
-          📸 Si tienes pensado hacernos una sorpresa durante la cena, por favor, ponte en contacto con nuestro fotógrafo para que pueda captar ese momento tan especial:<br/>
-          <strong>Rafael Badia · <a href="tel:+34637352642">637 35 26 42</a></strong>
-        </p>
+        <div class="photo-hint">
+          <img src="/icons/fotos.svg" alt="" aria-hidden="true" class="photo-hint-icon" />
+          <p class="photo-hint-text">Si tienes pensado hacernos una sorpresa durante la cena, por favor, ponte en contacto con nuestro fotógrafo para que pueda captar ese momento tan especial.</p>
+          <div class="photo-hint-contact">
+            <strong class="photo-hint-name">Rafael Badia</strong>
+            <a href="tel:+34637352642" class="photo-hint-tel">637 35 26 42</a>
+          </div>
+        </div>
       </div>
 
       </div><!-- /#extras-si -->
@@ -249,16 +253,66 @@
   }
 
   .photo-hint {
-    margin-top: 0.5rem;
-    padding: 1rem;
-    background: rgba(196,168,130,0.15);
-    border-left: 2px solid var(--gold);
-    font-style: normal;
+    margin-top: 0.8rem;
+    padding: 1.8rem 1.5rem;
+    background: rgba(196,168,130,0.12);
+    border: 1px solid rgba(196,168,130,0.28);
+    border-top: 3px solid var(--gold);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
   }
 
-  .photo-hint a {
+  .photo-hint-icon {
+    width: 48px;
+    height: 48px;
+    filter: brightness(0) sepia(1) saturate(0.5) brightness(0.65);
+    opacity: 0.8;
+  }
+
+  .photo-hint-text {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.95rem;
+    color: var(--brown-light);
+    line-height: 1.8;
+    font-style: italic;
+  }
+
+  .photo-hint-contact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(196,168,130,0.3);
+    width: 100%;
+  }
+
+  .photo-hint-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    color: var(--brown);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+
+  .photo-hint-tel {
+    display: inline-block;
+    padding: 0.65rem 2rem;
+    border: 1px solid var(--gold);
     color: var(--gold-dark);
     text-decoration: none;
+    font-family: 'Lato', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.1em;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .photo-hint-tel:hover {
+    background: var(--gold);
+    color: white;
   }
 
   input[type="text"],
