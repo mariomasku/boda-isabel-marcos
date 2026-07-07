@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
 import { google } from 'googleapis';
 
+export const prerender = false;
+
 const HEADERS = [
   'Fecha', 'Nombre', 'Asistencia', 'Acompañante', 'Nombre acompañante',
   'Niños', 'Datos niños', 'Alergias', 'Bebida', 'Autobús', 'Plazas bus',
