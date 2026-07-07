@@ -5,12 +5,21 @@
     <div class="welcome-ornament gsap-fade">
       <span>✦</span>
     </div>
-    <div class="welcome-text gsap-fade">
+    <div class="welcome-text">
       <p>Hay días que merecen ser celebrados por todo lo alto, y este es, sin duda, uno de ellos.</p>
       <p>Por eso nos hace muchísima ilusión que nos acompañes. Vengas de cerca, de lejos, del norte, del sur o con unas cuantas horas de viaje a tu espalda, lo único que de verdad importa es que estés allí.</p>
       <p>Queremos reunir a las personas que más queremos para compartir risas, abrazos, algún que otro baile improvisado y, con suerte, muy pocas lágrimas (aunque no prometemos nada).</p>
       <p class="welcome-closing">Porque ese día no habrá distancias, ni acentos, ni kilómetros: solo gente bonita celebrando lo que nos ha traído hasta aquí… </p>
-      <p><em>el amor.</em></p>
+      <svg
+        class="amor-svg"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 680 130"
+        aria-label="el amor."
+        role="img"
+        overflow="visible"
+      >
+        <text id="amor-text" x="340" y="98">el amor.</text>
+      </svg>
     </div>
     <div class="welcome-ornament gsap-fade">
       <span>✦</span>
@@ -59,9 +68,88 @@
     font-weight: 600 !important;
   }
 
-  em {
-    font-style: italic;
+  .amor-svg {
+    height: auto;
+    overflow: visible;
     color: var(--gold-dark);
-    font-size: 4rem;
   }
+
+  #amor-text {
+    font-family: 'Dancing Script', cursive;
+    font-size: 100px;
+    font-weight: 400;
+    font-style: italic;
+    text-anchor: middle;
+    fill: transparent;
+    stroke: currentColor;
+    stroke-width: 0.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Estado inicial antes de que GSAP tome el control */
+  .welcome-text p { opacity: 0; }
 </style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Cada párrafo se revela a medida que entra en el viewport, atado al scroll
+  document.querySelectorAll<HTMLElement>('.welcome-text p').forEach((p) => {
+    gsap.fromTo(
+      p,
+      { opacity: 0, y: 22 },
+      {
+        opacity: 1,
+        y: 0,
+        ease: 'power1.out',
+        scrollTrigger: {
+          trigger: p,
+          start: 'top 92%',
+          end: 'top 42%',
+          scrub: 0.8,
+        },
+      }
+    );
+  });
+
+  // "el amor." — dibujo de trazo a mano alzada al llegar con el scroll
+  document.fonts.ready.then(() => {
+    const textEl = document.getElementById('amor-text') as SVGTextElement | null;
+    const svgEl  = document.querySelector<SVGElement>('.amor-svg');
+    if (!textEl || !svgEl) return;
+
+    const len = textEl.getComputedTextLength() * 1.02;
+    textEl.setAttribute('stroke-dasharray', String(len));
+    textEl.setAttribute('stroke-dashoffset', String(len));
+
+    // Leer el color real de --gold-dark del DOM para usarlo en GSAP
+    const fillColor = getComputedStyle(svgEl).color;
+
+    ScrollTrigger.create({
+      trigger: svgEl,
+      start: 'top 88%',
+      once: true,
+      onEnter: () => {
+        gsap.timeline()
+          // Fase 1: se dibuja el trazo letra a letra (dashoffset no está en CSS → attr es seguro)
+          .to(textEl, {
+            attr: { 'stroke-dashoffset': 0 },
+            duration: 2.4,
+            ease: 'power1.inOut',
+          })
+          // Fase 2: fill y strokeOpacity como inline styles (prevalecen sobre el CSS)
+          .to(textEl, {
+            fill: fillColor,
+            strokeOpacity: 0,
+            duration: 0.9,
+            ease: 'power2.out',
+            onComplete: () => { textEl.style.stroke = 'none'; },
+          }, '-=0.5');
+      },
+    });
+  });
+</script>

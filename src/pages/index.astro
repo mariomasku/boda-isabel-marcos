@@ -121,14 +121,15 @@ import '../styles/global.css';
     },
   });
 
-  // Parallax en secciones de foto
+  // Parallax en secciones de foto + zoom suave de imagen
   gsap.utils.toArray<HTMLElement>('.parallax-section').forEach((section) => {
     const bg = section.querySelector<HTMLElement>('.parallax-bg');
     if (!bg) return;
     gsap.fromTo(bg,
-      { yPercent: -15 },
+      { yPercent: -15, scale: 1.0 },
       {
         yPercent: 15,
+        scale: 1.08,
         ease: 'none',
         scrollTrigger: {
           trigger: section,

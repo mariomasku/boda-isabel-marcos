@@ -42,6 +42,18 @@
         <div class="tl-right">
           <time class="tl-time">19:00h</time>
           <p class="tl-label">Ceremonia</p>
+          <a
+            href="#mapa"
+            target="_blank"
+            rel="noopener"
+            class="tl-maps-link"
+          >
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8 1a5 5 0 0 1 5 5c0 4-5 9-5 9S3 10 3 6a5 5 0 0 1 5-5z"/>
+              <circle cx="8" cy="6" r="2"/>
+            </svg>
+            Cortijo El Alamillo · Villarrubia
+          </a>
         </div>
       </div>
 
@@ -56,18 +68,7 @@
           
           <time class="tl-time">20:00h</time>
           <p class="tl-label">Cóctel</p>
-          <a
-            href="https://share.google/S2dETBj80LCp9TyRZ"
-            target="_blank"
-            rel="noopener"
-            class="tl-maps-link"
-          >
-            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M8 1a5 5 0 0 1 5 5c0 4-5 9-5 9S3 10 3 6a5 5 0 0 1 5-5z"/>
-              <circle cx="8" cy="6" r="2"/>
-            </svg>
-            Cortijo El Alamillo · Villarrubia
-          </a>
+          
         </div>
       </div>
 
@@ -127,8 +128,15 @@
 
   </div>
 
+  <div class="container" id="mapa">
+    <p class="section-subtitle gsap-fade como-llegar">Cómo llegar</p>
+    <div class="ornament gsap-fade">
+      <span style="color: var(--gold); font-size:1.2rem;">✦</span>
+    </div>
+  </div>
+
   <!-- Mapa -->
-  <div class="map-wrapper gsap-fade">
+  <div class="map-wrapper gsap-fade" >
     <div class="map-label">
       <span>📍 Cortijo El Alamillo · Villarrubia, Córdoba</span>
       <a
@@ -376,7 +384,10 @@
   .map-wrapper {
     width: 100%;
     max-width: 1000px;
-    margin: 0 auto;
+    margin: 0 auto 5rem;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(44,24,16,0.10);
   }
 
   .map-label {
