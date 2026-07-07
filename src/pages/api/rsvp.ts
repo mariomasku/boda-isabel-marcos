@@ -77,8 +77,9 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    console.error('RSVP API error:', err);
-    return new Response(JSON.stringify({ ok: false }), {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('RSVP API error:', msg);
+    return new Response(JSON.stringify({ ok: false, debug: msg }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
