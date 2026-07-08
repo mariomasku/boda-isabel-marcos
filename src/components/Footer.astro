@@ -16,9 +16,96 @@
         <a href="tel:+34675474544">675 47 45 44</a>
       </div>
     </div>
+
+    <button class="lock-btn gsap-fade" id="lock-btn" aria-label="Acceso privado novios">
+      <svg width="14" height="16" viewBox="0 0 14 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="1" y="7" width="12" height="8" rx="1.5"/>
+        <path d="M4 7V5a3 3 0 0 1 6 0v2"/>
+      </svg>
+    </button>
+
     <p class="footer-copy gsap-fade">Hecho con amor para el día más especial</p>
+    <p class="footer-dev gsap-fade">Desarrollo maskudev</p>
   </div>
 </footer>
+
+<!-- Modal: display:none garantiza que no sea visible antes de que cargue el JS -->
+<div class="login-overlay" id="login-overlay" style="display:none" role="dialog" aria-modal="true" aria-label="Acceso privado">
+  <div class="login-modal">
+    <button class="login-close" id="login-close" aria-label="Cerrar">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>
+    </button>
+    <div class="login-icon">
+      <svg width="22" height="26" viewBox="0 0 14 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="7" width="12" height="8" rx="1.5"/>
+        <path d="M4 7V5a3 3 0 0 1 6 0v2"/>
+        <circle cx="7" cy="11" r="1" fill="currentColor" stroke="none"/>
+      </svg>
+    </div>
+    <h2 class="login-title">Acceso privado</h2>
+    <p class="login-sub">Para los novios</p>
+    <form class="login-form" id="login-form" autocomplete="off">
+      <div class="login-field">
+        <input type="text" id="login-user" name="login-user" placeholder="Usuario" autocomplete="username" autocapitalize="none" spellcheck="false" />
+      </div>
+      <div class="login-field">
+        <input type="password" id="login-pass" name="login-pass" placeholder="Contraseña" autocomplete="current-password" />
+      </div>
+      <p class="login-error" id="login-error"></p>
+      <button type="submit" class="login-submit">Acceder</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const USERS: Record<string, string> = {
+    marcos: '031026',
+    isabel: '031026',
+    admin:  '031026',
+  };
+
+  const overlay   = document.getElementById('login-overlay') as HTMLElement;
+  const closeBtn  = document.getElementById('login-close')!;
+  const lockBtn   = document.getElementById('lock-btn')!;
+  const form      = document.getElementById('login-form') as HTMLFormElement;
+  const userInput = document.getElementById('login-user') as HTMLInputElement;
+  const passInput = document.getElementById('login-pass') as HTMLInputElement;
+  const errorEl   = document.getElementById('login-error')!;
+
+  function openModal() {
+    overlay.style.display = 'flex';
+    // Forzar reflow para que la transición CSS funcione
+    overlay.getBoundingClientRect();
+    overlay.classList.add('open');
+    setTimeout(() => userInput.focus(), 80);
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    overlay.addEventListener('transitionend', () => {
+      overlay.style.display = 'none';
+    }, { once: true });
+  }
+
+  lockBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const user = userInput.value.toLowerCase().trim();
+    const pass = passInput.value.trim();
+    if (USERS[user] !== undefined && USERS[user] === pass) {
+      sessionStorage.setItem('boda_auth', 'boda031026');
+      window.location.href = '/dashboard';
+    } else {
+      errorEl.textContent = 'Usuario o contraseña incorrectos';
+      passInput.value = '';
+      passInput.focus();
+    }
+  });
+</script>
 
 <style>
   .footer-section {
@@ -26,7 +113,6 @@
     background: linear-gradient(160deg, #2C1810, #1E0F08);
     text-align: center;
   }
-
   .footer-container {
     max-width: 600px;
     margin: 0 auto;
@@ -35,19 +121,13 @@
     align-items: center;
     gap: 0.6rem;
   }
-
   .footer-names {
     font-family: 'Playfair Display', serif;
     font-size: clamp(2rem, 6vw, 3.5rem);
     color: #F9F5EF;
     font-weight: 400;
   }
-
-  .amp {
-    color: #C4A882;
-    font-style: italic;
-  }
-
+  .amp { color: #C4A882; font-style: italic; }
   .footer-date {
     font-family: 'Lato', sans-serif;
     font-weight: 300;
@@ -55,21 +135,8 @@
     color: rgba(196,168,130,0.7);
     font-size: 0.9rem;
   }
-
-  .footer-contacts {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin: 0.5rem 0;
-  }
-
-  .contact-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.2rem;
-  }
-
+  .footer-contacts { display: flex; align-items: center; gap: 1rem; margin: 0.5rem 0; }
+  .contact-item { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
   .contact-label {
     font-size: 0.65rem;
     letter-spacing: 0.3em;
@@ -77,7 +144,6 @@
     color: var(--gold);
     font-family: 'Lato', sans-serif;
   }
-
   .contact-item a {
     color: rgba(249,245,239,0.8);
     text-decoration: none;
@@ -85,21 +151,136 @@
     font-size: 0.95rem;
     transition: color 0.2s;
   }
-
   .contact-item a:hover { color: #C4A882; }
+  .contact-sep { color: rgba(196,168,130,0.3); font-size: 1.5rem; margin-bottom: 0.5rem; }
 
-  .contact-sep {
-    color: rgba(196,168,130,0.3);
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
+  .lock-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #C4A882;
+    padding: 0.4rem;
+    margin-top: 0.75rem;
+    transition: color 0.25s, opacity 0.25s;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+  .lock-btn:hover { opacity: 1; }
 
   .footer-copy {
-    margin-top: 1.5rem;
+    margin-top: 0.25rem;
     font-family: 'Lato', sans-serif;
     font-size: 0.75rem;
-    color: rgba(196,168,130,0.35);
+    color: rgba(196,168,130,0.5);
     font-style: italic;
     letter-spacing: 0.1em;
   }
+  .footer-dev {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.62rem;
+    color: rgba(196,168,130,0.55);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 0.1rem;
+  }
+</style>
+
+<!-- CSS del modal en global para evitar problemas de scoping con position:fixed -->
+<style is:global>
+  .login-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,4,2,0.82);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    padding: 1rem;
+  }
+  .login-overlay.open { opacity: 1; }
+
+  .login-modal {
+    position: relative;
+    background: linear-gradient(160deg, #2C1810, #1E0F08);
+    border: 1px solid rgba(196,168,130,0.28);
+    padding: 2.5rem 2rem 2rem;
+    max-width: 340px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    transform: translateY(14px);
+    transition: transform 0.28s ease;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.65);
+  }
+  .login-overlay.open .login-modal { transform: translateY(0); }
+
+  .login-close {
+    position: absolute;
+    top: 0.9rem;
+    right: 0.9rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: rgba(196,168,130,0.45);
+    padding: 0.25rem;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+  .login-close:hover { color: rgba(196,168,130,0.9); }
+
+  .login-icon { color: #C4A882; margin-bottom: 0.4rem; }
+
+  .login-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    font-style: italic;
+    color: #F9F5EF;
+    margin: 0;
+  }
+  .login-sub {
+    font-size: 0.65rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(196,168,130,0.45);
+    margin-bottom: 0.75rem;
+  }
+  .login-form { width: 100%; display: flex; flex-direction: column; gap: 0.75rem; }
+  .login-field input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(196,168,130,0.25);
+    padding: 0.8rem 1rem;
+    color: #F9F5EF;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .login-field input::placeholder { color: rgba(249,245,239,0.3); }
+  .login-field input:focus { border-color: rgba(196,168,130,0.6); }
+  .login-error { font-size: 0.75rem; color: #f87171; text-align: center; min-height: 1em; }
+  .login-submit {
+    width: 100%;
+    background: rgba(196,168,130,0.12);
+    border: 1px solid rgba(196,168,130,0.4);
+    color: #C4A882;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    margin-top: 0.25rem;
+  }
+  .login-submit:hover { background: rgba(196,168,130,0.22); color: #F9F5EF; }
 </style>

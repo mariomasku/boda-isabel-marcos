@@ -3,13 +3,13 @@
 <section id="rsvp" class="rsvp-section">
   <div class="rsvp-container">
     <p class="section-subtitle gsap-fade">confirma tu asistencia</p>
-    <h2 class="section-title gsap-fade">RSVP</h2>
+    <h2 class="section-title gsap-fade">¿Contamos contigo?</h2>
     <div class="ornament gsap-fade">
       <span style="color: var(--gold); font-size:1.2rem;">✦</span>
     </div>
     <p class="rsvp-intro gsap-fade">
       Por favor, confirma tu asistencia antes del <strong>1 de septiembre de 2026</strong>.
-      <br>Si no vienes, también te agradeceremos que nos lo indiques.
+      <br>Si no vienes, también te agradeceremos si nos lo indicas.
     </p>
 
     <form
@@ -77,33 +77,42 @@
       <!-- 5. Datos niños (dinámico) -->
       <div id="ninos-block" style="display:none" class="ninos-wrapper">
         <div class="form-group">
-          <label for="ninos_count">5. ¿Cuántos niños traes?</label>
-          <select id="ninos_count" name="ninos_count">
-            <option value="">Selecciona...</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-          </select>
+          <label>5. ¿Cuántos niños traes?</label>
+          <div class="ninos-count-picker" id="ninos-count-picker">
+            <button type="button" class="ninos-count-btn" data-value="1">1</button>
+            <button type="button" class="ninos-count-btn" data-value="2">2</button>
+            <button type="button" class="ninos-count-btn" data-value="3">3</button>
+            <button type="button" class="ninos-count-btn" data-value="4">4</button>
+            <button type="button" class="ninos-count-btn" data-value="5">5</button>
+          </div>
+          <input type="hidden" name="ninos_count" id="ninos_count" />
         </div>
         <div id="ninos-names-container"></div>
       </div>
 
-      <!-- 6. Alergias -->
+      <!-- 6. Intolerancias alimentarias -->
       <div class="form-group">
-        <label for="alergias">6. ¿Alguien en tu grupo tiene alguna alergia, intolerancia o dieta especial?</label>
-        <p class="form-hint">Vegano, vegetariano, embarazada, celíaco... Por favor, especifica quién y qué restricción.</p>
-        <textarea id="alergias" name="alergias" rows="3" placeholder="Ej: María — vegetariana. Sin restricciones para el resto."></textarea>
+        <label>6. ¿Algún miembro de tu grupo tiene alguna intolerancia o alergia alimentaria? *</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="tiene_intolerancias" value="no" id="intol-no" />
+            <span>No, ninguno tiene alergias ni intolerancias</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="tiene_intolerancias" value="si" id="intol-si" />
+            <span>Sí, alguien de mi grupo tiene intolerancias o alergias</span>
+          </label>
+        </div>
+        <p class="intol-error" id="intol-error">Por favor, indica si hay o no alergias en tu grupo antes de continuar.</p>
+        <div id="intol-personas-wrap" class="intol-personas-wrap">
+          <p class="form-hint" style="margin-bottom:0.5rem">Selecciona cada persona para indicar sus restricciones alimentarias:</p>
+          <div id="intol-personas-list" class="intol-personas-list"></div>
+        </div>
       </div>
 
       <!-- 7. Bebida -->
       <div class="form-group">
-        <label>7. ¿Qué tipo de bebida alcohólica consumes?</label>
+        <label>7. ¿Qué bebida no puede faltar en la barra libre?</label>
         <div class="checkbox-group">
           <label class="checkbox-option">
             <input type="checkbox" name="bebida" value="Whisky" />
@@ -149,19 +158,9 @@
 
       <!-- 9. Plazas autobús -->
       <div class="form-group conditional" id="bus-plazas-block" style="display:none">
-        <label for="bus_plazas">9. ¿Cuántas plazas necesitarías?</label>
-        <select id="bus_plazas" name="bus_plazas">
-          <option value="">Selecciona...</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-        </select>
+        <label>9. ¿Cuántas plazas necesitarías?</label>
+        <div class="ninos-count-picker" id="bus-plazas-picker"></div>
+        <input type="hidden" name="bus_plazas" id="bus_plazas" />
       </div>
 
       <!-- 10. Canción -->
@@ -178,7 +177,7 @@
           <img src="/icons/fotos.svg" alt="" aria-hidden="true" class="photo-hint-icon" />
           <p class="photo-hint-text">Si tienes pensado hacernos una sorpresa durante la cena, por favor, ponte en contacto con nuestro fotógrafo para que pueda captar ese momento tan especial.</p>
           <div class="photo-hint-contact">
-            <strong class="photo-hint-name">Rafael Badia</strong>
+            <strong class="photo-hint-name">Rafael Badía</strong>
             <a href="tel:+34637352642" class="photo-hint-tel">637 35 26 42</a>
           </div>
         </div>
@@ -425,36 +424,19 @@
     border-left: 2px solid var(--gold);
   }
 
+  .ninos-count-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
   #ninos-names-container {
     display: flex;
     flex-direction: column;
     gap: 1rem;
   }
 
-  .nino-entry label {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.95rem;
-    color: var(--brown-light);
-  }
-
-  .nino-fields {
-    display: flex;
-    gap: 0.6rem;
-  }
-
-  .nino-fields input {
-    padding: 0.9rem 1rem;
-    background: var(--ivory);
-    border: 1px solid rgba(196,168,130,0.5);
-    font-family: 'Lato', sans-serif;
-    font-size: 0.9rem;
-    color: var(--text);
-    outline: none;
-  }
-
-  .nino-fields input:focus {
-    border-color: var(--gold);
-  }
 
   .form-message {
     text-align: center;
@@ -474,114 +456,511 @@
     border: 1px solid #B44;
     color: #922;
   }
+
+  /* ── Q6 Intolerancias ── */
+  .intol-error {
+    display: none;
+    color: #b44;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.82rem;
+    margin-top: 0.4rem;
+    font-style: normal;
+  }
+
+  .intol-personas-wrap { display: none; margin-top: 0.75rem; }
+
+  .intol-personas-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+</style>
+
+<style is:global>
+  /* ── Botones de picker (generados por JS, sin scoping de Astro) ── */
+  .ninos-count-btn {
+    width: 56px;
+    height: 56px;
+    border: 1.5px solid rgba(196,168,130,0.5);
+    background: var(--ivory);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: var(--brown);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    flex-shrink: 0;
+  }
+  .ninos-count-btn:active { background: rgba(196,168,130,0.18); }
+  .ninos-count-btn.selected {
+    background: var(--brown);
+    color: var(--ivory);
+    border-color: var(--brown);
+  }
+
+  /* ── Intolerancias: elementos generados por JS (sin scoping de Astro) ── */
+
+  .intol-person-card {
+    border: 1px solid rgba(196,168,130,0.35);
+    background: var(--ivory);
+    overflow: hidden;
+  }
+
+  .intol-person-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 1rem 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: background 0.2s;
+    min-height: 56px; /* touch target */
+  }
+
+  .intol-person-btn:active { background: rgba(196,168,130,0.12); }
+
+  .intol-person-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--brown);
+    flex: 1;
+  }
+
+  .intol-person-badge {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-dark);
+    padding: 0.2rem 0.55rem;
+    border: 1px solid rgba(196,168,130,0.4);
+    white-space: nowrap;
+  }
+
+  .intol-count {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.66rem;
+    color: white;
+    background: var(--gold-dark);
+    padding: 0.18rem 0.5rem;
+    display: none;
+    white-space: nowrap;
+  }
+  .intol-count.visible { display: inline-block; }
+
+  .intol-chevron {
+    color: rgba(196,168,130,0.7);
+    font-size: 0.65rem;
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+  }
+  .intol-person-card.open .intol-chevron { transform: rotate(180deg); }
+
+  /* Panel: acordeón con max-height para transición suave */
+  .intol-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 0;
+    background: rgba(196,168,130,0.04);
+    transition: max-height 0.38s ease, padding 0.3s ease;
+  }
+  .intol-person-card.open .intol-panel {
+    max-height: 900px;
+    padding: 0.5rem 0 1rem;
+    border-top: 1px solid rgba(196,168,130,0.2);
+  }
+
+  /* Checkboxes: columna única, táctiles */
+  .intol-checkboxes {
+    display: flex;
+    flex-direction: column;
+  }
+  .intol-check-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.88rem;
+    color: var(--text);
+    cursor: pointer;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid rgba(196,168,130,0.1);
+    transition: background 0.15s;
+    min-height: 48px; /* touch target */
+  }
+  .intol-check-label:last-child { border-bottom: none; }
+  .intol-check-label:active { background: rgba(196,168,130,0.09); }
+  .intol-check-label input[type="checkbox"] {
+    width: 18px;
+    min-width: 18px;
+    height: 18px;
+    accent-color: var(--gold-dark);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .intol-otros-wrap {
+    margin: 0.5rem 1rem 0.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(196,168,130,0.2);
+  }
+  .intol-otros-label {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.82rem;
+    color: var(--brown-light);
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  /* "Otros alérgenos" input — contenido dinámico */
+  .intol-otros-wrap input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.85rem 1rem;
+    background: var(--ivory);
+    border: 1.5px solid rgba(196,168,130,0.55);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.88rem;
+    color: var(--text);
+    outline: none;
+  }
+  .intol-otros-wrap input[type="text"]:focus {
+    border-color: var(--gold);
+  }
+
+  /* ── Niños: entradas dinámicas ── */
+  .nino-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 1.1rem 1rem 1.2rem;
+    background: var(--ivory);
+    border: 1.5px solid rgba(196,168,130,0.45);
+  }
+
+  .nino-entry-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--brown);
+    margin-bottom: 0.2rem;
+    display: block;
+  }
+
+  .nino-campo-label {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brown-light);
+    display: block;
+    margin-top: 0.55rem;
+  }
+
+  .nino-entry input[type="text"],
+  .nino-entry input[type="number"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.88rem 1rem;
+    background: white;
+    border: 1.5px solid rgba(196,168,130,0.55);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.92rem;
+    color: var(--text);
+    outline: none;
+    appearance: none;
+    -moz-appearance: textfield;
+  }
+  .nino-entry input[type="text"]:focus,
+  .nino-entry input[type="number"]:focus {
+    border-color: var(--gold);
+  }
 </style>
 
 <script>
-  // Mostrar/ocultar extras según asistencia
+  // ── Mostrar/ocultar extras según asistencia ──
   const extrasSi = document.getElementById('extras-si')!;
   document.querySelectorAll<HTMLInputElement>('input[name="asistencia"]').forEach((el) => {
     el.addEventListener('change', () => {
       const asiste = el.value.startsWith('Sí');
       extrasSi.classList.toggle('visible', asiste);
-
       if (!asiste) {
-        // Limpiar condicionales hijos al ocultar
         (document.getElementById('acomp-nombre-block') as HTMLElement).style.display = 'none';
         (document.getElementById('ninos-block') as HTMLElement).style.display = 'none';
-        (document.getElementById('ninos_count') as HTMLSelectElement).value = '';
-        (document.getElementById('ninos-names-container') as HTMLElement).innerHTML = '';
+        resetNinosCount();
         (document.getElementById('bus-plazas-block') as HTMLElement).style.display = 'none';
         document.querySelectorAll<HTMLInputElement>('#extras-si input[type="radio"], #extras-si input[type="checkbox"]')
           .forEach(i => { i.checked = false; });
+        resetIntolerancias();
       }
     });
   });
 
-  // Toggle acompañante nombre
-  const acSi = document.getElementById('acomp-si') as HTMLInputElement;
-  const acNo = document.getElementById('acomp-no') as HTMLInputElement;
+  // ── Toggle acompañante nombre ──
+  const acSi    = document.getElementById('acomp-si') as HTMLInputElement;
+  const acNo    = document.getElementById('acomp-no') as HTMLInputElement;
   const acBlock = document.getElementById('acomp-nombre-block')!;
+  acSi?.addEventListener('change', () => { acBlock.style.display = 'block'; refreshIntolList(); buildBusPlazasBtns(); });
+  acNo?.addEventListener('change', () => { acBlock.style.display = 'none';  refreshIntolList(); buildBusPlazasBtns(); });
 
-  acSi?.addEventListener('change', () => { acBlock.style.display = 'block'; });
-  acNo?.addEventListener('change', () => { acBlock.style.display = 'none'; });
-
-  // Toggle niños block
-  const ninosSi = document.getElementById('ninos-si') as HTMLInputElement;
-  const ninosNo = document.getElementById('ninos-no') as HTMLInputElement;
+  // ── Toggle niños block ──
+  const ninosSi    = document.getElementById('ninos-si') as HTMLInputElement;
+  const ninosNo    = document.getElementById('ninos-no') as HTMLInputElement;
   const ninosBlock = document.getElementById('ninos-block')!;
-
-  ninosSi?.addEventListener('change', () => { ninosBlock.style.display = 'flex'; });
+  ninosSi?.addEventListener('change', () => { ninosBlock.style.display = 'flex'; refreshIntolList(); });
   ninosNo?.addEventListener('change', () => {
     ninosBlock.style.display = 'none';
-    (document.getElementById('ninos_count') as HTMLSelectElement).value = '';
-    document.getElementById('ninos-names-container')!.innerHTML = '';
+    resetNinosCount();
+    refreshIntolList();
   });
 
-  // Campos dinámicos por número de niños
-  document.getElementById('ninos_count')?.addEventListener('change', (e) => {
-    const count = parseInt((e.target as HTMLSelectElement).value) || 0;
+  // ── Picker de número de niños ──
+  function buildNinoFields(count: number) {
     const container = document.getElementById('ninos-names-container')!;
     container.innerHTML = '';
-
     for (let i = 1; i <= count; i++) {
       const group = document.createElement('div');
-      group.className = 'form-group nino-entry';
+      group.className = 'nino-entry';
       group.innerHTML = `
-        <label>Niño/a ${i}</label>
-        <div class="nino-fields">
-          <input
-            type="text"
-            name="nino_${i}_nombre"
-            placeholder="Nombre"
-            required
-            style="flex:2"
-          />
-          <input
-            type="number"
-            name="nino_${i}_edad"
-            placeholder="Edad"
-            min="0"
-            max="17"
-            required
-            style="flex:1"
-          />
-        </div>
+        <span class="nino-entry-title">Niño/a ${i}</span>
+        <span class="nino-campo-label">Nombre</span>
+        <input type="text" name="nino_${i}_nombre" id="nino_${i}_nombre" placeholder="Nombre completo" required />
+        <span class="nino-campo-label">Edad</span>
+        <input type="number" name="nino_${i}_edad" placeholder="Años (0–17)" min="0" max="17" required />
       `;
       container.appendChild(group);
+      document.getElementById(`nino_${i}_nombre`)?.addEventListener('input', refreshIntolList);
     }
+    refreshIntolList();
+  }
+
+  function resetNinosCount() {
+    document.querySelectorAll<HTMLButtonElement>('#ninos-count-picker .ninos-count-btn').forEach(b => b.classList.remove('selected'));
+    (document.getElementById('ninos_count') as HTMLInputElement).value = '';
+    document.getElementById('ninos-names-container')!.innerHTML = '';
+  }
+
+  document.getElementById('ninos-count-picker')?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.ninos-count-btn');
+    if (!btn) return;
+    const val = btn.dataset.value ?? '';
+    document.querySelectorAll<HTMLButtonElement>('#ninos-count-picker .ninos-count-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    (document.getElementById('ninos_count') as HTMLInputElement).value = val;
+    buildNinoFields(parseInt(val) || 0);
+    buildBusPlazasBtns();
   });
 
-  // Toggle bus plazas
+  // ── Plazas de autobús — picker dinámico ──
+  function getTotalPersonas(): number {
+    let total = 1; // invitado siempre
+    if ((document.getElementById('acomp-si') as HTMLInputElement)?.checked) total += 1;
+    total += parseInt((document.getElementById('ninos_count') as HTMLInputElement)?.value || '0') || 0;
+    return total;
+  }
+
+  function buildBusPlazasBtns() {
+    const picker  = document.getElementById('bus-plazas-picker')!;
+    const hidden  = document.getElementById('bus_plazas') as HTMLInputElement;
+    const current = hidden?.value ?? '';
+    const total   = getTotalPersonas();
+    picker.innerHTML = '';
+    for (let i = 1; i <= total; i++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ninos-count-btn' + (String(i) === current ? ' selected' : '');
+      btn.dataset.value = String(i);
+      btn.textContent = String(i);
+      picker.appendChild(btn);
+    }
+    // Si la selección actual supera el nuevo total, limpiarla
+    if (current && parseInt(current) > total) hidden.value = '';
+  }
+
+  document.getElementById('bus-plazas-picker')?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.ninos-count-btn');
+    if (!btn) return;
+    const val = btn.dataset.value ?? '';
+    document.querySelectorAll<HTMLButtonElement>('#bus-plazas-picker .ninos-count-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    (document.getElementById('bus_plazas') as HTMLInputElement).value = val;
+  });
+
   const busPlazasBlock = document.getElementById('bus-plazas-block')!;
-  const busNo = document.getElementById('bus-no') as HTMLInputElement;
   document.querySelectorAll('input[name="autobus"]').forEach((el) => {
     el.addEventListener('change', (e) => {
       const val = (e.target as HTMLInputElement).value;
-      busPlazasBlock.style.display = val !== 'No lo necesitaré' ? 'flex' : 'none';
+      if (val !== 'No lo necesitaré') {
+        busPlazasBlock.style.display = 'flex';
+        buildBusPlazasBtns();
+      } else {
+        busPlazasBlock.style.display = 'none';
+        (document.getElementById('bus_plazas') as HTMLInputElement).value = '';
+      }
     });
   });
 
-  // Form submit via fetch (Formspree AJAX)
+  // ══════════════════════════════════════════
+  // Q6 — INTOLERANCIAS ALIMENTARIAS
+  // ══════════════════════════════════════════
+
+  const INTOL_ITEMS: [string, string][] = [
+    ['GLUTEN',       'Gluten (celiaquía o sensibilidad al gluten)'],
+    ['LACTOSA',      'Lactosa / lácteos'],
+    ['HUEVO',        'Huevo'],
+    ['FRUTOS_SECOS', 'Frutos secos (almendras, nueces, avellanas, etc.)'],
+    ['CACAHUETE',    'Cacahuete'],
+    ['MARISCO',      'Marisco'],
+    ['PESCADO',      'Pescado'],
+    ['SOJA',         'Soja'],
+    ['SESAMO',       'Sésamo'],
+    ['MOSTAZA',      'Mostaza'],
+    ['APIO',         'Apio'],
+    ['SULFITOS',     'Sulfitos (vino, frutos secos tratados, etc.)'],
+    ['ALTRAMUCES',   'Altramuces (lupino)'],
+    ['MOLUSCOS',     'Moluscos (mejillones, almejas, pulpo, calamar, etc.)'],
+  ];
+
+  function getGroupPersons() {
+    const persons: { id: string; nombre: string; badge: string }[] = [];
+    const nombreInv = (document.getElementById('nombre') as HTMLInputElement)?.value?.trim() || 'Tú';
+    persons.push({ id: 'invitado', nombre: nombreInv, badge: 'Invitado/a' });
+    if ((document.getElementById('acomp-si') as HTMLInputElement)?.checked) {
+      const acN = (document.getElementById('acompanante_nombre') as HTMLInputElement)?.value?.trim() || 'Acompañante';
+      persons.push({ id: 'acompanante', nombre: acN, badge: 'Acompañante' });
+    }
+    if ((document.getElementById('ninos-si') as HTMLInputElement)?.checked) {
+      const cnt = parseInt((document.getElementById('ninos_count') as HTMLSelectElement)?.value) || 0;
+      for (let i = 1; i <= cnt; i++) {
+        const nn = (document.getElementById(`nino_${i}_nombre`) as HTMLInputElement)?.value?.trim() || `Niño/a ${i}`;
+        persons.push({ id: `nino_${i}`, nombre: nn, badge: 'Niño/a' });
+      }
+    }
+    return persons;
+  }
+
+  function buildCheckboxGrid(personId: string) {
+    return `<div class="intol-checkboxes">
+      ${INTOL_ITEMS.map(([val, label]) =>
+        `<label class="intol-check-label"><input type="checkbox" name="intol_${personId}" value="${val}" />${label}</label>`
+      ).join('')}
+    </div>
+    <div class="intol-otros-wrap">
+      <span class="intol-otros-label">Otros:</span>
+      <input type="text" name="intol_${personId}_otros" placeholder="Especifica otros alérgenos..." />
+    </div>`;
+  }
+
+  function saveIntolSelections() {
+    const saved: Record<string, string[]> = {};
+    document.querySelectorAll<HTMLInputElement>('[name^="intol_"]').forEach(el => {
+      if (el.type === 'checkbox' && el.checked) (saved[el.name] ??= []).push(el.value);
+      else if (el.type === 'text' && el.value)   saved[el.name] = [el.value];
+    });
+    return saved;
+  }
+
+  function restoreIntolSelections(saved: Record<string, string[]>) {
+    Object.entries(saved).forEach(([name, values]) => {
+      document.querySelectorAll<HTMLInputElement>(`[name="${name}"]`).forEach(el => {
+        if (el.type === 'checkbox') el.checked = values.includes(el.value);
+        else if (el.type === 'text') el.value = values[0] ?? '';
+      });
+    });
+  }
+
+  function updateCountBadge(personId: string) {
+    const count = document.querySelectorAll<HTMLInputElement>(`input[name="intol_${personId}"]:checked`).length;
+    const badge = document.querySelector<HTMLElement>(`#intol-card-${personId} .intol-count`);
+    if (!badge) return;
+    badge.textContent = count > 0 ? `${count} seleccionada${count !== 1 ? 's' : ''}` : '';
+    badge.classList.toggle('visible', count > 0);
+  }
+
+  function refreshIntolList() {
+    if (!(document.getElementById('intol-si') as HTMLInputElement)?.checked) return;
+    const saved   = saveIntolSelections();
+    const persons = getGroupPersons();
+    const list    = document.getElementById('intol-personas-list')!;
+    list.innerHTML = persons.map(p => `
+      <div class="intol-person-card" id="intol-card-${p.id}">
+        <button type="button" class="intol-person-btn" data-pid="${p.id}">
+          <span class="intol-person-name">${p.nombre}</span>
+          <span class="intol-person-badge">${p.badge}</span>
+          <span class="intol-count"></span>
+          <span class="intol-chevron">▼</span>
+        </button>
+        <div class="intol-panel">${buildCheckboxGrid(p.id)}</div>
+      </div>`).join('');
+
+    list.querySelectorAll<HTMLButtonElement>('.intol-person-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const card   = btn.closest('.intol-person-card')!;
+        const isOpen = card.classList.contains('open');
+        list.querySelectorAll('.intol-person-card').forEach(c => c.classList.remove('open'));
+        if (!isOpen) card.classList.add('open');
+      });
+    });
+    list.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach(cb => {
+      const pid = cb.name.replace('intol_', '');
+      cb.addEventListener('change', () => updateCountBadge(pid));
+    });
+
+    restoreIntolSelections(saved);
+    persons.forEach(p => updateCountBadge(p.id));
+  }
+
+  function resetIntolerancias() {
+    (document.getElementById('intol-no') as HTMLInputElement).checked = false;
+    (document.getElementById('intol-si') as HTMLInputElement).checked = false;
+    document.getElementById('intol-personas-wrap')!.style.display = 'none';
+    document.getElementById('intol-personas-list')!.innerHTML = '';
+    (document.getElementById('intol-error') as HTMLElement).style.display = 'none';
+  }
+
+  document.getElementById('intol-si')?.addEventListener('change', () => {
+    document.getElementById('intol-personas-wrap')!.style.display = 'block';
+    document.getElementById('intol-error')!.style.display = 'none';
+    refreshIntolList();
+  });
+  document.getElementById('intol-no')?.addEventListener('change', () => {
+    document.getElementById('intol-personas-wrap')!.style.display = 'none';
+    document.getElementById('intol-error')!.style.display = 'none';
+  });
+
+  document.getElementById('nombre')?.addEventListener('input', refreshIntolList);
+  document.getElementById('acompanante_nombre')?.addEventListener('input', refreshIntolList);
+
+  // ── Form submit ──
   const form = document.getElementById('rsvp-form') as HTMLFormElement;
   const successMsg = document.getElementById('form-success')!;
-  const errorMsg = document.getElementById('form-error')!;
+  const errorMsg   = document.getElementById('form-error')!;
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = form.querySelector('.submit-btn') as HTMLButtonElement;
+
+    // Validar Q6 cuando se confirma asistencia
+    const asiste = form.querySelector<HTMLInputElement>('input[name="asistencia"]:checked')?.value?.startsWith('Sí');
+    if (asiste && !form.querySelector<HTMLInputElement>('input[name="tiene_intolerancias"]:checked')) {
+      const errEl = document.getElementById('intol-error')!;
+      errEl.style.display = 'block';
+      errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
     btn.textContent = 'Enviando...';
     btn.disabled = true;
 
     try {
-      // Convertir FormData a objeto JSON (agrupa checkboxes con múltiples valores)
       const fd = new FormData(form);
       const data: Record<string, string | string[]> = {};
       fd.forEach((value, key) => {
         const existing = data[key];
         if (existing !== undefined) {
-          data[key] = Array.isArray(existing)
-            ? [...existing, String(value)]
-            : [existing, String(value)];
+          data[key] = Array.isArray(existing) ? [...existing, String(value)] : [existing, String(value)];
         } else {
           data[key] = String(value);
         }
@@ -597,8 +976,8 @@
       if (res.ok) {
         form.reset();
         successMsg.style.display = 'block';
-        errorMsg.style.display = 'none';
-        btn.style.display = 'none';
+        errorMsg.style.display   = 'none';
+        btn.style.display        = 'none';
       } else {
         console.error('RSVP error:', json);
         throw new Error(json.debug || 'unknown');

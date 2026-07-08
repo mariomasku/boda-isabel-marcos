@@ -3,76 +3,488 @@ import { google } from 'googleapis';
 
 export const prerender = false;
 
+// ── Constantes ──────────────────────────────────────────────
+const RSVP_TAB    = 'RSVP';
+const RESUMEN_TAB = 'RESUMEN';
+
 const HEADERS = [
-  'Fecha', 'Nombre', 'Asistencia', 'Acompañante', 'Nombre acompañante',
-  'Niños', 'Datos niños', 'Alergias', 'Bebida', 'Autobús', 'Plazas bus',
-  'Canción', 'Comentarios',
+  'FECHA', 'NOMBRE', 'ROL', 'ACOMPAÑANTE DE', 'ASISTENCIA', 'EDAD',
+  'INTOLERANCIAS', 'OTROS ALERGENOS', 'BEBIDA', 'AUTOBÚS', 'PLAZAS BUS',
+  'CANCIÓN', 'COMENTARIOS',
 ];
 
+// Colores para filas de datos
+const COLOR_INVITADO    = { red: 191/255, green: 175/255, blue: 146/255 }; // #c5c0b5
+const COLOR_ACOMPANANTE = { red: 201/255, green: 196/255, blue: 184/255 }; // #c9c7c1
+const COLOR_NINO        = { red: 1,       green: 1,       blue: 1       }; // blanco
+
+// Paleta del tema
+const BROWN_DARK  = { red: 0.239, green: 0.169, blue: 0.102 }; // #3D2B1A
+const GOLD        = { red: 0.784, green: 0.663, blue: 0.431 }; // #C8A96E
+const GOLD_LIGHT  = { red: 0.918, green: 0.851, blue: 0.686 }; // #EAD9AF
+const CREAM       = { red: 0.941, green: 0.867, blue: 0.757 }; // #F0DDC1
+const WHITE       = { red: 1,     green: 1,     blue: 1     };
+
+// ── Helpers ─────────────────────────────────────────────────
+const up = (v: unknown): string => {
+  if (v == null || v === '') return '';
+  if (Array.isArray(v)) return v.map(String).join(', ').toUpperCase();
+  return String(v).toUpperCase();
+};
+
+const buildIntol = (data: Record<string, unknown>, pid: string) => {
+  const vals  = data[`intol_${pid}`];
+  const intol = Array.isArray(vals) ? vals.join(', ').toUpperCase()
+    : (vals ? String(vals).toUpperCase() : '');
+  const otros = up(data[`intol_${pid}_otros`]);
+  return { intol, otros };
+};
+
+// ── Configuración del Spreadsheet ────────────────────────────
+async function ensureSetup(
+  sheets: ReturnType<typeof google.sheets>,
+  spreadsheetId: string,
+): Promise<number> {
+
+  // Estado actual del libro
+  const meta      = await sheets.spreadsheets.get({ spreadsheetId });
+  const allSheets = (meta.data.sheets ?? []) as any[];
+
+  let rsvpSheet    = allSheets.find(s => s.properties?.title === RSVP_TAB);
+  let resumenSheet = allSheets.find(s => s.properties?.title === RESUMEN_TAB);
+
+  const initReqs: any[] = [];
+
+  if (!rsvpSheet) {
+    const firstId = allSheets[0]?.properties?.sheetId ?? 0;
+    initReqs.push(
+      { updateSheetProperties: { properties: { sheetId: firstId, title: RSVP_TAB }, fields: 'title' } },
+      { updateSheetProperties: { properties: { sheetId: firstId, gridProperties: { frozenRowCount: 1 } }, fields: 'gridProperties.frozenRowCount' } },
+      { setBasicFilter: { filter: { range: { sheetId: firstId, startRowIndex: 0, endColumnIndex: HEADERS.length } } } },
+    );
+    rsvpSheet = { properties: { sheetId: firstId, title: RSVP_TAB } };
+  }
+
+  if (!resumenSheet) {
+    initReqs.push({ addSheet: { properties: { title: RESUMEN_TAB } } });
+  }
+
+  let resumenSheetId: number | undefined = resumenSheet?.properties?.sheetId;
+  if (initReqs.length) {
+    const bRes = await sheets.spreadsheets.batchUpdate({ spreadsheetId, requestBody: { requests: initReqs } });
+    if (!resumenSheet) {
+      const added = (bRes.data.replies ?? []).find((r: any) => r.addSheet);
+      resumenSheetId = added?.addSheet?.properties?.sheetId;
+    }
+  }
+
+  // IDs actualizados
+  const updated  = await sheets.spreadsheets.get({ spreadsheetId });
+  const allNow   = (updated.data.sheets ?? []) as any[];
+  const rsvpInfo = allNow.find((s: any) => s.properties?.title === RSVP_TAB) as any;
+  const resInfo  = allNow.find((s: any) => s.properties?.title === RESUMEN_TAB) as any;
+  const rsvpId   = rsvpInfo?.properties?.sheetId ?? 0;
+  const resId    = resInfo?.properties?.sheetId  ?? (resumenSheetId ?? 1);
+
+  // Siempre actualizar cabeceras (corrige renombrados)
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: `${RSVP_TAB}!A1`,
+    valueInputOption: 'USER_ENTERED',
+    requestBody: { values: [HEADERS] },
+  });
+
+  // Siempre reescribir fórmulas del RESUMEN
+  await writeResumen(sheets, spreadsheetId);
+
+  // Siempre aplicar tema (idempotente: merges y formatos no causan error si ya existen)
+  const hasChart = (resInfo?.charts ?? []).length > 0;
+  await applyTheme(sheets, spreadsheetId, rsvpId, resId, !hasChart);
+
+  return rsvpId;
+}
+
+// ── Contenido del RESUMEN ─────────────────────────────────────
+// Layout (0-indexed → 1-indexed):
+// 0→1: Título  |  2→3: ASISTENCIA section  |  3-6→4-7: datos asist
+// 8→9: AUTOBÚS section  |  9-10→10-11: datos bus
+// 12→13: INTOLERANCIAS section  |  13→14: sub-header  |  14-28→15-29: datos
+// 30→31: BEBIDAS section  |  31→32: sub-header  |  32-35→33-36: datos
+async function writeResumen(sheets: any, spreadsheetId: string) {
+  const t = RSVP_TAB;
+  // Separador ';' requerido en locale español de Google Sheets
+  const f = (formula: string) => `=IFERROR(${formula};0)`;
+  const data = [
+    // 0: Título
+    ['RESUMEN — BODA ISABEL & MARCOS', ''],
+    // 1: vacío
+    ['', ''],
+    // 2: ASISTENCIA
+    ['ASISTENCIA', ''],
+    // 3–6: datos asistencia
+    ['Total confirmados (SÍ)',
+      f(`COUNTIF(${t}!E:E;"SÍ")`)],
+    ['  Adultos (invitados + acompañantes)',
+      f(`COUNTIFS(${t}!E:E;"SÍ";${t}!C:C;"INVITADO")+COUNTIFS(${t}!E:E;"SÍ";${t}!C:C;"ACOMPAÑANTE")`)],
+    ['  Niños (menores de 18 años)',
+      f(`COUNTIFS(${t}!E:E;"SÍ";${t}!C:C;"NIÑO/A")`)],
+    ['No asisten (NO)',
+      f(`COUNTIF(${t}!E:E;"NO")`)],
+    // 7: vacío
+    ['', ''],
+    // 8: AUTOBÚS
+    ['AUTOBÚS', ''],
+    // 9–10: plazas
+    ['Plazas IDA solicitadas (17:15h)',
+      f(`SUMIF(${t}!J:J;"IDA Y VUELTA";${t}!K:K)+SUMIF(${t}!J:J;"SOLO IDA";${t}!K:K)`)],
+    ['Plazas VUELTA solicitadas',
+      f(`SUMIF(${t}!J:J;"IDA Y VUELTA";${t}!K:K)+SUMIF(${t}!J:J;"SOLO VUELTA";${t}!K:K)`)],
+    // 11: vacío
+    ['', ''],
+    // 12: INTOLERANCIAS
+    ['INTOLERANCIAS / ALERGIAS', ''],
+    // 13: sub-header
+    ['Alérgeno', 'Personas'],
+    // 14–28: 14 alérgenos + Otros
+    ['Gluten (celiaquía)',     f(`COUNTIF(${t}!G:G;"*GLUTEN*")`)],
+    ['Lactosa / lácteos',      f(`COUNTIF(${t}!G:G;"*LACTOSA*")`)],
+    ['Huevo',                  f(`COUNTIF(${t}!G:G;"*HUEVO*")`)],
+    ['Frutos secos',           f(`COUNTIF(${t}!G:G;"*FRUTOS_SECOS*")`)],
+    ['Cacahuete',              f(`COUNTIF(${t}!G:G;"*CACAHUETE*")`)],
+    ['Marisco',                f(`COUNTIF(${t}!G:G;"*MARISCO*")`)],
+    ['Pescado',                f(`COUNTIF(${t}!G:G;"*PESCADO*")`)],
+    ['Soja',                   f(`COUNTIF(${t}!G:G;"*SOJA*")`)],
+    ['Sésamo',                 f(`COUNTIF(${t}!G:G;"*SESAMO*")`)],
+    ['Mostaza',                f(`COUNTIF(${t}!G:G;"*MOSTAZA*")`)],
+    ['Apio',                   f(`COUNTIF(${t}!G:G;"*APIO*")`)],
+    ['Sulfitos',               f(`COUNTIF(${t}!G:G;"*SULFITOS*")`)],
+    ['Altramuces (lupino)',     f(`COUNTIF(${t}!G:G;"*ALTRAMUCES*")`)],
+    ['Moluscos',               f(`COUNTIF(${t}!G:G;"*MOLUSCOS*")`)],
+    ['Otros alergias especificadas', f(`COUNTA(${t}!H:H)-1`)],
+    // 29: vacío
+    ['', ''],
+    // 30: BEBIDAS
+    ['BEBIDAS PREFERIDAS', ''],
+    // 31: sub-header
+    ['Bebida', 'Personas'],
+    // 32–35: bebidas
+    ['Whisky',  f(`COUNTIF(${t}!I:I;"*WHISKY*")`)],
+    ['Ginebra', f(`COUNTIF(${t}!I:I;"*GINEBRA*")`)],
+    ['Ron',     f(`COUNTIF(${t}!I:I;"*RON*")`)],
+    ['Vodka',   f(`COUNTIF(${t}!I:I;"*VODKA*")`)],
+  ];
+
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: `${RESUMEN_TAB}!A1`,
+    valueInputOption: 'USER_ENTERED',
+    requestBody: { values: data },
+  });
+}
+
+// ── Tema visual ───────────────────────────────────────────────
+async function applyTheme(
+  sheets: any,
+  spreadsheetId: string,
+  rsvpId: number,
+  resId: number,
+  addChart: boolean,
+) {
+  const SECTION_ROWS = [2, 8, 12, 30]; // 0-indexed, filas de sección en RESUMEN
+  const SUBHEADER_ROWS = [13, 31];     // 0-indexed, filas de sub-cabecera
+
+  const reqs: any[] = [
+    // ── RSVP: cabecera ──
+    {
+      repeatCell: {
+        range: { sheetId: rsvpId, startRowIndex: 0, endRowIndex: 1 },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: BROWN_DARK,
+            textFormat: { foregroundColor: CREAM, bold: true, fontSize: 9 },
+            horizontalAlignment: 'CENTER',
+            verticalAlignment: 'MIDDLE',
+          },
+        },
+        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment)',
+      },
+    },
+    // RSVP: anchos de columna
+    ...[120, 175, 95, 155, 55, 45, 200, 155, 115, 95, 75, 175, 195].map((px, i) => ({
+      updateDimensionProperties: {
+        range: { sheetId: rsvpId, dimension: 'COLUMNS', startIndex: i, endIndex: i + 1 },
+        properties: { pixelSize: px },
+        fields: 'pixelSize',
+      },
+    })),
+    // RSVP: altura de cabecera
+    {
+      updateDimensionProperties: {
+        range: { sheetId: rsvpId, dimension: 'ROWS', startIndex: 0, endIndex: 1 },
+        properties: { pixelSize: 32 },
+        fields: 'pixelSize',
+      },
+    },
+
+    // ── RESUMEN: merges ──
+    // Merge título
+    { mergeCells: { range: { sheetId: resId, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: 2 }, mergeType: 'MERGE_ALL' } },
+    // Merge secciones
+    ...SECTION_ROWS.map(r => ({
+      mergeCells: { range: { sheetId: resId, startRowIndex: r, endRowIndex: r + 1, startColumnIndex: 0, endColumnIndex: 2 }, mergeType: 'MERGE_ALL' },
+    })),
+
+    // RESUMEN: título
+    {
+      repeatCell: {
+        range: { sheetId: resId, startRowIndex: 0, endRowIndex: 1 },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: BROWN_DARK,
+            textFormat: { foregroundColor: CREAM, bold: true, fontSize: 14 },
+            horizontalAlignment: 'CENTER',
+            verticalAlignment: 'MIDDLE',
+          },
+        },
+        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment)',
+      },
+    },
+    // RESUMEN: altura título
+    {
+      updateDimensionProperties: {
+        range: { sheetId: resId, dimension: 'ROWS', startIndex: 0, endIndex: 1 },
+        properties: { pixelSize: 42 },
+        fields: 'pixelSize',
+      },
+    },
+    // RESUMEN: secciones
+    ...SECTION_ROWS.map(r => ({
+      repeatCell: {
+        range: { sheetId: resId, startRowIndex: r, endRowIndex: r + 1 },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: GOLD,
+            textFormat: { foregroundColor: BROWN_DARK, bold: true, fontSize: 10 },
+            verticalAlignment: 'MIDDLE',
+          },
+        },
+        fields: 'userEnteredFormat(backgroundColor,textFormat,verticalAlignment)',
+      },
+    })),
+    // RESUMEN: alturas secciones
+    ...SECTION_ROWS.map(r => ({
+      updateDimensionProperties: {
+        range: { sheetId: resId, dimension: 'ROWS', startIndex: r, endIndex: r + 1 },
+        properties: { pixelSize: 28 },
+        fields: 'pixelSize',
+      },
+    })),
+    // RESUMEN: sub-cabeceras
+    ...SUBHEADER_ROWS.map(r => ({
+      repeatCell: {
+        range: { sheetId: resId, startRowIndex: r, endRowIndex: r + 1 },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: GOLD_LIGHT,
+            textFormat: { foregroundColor: BROWN_DARK, bold: true, fontSize: 9 },
+            horizontalAlignment: 'CENTER',
+          },
+        },
+        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)',
+      },
+    })),
+    // RESUMEN: columna B (números) centrada, en negrita y formato entero
+    {
+      repeatCell: {
+        range: { sheetId: resId, startRowIndex: 3, endRowIndex: 36, startColumnIndex: 1, endColumnIndex: 2 },
+        cell: {
+          userEnteredFormat: {
+            horizontalAlignment: 'CENTER',
+            textFormat: { fontSize: 11, bold: true },
+            numberFormat: { type: 'NUMBER', pattern: '0' },
+          },
+        },
+        fields: 'userEnteredFormat(horizontalAlignment,textFormat,numberFormat)',
+      },
+    },
+    // RESUMEN: anchos de columna
+    {
+      updateDimensionProperties: {
+        range: { sheetId: resId, dimension: 'COLUMNS', startIndex: 0, endIndex: 1 },
+        properties: { pixelSize: 270 },
+        fields: 'pixelSize',
+      },
+    },
+    {
+      updateDimensionProperties: {
+        range: { sheetId: resId, dimension: 'COLUMNS', startIndex: 1, endIndex: 2 },
+        properties: { pixelSize: 110 },
+        fields: 'pixelSize',
+      },
+    },
+    // RESUMEN: filas de datos con fondo crema alternado para intolerancias (14-28)
+    ...Array.from({ length: 15 }, (_, i) => ({
+      repeatCell: {
+        range: { sheetId: resId, startRowIndex: 14 + i, endRowIndex: 15 + i },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: i % 2 === 0 ? WHITE : { red: 0.992, green: 0.984, blue: 0.965 },
+          },
+        },
+        fields: 'userEnteredFormat.backgroundColor',
+      },
+    })),
+  ];
+
+  // Gráfico de intolerancias (solo si no existe)
+  if (addChart) {
+    reqs.push({
+      addChart: {
+        chart: {
+          spec: {
+            title: 'Intolerancias y Alergias',
+            titleTextFormat: { bold: true, fontSize: 12, foregroundColor: BROWN_DARK },
+            basicChart: {
+              chartType: 'COLUMN',
+              legendPosition: 'NO_LEGEND',
+              axis: [
+                { position: 'BOTTOM_AXIS', title: '' },
+                { position: 'LEFT_AXIS', title: 'Personas afectadas' },
+              ],
+              domains: [{
+                domain: {
+                  sourceRange: {
+                    sources: [{
+                      sheetId: resId,
+                      startRowIndex: 13, endRowIndex: 29,
+                      startColumnIndex: 0, endColumnIndex: 1,
+                    }],
+                  },
+                },
+              }],
+              series: [{
+                series: {
+                  sourceRange: {
+                    sources: [{
+                      sheetId: resId,
+                      startRowIndex: 13, endRowIndex: 29,
+                      startColumnIndex: 1, endColumnIndex: 2,
+                    }],
+                  },
+                },
+                targetAxis: 'LEFT_AXIS',
+                color: GOLD,
+                dataLabel: { type: 'DATA', textFormat: { fontSize: 8 } },
+              }],
+              headerCount: 1,
+            },
+          },
+          position: {
+            overlayPosition: {
+              anchorCell: { sheetId: resId, rowIndex: 37, columnIndex: 0 },
+              widthPixels: 620,
+              heightPixels: 360,
+            },
+          },
+        },
+      },
+    });
+  }
+
+  await sheets.spreadsheets.batchUpdate({ spreadsheetId, requestBody: { requests: reqs } });
+}
+
+// ── API Route ────────────────────────────────────────────────
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const data = await request.json() as Record<string, string | string[]>;
+    const data = await request.json() as Record<string, unknown>;
 
-    const raw = import.meta.env.GOOGLE_SERVICE_ACCOUNT_KEY;
-    const credentials = JSON.parse(raw);
-    // Vercel a veces escapa los saltos de línea de la clave privada
-    if (credentials.private_key) {
-      credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
-    }
-
-    const sheetId = import.meta.env.GOOGLE_SHEET_ID;
-
-    const auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-    const sheets = google.sheets({ version: 'v4', auth });
-
-    // Agrupar datos de niños en una sola celda
-    const ninoCount = parseInt(String(data.ninos_count || '0')) || 0;
-    const ninosData: string[] = [];
-    for (let i = 1; i <= ninoCount; i++) {
-      const nombre = String(data[`nino_${i}_nombre`] || '');
-      const edad   = String(data[`nino_${i}_edad`]   || '');
-      if (nombre) ninosData.push(`${nombre} (${edad} años)`);
-    }
-
-    const row = [
-      new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid' }),
-      data.nombre              || '',
-      data.asistencia          || '',
-      data.acompanante         || '',
-      data.acompanante_nombre  || '',
-      data.ninos               || '',
-      ninosData.join(' · ')    || '',
-      data.alergias            || '',
-      Array.isArray(data.bebida) ? data.bebida.join(', ') : (data.bebida || ''),
-      data.autobus             || '',
-      data.bus_plazas          || '',
-      data.cancion             || '',
-      data.comentarios         || '',
-    ];
-
-    // Si la hoja está vacía, añadir fila de cabecera primero
-    const existing = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: 'A1',
-    });
-    if (!existing.data.values?.length) {
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: sheetId,
-        range: 'A1',
-        valueInputOption: 'USER_ENTERED',
-        requestBody: { values: [HEADERS] },
+    const keyJson = import.meta.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+    if (!keyJson) {
+      return new Response(JSON.stringify({ ok: false, error: 'GOOGLE_SERVICE_ACCOUNT_KEY no configurada' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
       });
     }
+    const credentials = JSON.parse(keyJson);
+    if (credentials.private_key) credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
 
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: sheetId,
-      range: 'A1',
+    const spreadsheetId = import.meta.env.GOOGLE_SHEET_ID;
+    const auth   = new google.auth.GoogleAuth({ credentials, scopes: ['https://www.googleapis.com/auth/spreadsheets'] });
+    const sheets = google.sheets({ version: 'v4', auth });
+
+    const rsvpSheetId = await ensureSetup(sheets, spreadsheetId);
+
+    // ── Construir filas ──────────────────────────────────────
+    const fecha       = new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid' });
+    const nombre      = up(data.nombre);
+    const asistencia  = String(data.asistencia ?? '').startsWith('S') ? 'SÍ' : 'NO';
+    const bebida      = up(data.bebida);
+    const autobus     = up(data.autobus);
+    const busPlazas   = up(data.bus_plazas);
+    const cancion     = up(data.cancion);
+    const comentarios = up(data.comentarios);
+
+    const rows: string[][] = [];
+    type RowType = 'invitado' | 'acompanante' | 'nino';
+    const rowTypes: RowType[] = [];
+
+    // Invitado principal
+    const { intol: intolInv, otros: otrosInv } = buildIntol(data, 'invitado');
+    rows.push([fecha, nombre, 'INVITADO', '', asistencia, '', intolInv, otrosInv, bebida, autobus, busPlazas, cancion, comentarios]);
+    rowTypes.push('invitado');
+
+    if (asistencia === 'SÍ') {
+      // Acompañante
+      if (data.acompanante === 'si' && data.acompanante_nombre) {
+        const acN = up(data.acompanante_nombre);
+        const { intol: intolAc, otros: otrosAc } = buildIntol(data, 'acompanante');
+        rows.push([fecha, acN, 'ACOMPAÑANTE', nombre, 'SÍ', '', intolAc, otrosAc, '', '', '', '', '']);
+        rowTypes.push('acompanante');
+      }
+      // Niños
+      if (data.ninos === 'si') {
+        const count = parseInt(String(data.ninos_count || '0')) || 0;
+        for (let i = 1; i <= count; i++) {
+          const nn   = up(data[`nino_${i}_nombre`]);
+          const edad = String(data[`nino_${i}_edad`] || '');
+          const { intol: intolN, otros: otrosN } = buildIntol(data, `nino_${i}`);
+          rows.push([fecha, nn, 'NIÑO/A', nombre, 'SÍ', edad, intolN, otrosN, '', '', '', '', '']);
+          rowTypes.push('nino');
+        }
+      }
+    }
+
+    // ── Escribir filas ───────────────────────────────────────
+    const appendRes = await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range: `${RSVP_TAB}!A1`,
       valueInputOption: 'USER_ENTERED',
-      requestBody: { values: [row] },
+      requestBody: { values: rows },
     });
+
+    // ── Colorear filas según rol ─────────────────────────────
+    const updatedRange = appendRes.data.updates?.updatedRange ?? '';
+    const rowMatch     = updatedRange.match(/[A-Z]+(\d+)/);
+    const startRow     = rowMatch ? parseInt(rowMatch[1]) - 1 : 1;
+
+    const colorMap: Record<RowType, typeof COLOR_INVITADO> = {
+      invitado:    COLOR_INVITADO,
+      acompanante: COLOR_ACOMPANANTE,
+      nino:        COLOR_NINO,
+    };
+
+    const colorReqs = rowTypes.map((type, idx) => ({
+      repeatCell: {
+        range: { sheetId: rsvpSheetId, startRowIndex: startRow + idx, endRowIndex: startRow + idx + 1 },
+        cell: { userEnteredFormat: { backgroundColor: colorMap[type] } },
+        fields: 'userEnteredFormat.backgroundColor',
+      },
+    }));
+
+    if (colorReqs.length) {
+      await sheets.spreadsheets.batchUpdate({ spreadsheetId, requestBody: { requests: colorReqs } });
+    }
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,

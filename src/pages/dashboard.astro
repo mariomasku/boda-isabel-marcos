@@ -1,0 +1,414 @@
+---
+export const prerender = true;
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard · Isabel & Marcos</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brown:      #2C1810;
+      --brown-mid:  #5C3D1E;
+      --gold:       #C4A882;
+      --gold-dark:  #8B6914;
+      --ivory:      #F6F1E8;
+      --cream:      #FFFFFF;
+      --border:     rgba(196,168,130,0.28);
+      --text-soft:  rgba(44,24,16,0.55);
+    }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--ivory);
+      min-height: 100vh;
+      color: var(--brown);
+    }
+
+    /* ── Header ── */
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: var(--brown);
+      border-bottom: 2px solid var(--gold);
+    }
+    .dash-logo-wrap { display: flex; flex-direction: column; gap: 2px; }
+    .dash-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-style: italic;
+      color: var(--gold);
+    }
+    .dash-logo-sub {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(196,168,130,0.5);
+    }
+    .dash-actions { display: flex; gap: 0.6rem; align-items: center; }
+    .btn-ghost {
+      padding: 0.4rem 0.9rem;
+      border: 1px solid rgba(196,168,130,0.35);
+      background: transparent;
+      color: rgba(196,168,130,0.7);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover { background: rgba(196,168,130,0.12); color: var(--gold); }
+
+    /* ── Main ── */
+    .dash-main { max-width: 880px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+    .dash-page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--brown);
+      margin-bottom: 0.2rem;
+    }
+    .dash-page-sub {
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 2rem;
+    }
+
+    /* ── Loading / Error ── */
+    #dash-loading, #dash-error {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-soft);
+      font-size: 0.9rem;
+    }
+    #dash-error { color: #b91c1c; }
+
+    /* ── Section ── */
+    .dash-section { margin-bottom: 2.25rem; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.9rem;
+    }
+    .section-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      font-weight: 700;
+    }
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Stat cards (asistencia) ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.9rem;
+    }
+    .stat-card {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--gold);
+      padding: 1.2rem 0.9rem 1rem;
+      text-align: center;
+    }
+    .stat-card-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 0.5rem;
+    }
+    .stat-card-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      color: var(--brown);
+      line-height: 1;
+    }
+    .stat-card-value.muted { color: rgba(44,24,16,0.3); }
+    .stat-card-value.gold  { color: var(--gold-dark); }
+
+    /* ── Bus cards ── */
+    .bus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
+    .bus-card {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--gold);
+      padding: 1.25rem 1.25rem 1rem;
+    }
+    .bus-card-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+    .bus-card-hora { font-size: 0.72rem; color: var(--text-soft); margin-bottom: 0.8rem; }
+    .bus-card-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      color: var(--brown);
+      line-height: 1;
+    }
+    .bus-card-unit { font-size: 0.7rem; color: var(--text-soft); margin-top: 0.3rem; }
+
+    /* ── Tables ── */
+    .dash-table-wrap { background: var(--cream); border: 1px solid var(--border); overflow: hidden; }
+    .dash-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .dash-table thead tr {
+      background: var(--brown);
+    }
+    .dash-table thead th {
+      padding: 0.65rem 1rem;
+      font-size: 0.62rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-family: 'Lato', sans-serif;
+      font-weight: 700;
+      text-align: left;
+    }
+    .dash-table thead th:last-child { text-align: center; }
+    .dash-table tbody tr { border-bottom: 1px solid rgba(196,168,130,0.14); transition: background 0.1s; }
+    .dash-table tbody tr:last-child { border-bottom: none; }
+    .dash-table tbody tr:hover { background: rgba(196,168,130,0.06); }
+    .dash-table tbody tr:nth-child(even) { background: rgba(196,168,130,0.04); }
+    .dash-table tbody tr:nth-child(even):hover { background: rgba(196,168,130,0.09); }
+    .dash-table tbody td {
+      padding: 0.7rem 1rem;
+      font-size: 0.85rem;
+      color: var(--brown);
+    }
+    .dash-table tbody td:last-child {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--gold-dark);
+    }
+    .td-zero { color: rgba(44,24,16,0.25) !important; font-weight: 400 !important; }
+
+    /* Barra inline para intolerancias */
+    .td-name-wrap { display: flex; flex-direction: column; gap: 3px; }
+    .intol-mini-bar { height: 3px; background: rgba(196,168,130,0.15); border-radius: 2px; margin-top: 2px; }
+    .intol-mini-fill { height: 100%; background: var(--gold); border-radius: 2px; }
+
+    /* ── Timestamp ── */
+    .dash-updated { font-size: 0.65rem; color: var(--text-soft); text-align: right; margin-top: 2rem; letter-spacing: 0.05em; }
+
+    /* ── Responsive ── */
+    @media (max-width: 580px) {
+      .cards-grid { grid-template-columns: repeat(2, 1fr); }
+      .bus-grid   { grid-template-columns: 1fr; }
+      .dash-table thead th, .dash-table tbody td { padding: 0.55rem 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="dash-header">
+    <div class="dash-logo-wrap">
+      <span class="dash-logo">Isabel <span style="font-style:normal;color:rgba(196,168,130,0.5)">&</span> Marcos</span>
+      <span class="dash-logo-sub">Panel de confirmaciones</span>
+    </div>
+    <div class="dash-actions">
+      <a href="/" class="btn-ghost">← Sitio web</a>
+      <button class="btn-ghost" id="logout-btn">Salir</button>
+    </div>
+  </header>
+
+  <main class="dash-main">
+    <h1 class="dash-page-title">Resumen de la boda</h1>
+    <p class="dash-page-sub">03 · 10 · 2026 · Cortijo El Alamillo · Villarrubia, Córdoba</p>
+
+    <div id="dash-loading">Cargando datos…</div>
+    <div id="dash-error" style="display:none"></div>
+    <div id="dash-content" style="display:none">
+
+      <!-- Asistencia -->
+      <div class="dash-section">
+        <div class="section-header">
+          <span class="section-label">Asistencia</span>
+          <div class="section-line"></div>
+        </div>
+        <div class="cards-grid">
+          <div class="stat-card">
+            <p class="stat-card-label">Confirman</p>
+            <p class="stat-card-value gold" id="s-total">—</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-card-label">Adultos</p>
+            <p class="stat-card-value" id="s-adultos">—</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-card-label">Niños</p>
+            <p class="stat-card-value" id="s-ninos">—</p>
+          </div>
+          <div class="stat-card">
+            <p class="stat-card-label">No asisten</p>
+            <p class="stat-card-value muted" id="s-no">—</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Autobús -->
+      <div class="dash-section">
+        <div class="section-header">
+          <span class="section-label">Autobús</span>
+          <div class="section-line"></div>
+        </div>
+        <div class="bus-grid">
+          <div class="bus-card">
+            <p class="bus-card-label">Plazas IDA</p>
+            <p class="bus-card-hora">17:15h · Lidl Puente Genil → Cortijo El Alamillo</p>
+            <p class="bus-card-value" id="s-bus-ida">—</p>
+            <p class="bus-card-unit">plazas solicitadas</p>
+          </div>
+          <div class="bus-card">
+            <p class="bus-card-label">Plazas VUELTA</p>
+            <p class="bus-card-hora">03:00h y 06:00h · Córdoba → Lidl Puente Genil</p>
+            <p class="bus-card-value" id="s-bus-vuelta">—</p>
+            <p class="bus-card-unit">plazas solicitadas</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Intolerancias -->
+      <div class="dash-section">
+        <div class="section-header">
+          <span class="section-label">Intolerancias y alergias</span>
+          <div class="section-line"></div>
+        </div>
+        <div class="dash-table-wrap">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Alérgeno</th>
+                <th style="width:110px;text-align:center">Personas</th>
+              </tr>
+            </thead>
+            <tbody id="intol-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bebidas -->
+      <div class="dash-section">
+        <div class="section-header">
+          <span class="section-label">Bebida preferida</span>
+          <div class="section-line"></div>
+        </div>
+        <div class="dash-table-wrap">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Bebida</th>
+                <th style="width:110px;text-align:center">Personas</th>
+              </tr>
+            </thead>
+            <tbody id="bebida-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="dash-updated" id="dash-updated"></p>
+    </div>
+  </main>
+
+  <script>
+    // ── Auth guard ──────────────────────────────────────────────
+    if (sessionStorage.getItem('boda_auth') !== 'boda031026') {
+      window.location.replace('/');
+    }
+
+    document.getElementById('logout-btn')?.addEventListener('click', () => {
+      sessionStorage.removeItem('boda_auth');
+      window.location.href = '/';
+    });
+
+    // ── Fetch y render ──────────────────────────────────────────
+    async function loadStats() {
+      try {
+        const res  = await fetch('/api/stats');
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error ?? 'Error desconocido');
+        render(data);
+      } catch (err) {
+        document.getElementById('dash-loading')!.style.display = 'none';
+        const errEl = document.getElementById('dash-error')!;
+        errEl.style.display = 'block';
+        errEl.textContent = 'No se pudieron cargar los datos: ' + (err instanceof Error ? err.message : String(err));
+      }
+    }
+
+    function set(id: string, val: number | string) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = String(val);
+    }
+
+    function render(data: any) {
+      document.getElementById('dash-loading')!.style.display = 'none';
+      document.getElementById('dash-content')!.style.display = 'block';
+
+      set('s-total',     data.asistencia.total);
+      set('s-adultos',   data.asistencia.adultos);
+      set('s-ninos',     data.asistencia.ninos);
+      set('s-no',        data.asistencia.noAsisten);
+      set('s-bus-ida',   data.autobus.ida);
+      set('s-bus-vuelta',data.autobus.vuelta);
+
+      // Intolerancias: tabla con mini barra de progreso
+      const maxIntol = Math.max(1, ...data.intolerancias.map((i: any) => i.count));
+      const intolTbody = document.getElementById('intol-tbody')!;
+      intolTbody.innerHTML = data.intolerancias.map((item: any) => {
+        const pct  = Math.round((item.count / maxIntol) * 100);
+        const zero = item.count === 0 ? ' td-zero' : '';
+        return `<tr>
+          <td>
+            <div class="td-name-wrap">
+              <span>${item.nombre}</span>
+              <div class="intol-mini-bar"><div class="intol-mini-fill" style="width:${pct}%"></div></div>
+            </div>
+          </td>
+          <td class="${zero}">${item.count}</td>
+        </tr>`;
+      }).join('');
+
+      // Bebidas: tabla simple
+      const bebidaTbody = document.getElementById('bebida-tbody')!;
+      bebidaTbody.innerHTML = data.bebidas.map((b: any) => {
+        const zero = b.count === 0 ? ' td-zero' : '';
+        return `<tr><td>${b.nombre}</td><td class="${zero}">${b.count}</td></tr>`;
+      }).join('');
+
+      set('dash-updated', 'Actualizado: ' + new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid' }));
+    }
+
+    loadStats();
+  </script>
+</body>
+</html>
