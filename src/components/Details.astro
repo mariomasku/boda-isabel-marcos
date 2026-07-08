@@ -179,20 +179,35 @@
     const blob = new Blob([ICS], { type: 'text/calendar;charset=utf-8' });
     const file = new File([blob], 'Boda-Isabel-y-Marcos.ics', { type: 'text/calendar' });
 
-    // Intento 1: Web Share API con archivo → lanza el selector nativo del SO
-    if (navigator.share) {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    // Web Share API con archivo: abre el selector nativo (funciona en iOS Safari y
+    // Chrome Android moderno cuando el dispositivo lo soporta)
+    if (navigator.canShare?.({ files: [file] })) {
       try {
         await navigator.share({ files: [file] });
         return;
       } catch (err) {
-        if ((err as DOMException).name === 'AbortError') return; // el usuario canceló
-        // Si falla por tipo de archivo no soportado, continúa al fallback
+        if ((err as DOMException).name === 'AbortError') return;
       }
     }
 
-    // Fallback: protocolo webcal:// → el SO lo enruta a las apps de calendario registradas
-    // (Calendar en iOS, Google Calendar / Samsung Calendar en Android)
-    window.location.href = `webcal://${window.location.host}/boda.ics`;
+    if (isIOS) {
+      // iOS: webcal:// abre la app Calendario del sistema directamente
+      window.location.href = `webcal://${window.location.host}/boda.ics`;
+      return;
+    }
+
+    // Android y escritorio: descarga el .ics
+    // En Android el sistema muestra "Abrir con…" → Google Calendar, Samsung Calendar, etc.
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href     = url;
+    a.download = 'Boda-Isabel-y-Marcos.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   });
 </script>
 
