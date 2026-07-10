@@ -13,31 +13,34 @@
       Podéis indicar si lo necesitáis en el formulario de confirmación.
     </p>
 
-    <div class="bus-routes">
+    <div class="bus-ida-wrap">
       <div class="bus-card bus-card-ida">
         <div class="bus-direction">IDA</div>
         <div class="bus-route">Puente Genil → Cortijo El Alamillo</div>
         <div class="bus-direction">SALIDA DESDE EL LIDL</div>
         <div class="bus-time">17:15h</div>
       </div>
-
-      <div class="bus-arrow" aria-hidden="true">⇄</div>
-
-      <div class="bus-card bus-card-vuelta">
-        <div class="bus-direction">VUELTA</div>
-        <div class="bus-route">Córdoba → Puente Genil</div>
-        <div class="bus-direction">LLEGADA A LIDL PUENTE GENIL</div>
-        <div class="bus-times-list">
-          <span>03:00h</span>
-          <span class="separator">·</span>
-          <span>06:00h</span>
-        </div>
-      </div>
     </div>
 
-    <p class="bus-note gsap-fade">
+    <p class="bus-vuelta-heading gsap-fade">
       Hay dos opciones de vuelta para que podáis elegir la que mejor os venga.
     </p>
+
+    <div class="bus-routes">
+      <div class="bus-card bus-card-vuelta bus-card-vuelta-1">
+        <div class="bus-direction">VUELTA · PRIMER AUTOCAR</div>
+        <div class="bus-route">Córdoba → Puente Genil</div>
+        <div class="bus-direction">LLEGADA A LIDL PUENTE GENIL</div>
+        <div class="bus-time">03:00h</div>
+      </div>
+
+      <div class="bus-card bus-card-vuelta bus-card-vuelta-2">
+        <div class="bus-direction">VUELTA · SEGUNDO AUTOCAR</div>
+        <div class="bus-route">Córdoba → Puente Genil</div>
+        <div class="bus-direction">LLEGADA A LIDL PUENTE GENIL</div>
+        <div class="bus-time">06:00h</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -47,8 +50,24 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
-  // Tarjeta IDA: entra desde la izquierda
+  // Tarjeta IDA: entra desde arriba
   gsap.fromTo('.bus-card-ida',
+    { opacity: 0, y: 30 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.7,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: '.bus-ida-wrap',
+        start: 'top 85%',
+        toggleActions: 'play none none reverse',
+      },
+    }
+  );
+
+  // Tarjeta primer autocar de vuelta: entra desde la izquierda
+  gsap.fromTo('.bus-card-vuelta-1',
     { opacity: 0, x: -50 },
     {
       opacity: 1,
@@ -63,8 +82,8 @@
     }
   );
 
-  // Tarjeta VUELTA: entra desde la derecha con ligero retardo
-  gsap.fromTo('.bus-card-vuelta',
+  // Tarjeta segundo autocar de vuelta: entra desde la derecha con ligero retardo
+  gsap.fromTo('.bus-card-vuelta-2',
     { opacity: 0, x: 50 },
     {
       opacity: 1,
@@ -84,7 +103,7 @@
 <style>
   .bus-section {
     padding: 6rem 1.5rem;
-    background: linear-gradient(135deg, #5C3D12 0%, #7A5520 50%, #624015 100%);
+    background: linear-gradient(135deg, #F9F5EF 0%, #F0E8DC 50%, #F6F1E8 100%);
     position: relative;
     overflow: hidden;
   }
@@ -94,7 +113,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23F9F5EF' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23A88B65' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
 
   .bus-container {
@@ -108,20 +127,20 @@
     z-index: 1;
   }
 
-  /* Sobreescribir colores globales de título/subtítulo */
-  .bus-subtitle { color: rgba(249,245,239,0.6); }
-  .bus-title    { color: #F9F5EF; }
-  .bus-ornament-star { color: rgba(249,245,239,0.5); font-size: 1.2rem; }
+  /* Colores de título/subtítulo (heredan globales sobre fondo claro) */
+  .bus-subtitle { color: var(--gold-dark); }
+  .bus-title    { color: var(--brown); }
+  .bus-ornament-star { color: var(--gold); font-size: 1.2rem; }
 
   /* Icono de bus decorativo */
   .bus-icon {
     width: 172px;
     height: 172px;
-    filter: brightness(0) invert(1) opacity(0.55);
+    filter: brightness(0) sepia(1) saturate(0.5) brightness(0.65);
   }
 
   .bus-intro {
-    color: rgba(249,245,239,0.75);
+    color: var(--brown);
     font-family: 'Lato', sans-serif;
     font-size: 0.95rem;
     text-align: center;
@@ -130,12 +149,37 @@
     margin-top: 0.25rem;
   }
 
-  /* ── Tarjetas ── */
+  /* ── Tarjeta de IDA (centrada) ── */
+  .bus-ida-wrap {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    max-width: 580px;
+    margin-top: 2rem;
+  }
+
+  .bus-ida-wrap .bus-card {
+    flex: 0 1 320px;
+  }
+
+  /* ── Encabezado destacado de vuelta ── */
+  .bus-vuelta-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-style: italic;
+    color: var(--brown);
+    text-align: center;
+    line-height: 1.5;
+    max-width: 520px;
+    margin: 2.5rem auto 0.5rem;
+  }
+
+  /* ── Tarjetas de vuelta ── */
   .bus-routes {
     display: flex;
     align-items: stretch;
     gap: 1.5rem;
-    margin: 2rem 0 1rem;
+    margin: 1rem 0 1rem;
     width: 100%;
     max-width: 580px;
     justify-content: center;
@@ -143,8 +187,10 @@
 
   .bus-card {
     flex: 1;
-    background: rgba(249,245,239,0.07);
-    border: 1px solid rgba(249,245,239,0.18);
+    background: #fff;
+    border: 1px solid rgba(196,168,130,0.35);
+    border-radius: 8px;
+    box-shadow: 0 4px 18px rgba(44,24,16,0.06);
     padding: 2rem 1.8rem;
     text-align: center;
     display: flex;
@@ -152,60 +198,35 @@
     align-items: center;
     justify-content: center;
     gap: 0.6rem;
-    transition: background 0.25s;
+    transition: box-shadow 0.25s, transform 0.25s;
   }
 
   .bus-card:hover {
-    background: rgba(249,245,239,0.11);
+    box-shadow: 0 8px 26px rgba(44,24,16,0.1);
+    transform: translateY(-2px);
   }
 
   .bus-direction {
     font-family: 'Lato', sans-serif;
     font-size: 0.62rem;
     letter-spacing: 0.38em;
-    color: rgba(249,245,239,0.55);
+    color: var(--gold-dark);
     font-weight: 700;
   }
 
   .bus-route {
     font-family: 'Playfair Display', serif;
     font-size: 0.98rem;
-    color: rgba(249,245,239,0.88);
+    color: var(--brown);
     line-height: 1.4;
   }
 
-  .bus-time,
-  .bus-times-list {
+  .bus-time {
     font-family: 'Playfair Display', serif;
     font-size: 2rem;
-    color: #F9F5EF;
+    color: var(--brown);
     font-weight: 400;
     margin-top: 0.3rem;
-    font-style: italic;
-  }
-
-  .bus-times-list {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    font-size: 1.6rem;
-  }
-
-  .separator { color: rgba(249,245,239,0.3); }
-
-  .bus-arrow {
-    font-size: 1.6rem;
-    color: rgba(249,245,239,0.25);
-    align-self: center;
-    flex-shrink: 0;
-  }
-
-  .bus-note {
-    font-family: 'Lato', sans-serif;
-    font-size: 0.82rem;
-    color: rgba(249,245,239,0.45);
-    text-align: center;
     font-style: italic;
   }
 
@@ -214,7 +235,8 @@
       flex-direction: column;
       align-items: stretch;
     }
-    .bus-arrow { display: none; }
+    .bus-ida-wrap .bus-card { flex: 1; }
     .bus-card  { width: 100%; }
+    .bus-vuelta-heading { font-size: 1.15rem; }
   }
 </style>

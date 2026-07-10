@@ -26,17 +26,49 @@ const CREAM       = { red: 0.941, green: 0.867, blue: 0.757 }; // #F0DDC1
 const WHITE       = { red: 1,     green: 1,     blue: 1     };
 
 // ── Helpers ─────────────────────────────────────────────────
+// up(): valores controlados (ROL, ASISTENCIA, alérgenos, bebida, autobús)
+// que alimentan las fórmulas del RESUMEN y el dashboard — deben ir en MAYÚSCULAS.
 const up = (v: unknown): string => {
   if (v == null || v === '') return '';
   if (Array.isArray(v)) return v.map(String).join(', ').toUpperCase();
   return String(v).toUpperCase();
 };
 
+// Conectores que van en minúscula dentro de una capitalización por palabra.
+const CONNECTORS = new Set(['de', 'del', 'la', 'las', 'el', 'los', 'y', 'e', 'o', 'u', 'a', 'en', 'con']);
+
+// cap(): capitaliza la primera letra de cada palabra (nombres, canción, otros).
+// La primera palabra siempre va en mayúscula; los conectores intermedios en minúscula.
+const cap = (v: unknown): string => {
+  if (v == null || v === '') return '';
+  return String(v).trim().toLowerCase().split(/\s+/)
+    .map((w, i) => (i > 0 && CONNECTORS.has(w)) ? w : w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+};
+
+// sentence(): capitaliza solo la primera letra (comentarios en prosa).
+const sentence = (v: unknown): string => {
+  if (v == null || v === '') return '';
+  const s = String(v).trim();
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
+// Mapa de códigos de alérgeno (valor del checkbox) → nombre limpio en el Sheet.
+// Debe coincidir con los tokens de stats.ts y los patrones COUNTIF del RESUMEN.
+const INTOL_CLEAN: Record<string, string> = {
+  GLUTEN: 'Gluten', LACTOSA: 'Lactosa', HUEVO: 'Huevo', FRUTOS_SECOS: 'Frutos secos',
+  CACAHUETE: 'Cacahuete', MARISCO: 'Marisco', PESCADO: 'Pescado', SOJA: 'Soja',
+  SESAMO: 'Sésamo', MOSTAZA: 'Mostaza', APIO: 'Apio', SULFITOS: 'Sulfitos',
+  ALTRAMUCES: 'Altramuces', MOLUSCOS: 'Moluscos',
+};
+
 const buildIntol = (data: Record<string, unknown>, pid: string) => {
-  const vals  = data[`intol_${pid}`];
-  const intol = Array.isArray(vals) ? vals.join(', ').toUpperCase()
-    : (vals ? String(vals).toUpperCase() : '');
-  const otros = up(data[`intol_${pid}_otros`]);
+  const vals = data[`intol_${pid}`];
+  const arr  = Array.isArray(vals) ? vals : (vals ? [vals] : []);
+  const intol = arr
+    .map(v => INTOL_CLEAN[String(v).toUpperCase()] ?? cap(v))
+    .join(', ');
+  const otros = cap(data[`intol_${pid}_otros`]);
   return { intol, otros };
 };
 
@@ -44,7 +76,7 @@ const buildIntol = (data: Record<string, unknown>, pid: string) => {
 async function ensureSetup(
   sheets: ReturnType<typeof google.sheets>,
   spreadsheetId: string,
-): Promise<number> {
+): Promise<{ rsvpId: number; resId: number }> {
 
   // Estado actual del libro
   const meta      = await sheets.spreadsheets.get({ spreadsheetId });
@@ -101,7 +133,22 @@ async function ensureSetup(
   const hasChart = (resInfo?.charts ?? []).length > 0;
   await applyTheme(sheets, spreadsheetId, rsvpId, resId, !hasChart);
 
-  return rsvpId;
+  return { rsvpId, resId };
+}
+
+// Ajusta cada columna al ancho de su celda más larga (evita que se corte el texto).
+async function autoResizeColumns(
+  sheets: any, spreadsheetId: string, rsvpId: number, resId: number,
+) {
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      requests: [
+        { autoResizeDimensions: { dimensions: { sheetId: rsvpId, dimension: 'COLUMNS', startIndex: 0, endIndex: HEADERS.length } } },
+        { autoResizeDimensions: { dimensions: { sheetId: resId,  dimension: 'COLUMNS', startIndex: 0, endIndex: 2 } } },
+      ],
+    },
+  });
 }
 
 // ── Contenido del RESUMEN ─────────────────────────────────────
@@ -149,7 +196,7 @@ async function writeResumen(sheets: any, spreadsheetId: string) {
     ['Gluten (celiaquía)',     f(`COUNTIF(${t}!G:G;"*GLUTEN*")`)],
     ['Lactosa / lácteos',      f(`COUNTIF(${t}!G:G;"*LACTOSA*")`)],
     ['Huevo',                  f(`COUNTIF(${t}!G:G;"*HUEVO*")`)],
-    ['Frutos secos',           f(`COUNTIF(${t}!G:G;"*FRUTOS_SECOS*")`)],
+    ['Frutos secos',           f(`COUNTIF(${t}!G:G;"*FRUTOS SECOS*")`)],
     ['Cacahuete',              f(`COUNTIF(${t}!G:G;"*CACAHUETE*")`)],
     ['Marisco',                f(`COUNTIF(${t}!G:G;"*MARISCO*")`)],
     ['Pescado',                f(`COUNTIF(${t}!G:G;"*PESCADO*")`)],
@@ -413,17 +460,18 @@ export const POST: APIRoute = async ({ request }) => {
     const auth   = new google.auth.GoogleAuth({ credentials, scopes: ['https://www.googleapis.com/auth/spreadsheets'] });
     const sheets = google.sheets({ version: 'v4', auth });
 
-    const rsvpSheetId = await ensureSetup(sheets, spreadsheetId);
+    const { rsvpId: rsvpSheetId, resId: resumenSheetId } = await ensureSetup(sheets, spreadsheetId);
 
     // ── Construir filas ──────────────────────────────────────
     const fecha       = new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid' });
-    const nombre      = up(data.nombre);
-    const asistencia  = String(data.asistencia ?? '').startsWith('S') ? 'SÍ' : 'NO';
-    const bebida      = up(data.bebida);
-    const autobus     = up(data.autobus);
+    const nombre      = cap(data.nombre);
+    const asistencia  = String(data.asistencia ?? '').startsWith('S') ? 'Sí' : 'No';
+    const bebida      = cap(data.bebida);
+    const autobusRaw  = String(data.autobus ?? '');
+    const autobus     = autobusRaw.startsWith('No lo') ? 'No' : cap(autobusRaw);
     const busPlazas   = up(data.bus_plazas);
-    const cancion     = up(data.cancion);
-    const comentarios = up(data.comentarios);
+    const cancion     = cap(data.cancion);
+    const comentarios = sentence(data.comentarios);
 
     const rows: string[][] = [];
     type RowType = 'invitado' | 'acompanante' | 'nino';
@@ -431,25 +479,25 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Invitado principal
     const { intol: intolInv, otros: otrosInv } = buildIntol(data, 'invitado');
-    rows.push([fecha, nombre, 'INVITADO', '', asistencia, '', intolInv, otrosInv, bebida, autobus, busPlazas, cancion, comentarios]);
+    rows.push([fecha, nombre, 'Invitado', '', asistencia, '', intolInv, otrosInv, bebida, autobus, busPlazas, cancion, comentarios]);
     rowTypes.push('invitado');
 
-    if (asistencia === 'SÍ') {
+    if (asistencia === 'Sí') {
       // Acompañante
       if (data.acompanante === 'si' && data.acompanante_nombre) {
-        const acN = up(data.acompanante_nombre);
+        const acN = cap(data.acompanante_nombre);
         const { intol: intolAc, otros: otrosAc } = buildIntol(data, 'acompanante');
-        rows.push([fecha, acN, 'ACOMPAÑANTE', nombre, 'SÍ', '', intolAc, otrosAc, '', '', '', '', '']);
+        rows.push([fecha, acN, 'Acompañante', nombre, 'Sí', '', intolAc, otrosAc, '', '', '', '', '']);
         rowTypes.push('acompanante');
       }
       // Niños
       if (data.ninos === 'si') {
         const count = parseInt(String(data.ninos_count || '0')) || 0;
         for (let i = 1; i <= count; i++) {
-          const nn   = up(data[`nino_${i}_nombre`]);
+          const nn   = cap(data[`nino_${i}_nombre`]);
           const edad = String(data[`nino_${i}_edad`] || '');
           const { intol: intolN, otros: otrosN } = buildIntol(data, `nino_${i}`);
-          rows.push([fecha, nn, 'NIÑO/A', nombre, 'SÍ', edad, intolN, otrosN, '', '', '', '', '']);
+          rows.push([fecha, nn, 'Niño/a', nombre, 'Sí', edad, intolN, otrosN, '', '', '', '', '']);
           rowTypes.push('nino');
         }
       }
@@ -485,6 +533,9 @@ export const POST: APIRoute = async ({ request }) => {
     if (colorReqs.length) {
       await sheets.spreadsheets.batchUpdate({ spreadsheetId, requestBody: { requests: colorReqs } });
     }
+
+    // Ajustar columnas al contenido (después de escribir la nueva fila)
+    await autoResizeColumns(sheets, spreadsheetId, rsvpSheetId, resumenSheetId);
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,

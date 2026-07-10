@@ -3,27 +3,31 @@ import { google } from 'googleapis';
 
 export const prerender = false;
 
+// [token buscado en la celda, etiqueta a mostrar]. El token debe coincidir
+// (sin distinguir mayúsculas) con el nombre limpio que escribe rsvp.ts.
 const ALLERGENS: [string, string][] = [
-  ['GLUTEN',       'Gluten (celiaquía)'],
-  ['LACTOSA',      'Lactosa / lácteos'],
-  ['HUEVO',        'Huevo'],
-  ['FRUTOS_SECOS', 'Frutos secos'],
-  ['CACAHUETE',    'Cacahuete'],
-  ['MARISCO',      'Marisco'],
-  ['PESCADO',      'Pescado'],
-  ['SOJA',         'Soja'],
-  ['SESAMO',       'Sésamo'],
-  ['MOSTAZA',      'Mostaza'],
-  ['APIO',         'Apio'],
-  ['SULFITOS',     'Sulfitos'],
-  ['ALTRAMUCES',   'Altramuces (lupino)'],
-  ['MOLUSCOS',     'Moluscos'],
+  ['Gluten',       'Gluten (celiaquía)'],
+  ['Lactosa',      'Lactosa / lácteos'],
+  ['Huevo',        'Huevo'],
+  ['Frutos secos', 'Frutos secos'],
+  ['Cacahuete',    'Cacahuete'],
+  ['Marisco',      'Marisco'],
+  ['Pescado',      'Pescado'],
+  ['Soja',         'Soja'],
+  ['Sésamo',       'Sésamo'],
+  ['Mostaza',      'Mostaza'],
+  ['Apio',         'Apio'],
+  ['Sulfitos',     'Sulfitos'],
+  ['Altramuces',   'Altramuces (lupino)'],
+  ['Moluscos',     'Moluscos'],
 ];
 
-const BEBIDAS = ['WHISKY', 'GINEBRA', 'RON', 'VODKA'];
-const BEBIDA_LABELS: Record<string, string> = {
-  WHISKY: 'Whisky', GINEBRA: 'Ginebra', RON: 'Ron', VODKA: 'Vodka',
-};
+const BEBIDAS = ['Whisky', 'Ginebra', 'Ron', 'Vodka'];
+
+// Normaliza para comparaciones sin distinguir mayúsculas/acentos de caja.
+const U = (v: unknown): string => (v == null ? '' : String(v)).toUpperCase();
+const eq  = (a: unknown, b: string) => U(a) === b.toUpperCase();
+const has = (a: unknown, b: string) => U(a).includes(b.toUpperCase());
 
 export const GET: APIRoute = async () => {
   try {
@@ -40,21 +44,21 @@ export const GET: APIRoute = async () => {
     const rows = (res.data.values ?? []) as string[][];
 
     // Col indices (0-based): C=2(ROL), E=4(ASISTENCIA), F=5(EDAD), G=6(INTOL), H=7(OTROS), I=8(BEBIDA), J=9(AUTOBUS), K=10(PLAZAS)
-    const si     = rows.filter(r => r[4] === 'SÍ');
-    const no     = rows.filter(r => r[4] === 'NO').length;
-    const adultos = si.filter(r => r[2] === 'INVITADO' || r[2] === 'ACOMPAÑANTE').length;
-    const ninos   = si.filter(r => r[2] === 'NIÑO/A').length;
+    const si     = rows.filter(r => eq(r[4], 'Sí'));
+    const no     = rows.filter(r => eq(r[4], 'No')).length;
+    const adultos = si.filter(r => eq(r[2], 'Invitado') || eq(r[2], 'Acompañante')).length;
+    const ninos   = si.filter(r => eq(r[2], 'Niño/a')).length;
 
-    const busIda    = si.reduce((s, r) => (r[9] === 'IDA Y VUELTA' || r[9] === 'SOLO IDA')    ? s + (parseInt(r[10]) || 0) : s, 0);
-    const busVuelta = si.reduce((s, r) => (r[9] === 'IDA Y VUELTA' || r[9] === 'SOLO VUELTA') ? s + (parseInt(r[10]) || 0) : s, 0);
+    const busIda    = si.reduce((s, r) => (eq(r[9], 'Ida y vuelta') || eq(r[9], 'Solo ida'))    ? s + (parseInt(r[10]) || 0) : s, 0);
+    const busVuelta = si.reduce((s, r) => (eq(r[9], 'Ida y vuelta') || eq(r[9], 'Solo vuelta')) ? s + (parseInt(r[10]) || 0) : s, 0);
 
     const toPersona = (r: string[], extra = '') => ({
       nombre: extra ? `${r[1] ?? ''} — ${extra}` : (r[1] ?? ''),
-      nino: r[2] === 'NIÑO/A',
+      nino: eq(r[2], 'Niño/a'),
     });
 
-    const intolerancias = ALLERGENS.map(([key, label]) => {
-      const afectados = rows.filter(r => (r[6] ?? '').includes(key));
+    const intolerancias = ALLERGENS.map(([token, label]) => {
+      const afectados = rows.filter(r => has(r[6], token));
       return {
         nombre: label,
         count: afectados.length,
@@ -63,9 +67,9 @@ export const GET: APIRoute = async () => {
     });
     const otros = rows.filter(r => (r[7] ?? '').trim() !== '');
 
-    const bebidas = BEBIDAS.map(key => ({
-      nombre: BEBIDA_LABELS[key],
-      count: rows.filter(r => (r[8] ?? '').includes(key)).length,
+    const bebidas = BEBIDAS.map(nombre => ({
+      nombre,
+      count: rows.filter(r => has(r[8], nombre)).length,
     }));
 
     const totalRows = rows.length;
