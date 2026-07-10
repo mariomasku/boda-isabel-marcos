@@ -48,12 +48,17 @@ export const GET: APIRoute = async () => {
     const busIda    = si.reduce((s, r) => (r[9] === 'IDA Y VUELTA' || r[9] === 'SOLO IDA')    ? s + (parseInt(r[10]) || 0) : s, 0);
     const busVuelta = si.reduce((s, r) => (r[9] === 'IDA Y VUELTA' || r[9] === 'SOLO VUELTA') ? s + (parseInt(r[10]) || 0) : s, 0);
 
+    const toPersona = (r: string[], extra = '') => ({
+      nombre: extra ? `${r[1] ?? ''} — ${extra}` : (r[1] ?? ''),
+      nino: r[2] === 'NIÑO/A',
+    });
+
     const intolerancias = ALLERGENS.map(([key, label]) => {
       const afectados = rows.filter(r => (r[6] ?? '').includes(key));
       return {
         nombre: label,
         count: afectados.length,
-        personas: afectados.map(r => r[1] ?? '').filter(Boolean),
+        personas: afectados.filter(r => r[1]).map(r => toPersona(r)),
       };
     });
     const otros = rows.filter(r => (r[7] ?? '').trim() !== '');
@@ -73,7 +78,7 @@ export const GET: APIRoute = async () => {
       intolerancias: [...intolerancias, {
         nombre: 'Otros especificados',
         count: otros.length,
-        personas: otros.map(r => `${r[1] ?? ''} — ${r[7]}`).filter(p => !p.startsWith(' —')),
+        personas: otros.filter(r => r[1]).map(r => toPersona(r, r[7])),
       }],
       bebidas,
       sheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheetId}`,

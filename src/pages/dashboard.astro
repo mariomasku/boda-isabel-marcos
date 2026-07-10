@@ -332,12 +332,23 @@ export const prerender = true;
       gap: 0.4rem;
     }
     .people-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
       padding: 0.6rem 0.85rem;
       background: rgba(196,168,130,0.08);
       border: 1px solid rgba(196,168,130,0.2);
       border-radius: 5px;
       font-size: 0.82rem;
       color: var(--brown);
+    }
+    .people-nino {
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(44,24,16,0.4);
+      flex-shrink: 0;
     }
 
     /* ── Responsive ── */
@@ -486,12 +497,12 @@ export const prerender = true;
     // ── Modal de personas ───────────────────────────────────────
     const peopleOverlay = document.getElementById('people-overlay') as HTMLElement;
 
-    function openPeopleModal(nombre: string, personas: string[]) {
+    function openPeopleModal(nombre: string, personas: { nombre: string; nino: boolean }[]) {
       document.getElementById('people-title')!.textContent = nombre;
       document.getElementById('people-count')!.textContent =
         personas.length === 1 ? '1 persona' : `${personas.length} personas`;
       document.getElementById('people-list')!.innerHTML =
-        personas.map(p => `<div class="people-item">${p}</div>`).join('');
+        personas.map(p => `<div class="people-item">${p.nombre}${p.nino ? '<span class="people-nino">niño/a</span>' : ''}</div>`).join('');
       peopleOverlay.style.display = 'flex';
       peopleOverlay.getBoundingClientRect();
       peopleOverlay.classList.add('open');
