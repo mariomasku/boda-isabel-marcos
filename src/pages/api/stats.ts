@@ -48,11 +48,15 @@ export const GET: APIRoute = async () => {
     const busIda    = si.reduce((s, r) => (r[9] === 'IDA Y VUELTA' || r[9] === 'SOLO IDA')    ? s + (parseInt(r[10]) || 0) : s, 0);
     const busVuelta = si.reduce((s, r) => (r[9] === 'IDA Y VUELTA' || r[9] === 'SOLO VUELTA') ? s + (parseInt(r[10]) || 0) : s, 0);
 
-    const intolerancias = ALLERGENS.map(([key, label]) => ({
-      nombre: label,
-      count: rows.filter(r => (r[6] ?? '').includes(key)).length,
-    }));
-    const otrosCount = rows.filter(r => (r[7] ?? '').trim() !== '').length;
+    const intolerancias = ALLERGENS.map(([key, label]) => {
+      const afectados = rows.filter(r => (r[6] ?? '').includes(key));
+      return {
+        nombre: label,
+        count: afectados.length,
+        personas: afectados.map(r => r[1] ?? '').filter(Boolean),
+      };
+    });
+    const otros = rows.filter(r => (r[7] ?? '').trim() !== '');
 
     const bebidas = BEBIDAS.map(key => ({
       nombre: BEBIDA_LABELS[key],
@@ -66,8 +70,13 @@ export const GET: APIRoute = async () => {
       totalRegistros: totalRows,
       asistencia: { total: si.length, adultos, ninos, noAsisten: no },
       autobus: { ida: busIda, vuelta: busVuelta },
-      intolerancias: [...intolerancias, { nombre: 'Otros especificados', count: otrosCount }],
+      intolerancias: [...intolerancias, {
+        nombre: 'Otros especificados',
+        count: otros.length,
+        personas: otros.map(r => `${r[1] ?? ''} — ${r[7]}`).filter(p => !p.startsWith(' —')),
+      }],
       bebidas,
+      sheetUrl: `https://docs.google.com/spreadsheets/d/${spreadsheetId}`,
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },

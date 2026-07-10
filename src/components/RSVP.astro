@@ -938,6 +938,19 @@
   const successMsg = document.getElementById('form-success')!;
   const errorMsg   = document.getElementById('form-error')!;
 
+  // Limpia todos los campos, incluido el estado dinámico (acordeones, pickers, campos generados)
+  function resetFormCompleto() {
+    form.reset();
+    extrasSi.classList.remove('visible');
+    (document.getElementById('acomp-nombre-block') as HTMLElement).style.display = 'none';
+    (document.getElementById('ninos-block') as HTMLElement).style.display = 'none';
+    (document.getElementById('bus-plazas-block') as HTMLElement).style.display = 'none';
+    resetNinosCount();
+    resetIntolerancias();
+    document.getElementById('bus-plazas-picker')!.innerHTML = '';
+    (document.getElementById('bus_plazas') as HTMLInputElement).value = '';
+  }
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = form.querySelector('.submit-btn') as HTMLButtonElement;
@@ -974,10 +987,12 @@
 
       const json = await res.json().catch(() => ({}));
       if (res.ok) {
-        form.reset();
+        resetFormCompleto();
         successMsg.style.display = 'block';
         errorMsg.style.display   = 'none';
-        btn.style.display        = 'none';
+        btn.textContent = 'Enviar confirmación';
+        btn.disabled = false;
+        successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else {
         console.error('RSVP error:', json);
         throw new Error(json.debug || 'unknown');
