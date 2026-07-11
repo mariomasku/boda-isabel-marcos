@@ -1,0 +1,48 @@
+---
+// Título de sección con forma de cinta (banner) y filigrana ornamental
+// arriba y abajo. Las filigranas se animan al hacer scroll (.gsap-filigrana,
+// gestionado en index.astro).
+const filigrana = `
+<svg viewBox="0 0 240 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <g>
+      <path d="M120 11 H166"/>
+      <path d="M148 11 c6,-7 14,-8 22,-6 c-4,6 -12,8 -19,6"/>
+      <path d="M166 11 c7,0 12,-4 14,-9 c3,5 1,11 -5,12 c5,2 12,1 16,-4"/>
+      <circle cx="204" cy="8" r="1.7" fill="currentColor" stroke="none"/>
+    </g>
+    <g transform="matrix(-1,0,0,1,240,0)">
+      <path d="M120 11 H166"/>
+      <path d="M148 11 c6,-7 14,-8 22,-6 c-4,6 -12,8 -19,6"/>
+      <path d="M166 11 c7,0 12,-4 14,-9 c3,5 1,11 -5,12 c5,2 12,1 16,-4"/>
+      <circle cx="204" cy="8" r="1.7" fill="currentColor" stroke="none"/>
+    </g>
+    <path d="M120 3.5 l4.5,7.5 l-4.5,7.5 l-4.5,-7.5 z" fill="currentColor" stroke="none"/>
+  </g>
+</svg>`;
+---
+<div class="title-block">
+  <div class="filigrana gsap-filigrana" aria-hidden="true" set:html={filigrana} />
+  <h2 class="section-title gsap-fade"><slot /></h2>
+  <div class="filigrana filigrana-bottom gsap-filigrana" aria-hidden="true" set:html={filigrana} />
+</div>
+
+<style>
+  .title-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .filigrana {
+    color: var(--salvia);
+    width: clamp(190px, 42vw, 250px);
+    transform-origin: center center;
+    /* Estado inicial antes de que GSAP tome el control (evita parpadeo) */
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .filigrana :global(svg) { display: block; width: 100%; height: auto; }
+  .filigrana-bottom :global(svg) { transform: rotate(180deg); }
+</style>

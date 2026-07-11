@@ -1,5 +1,6 @@
 ---
 export const prerender = true;
+import '../styles/global.css';
 ---
 <!doctype html>
 <html lang="es">
@@ -15,22 +16,17 @@ export const prerender = true;
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --brown:      #2C1810;
-      --brown-mid:  #5C3D1E;
-      --gold:       #C4A882;
-      --gold-dark:  #8B6914;
-      --ivory:      #F6F1E8;
-      --cream:      #FFFFFF;
-      --border:     rgba(196,168,130,0.28);
-      --text-soft:  rgba(44,24,16,0.55);
-      --card-shadow: 0 1px 3px rgba(44,24,16,0.06), 0 4px 12px rgba(44,24,16,0.04);
+      /* Colores heredados de global.css. Solo tokens propios del panel: */
+      --border:     color-mix(in srgb, var(--oro) 28%, transparent);
+      --text-soft:  color-mix(in srgb, var(--sombra) 55%, transparent);
+      --card-shadow: 0 1px 3px color-mix(in srgb, var(--sombra) 6%, transparent), 0 4px 12px color-mix(in srgb, var(--sombra) 4%, transparent);
     }
 
     body {
       font-family: 'Lato', sans-serif;
-      background: var(--ivory);
+      background: var(--marfil);
       min-height: 100vh;
-      color: var(--brown);
+      color: var(--eucalipto);
     }
 
     /* ── Header ── */
@@ -39,28 +35,28 @@ export const prerender = true;
       align-items: center;
       justify-content: space-between;
       padding: 1rem 1.5rem;
-      background: var(--brown);
-      border-bottom: 2px solid var(--gold);
+      background: var(--eucalipto);
+      border-bottom: 2px solid var(--oro);
     }
     .dash-logo-wrap { display: flex; flex-direction: column; gap: 2px; }
     .dash-logo {
       font-family: 'Playfair Display', serif;
       font-size: 1.2rem;
       font-style: italic;
-      color: var(--gold);
+      color: var(--oro);
     }
     .dash-logo-sub {
       font-size: 0.6rem;
       letter-spacing: 0.3em;
       text-transform: uppercase;
-      color: rgba(196,168,130,0.5);
+      color: color-mix(in srgb, var(--oro) 50%, transparent);
     }
     .dash-actions { display: flex; gap: 0.6rem; align-items: center; }
     .btn-ghost {
       padding: 0.4rem 0.9rem;
-      border: 1px solid rgba(196,168,130,0.35);
+      border: 1px solid color-mix(in srgb, var(--oro) 35%, transparent);
       background: transparent;
-      color: rgba(196,168,130,0.7);
+      color: color-mix(in srgb, var(--oro) 70%, transparent);
       font-family: 'Lato', sans-serif;
       font-size: 0.68rem;
       letter-spacing: 0.14em;
@@ -69,7 +65,7 @@ export const prerender = true;
       text-decoration: none;
       transition: all 0.2s;
     }
-    .btn-ghost:hover { background: rgba(196,168,130,0.12); color: var(--gold); }
+    .btn-ghost:hover { background: color-mix(in srgb, var(--oro) 12%, transparent); color: var(--oro); }
     .btn-back-full  { display: inline; }
     .btn-back-short { display: none; }
 
@@ -81,7 +77,7 @@ export const prerender = true;
       font-size: clamp(1.5rem, 4vw, 2.2rem);
       font-weight: 400;
       font-style: italic;
-      color: var(--brown);
+      color: var(--eucalipto);
       margin-bottom: 0.2rem;
     }
     .dash-page-sub {
@@ -112,7 +108,7 @@ export const prerender = true;
       font-size: 0.62rem;
       letter-spacing: 0.3em;
       text-transform: uppercase;
-      color: var(--gold-dark);
+      color: var(--salvia);
       font-weight: 700;
     }
     .section-line { flex: 1; height: 1px; background: var(--border); }
@@ -124,9 +120,9 @@ export const prerender = true;
       gap: 0.9rem;
     }
     .stat-card {
-      background: var(--cream);
+      background: var(--blanco);
       border: 1px solid var(--border);
-      border-top: 3px solid var(--gold);
+      border-top: 3px solid var(--oro);
       border-radius: 6px;
       box-shadow: var(--card-shadow);
       padding: 1.2rem 0.9rem 1rem;
@@ -137,7 +133,7 @@ export const prerender = true;
       transition: box-shadow 0.15s, transform 0.1s;
     }
     .stat-card:hover {
-      box-shadow: 0 4px 14px rgba(44,24,16,0.12);
+      box-shadow: 0 4px 14px color-mix(in srgb, var(--sombra) 12%, transparent);
       transform: translateY(-2px);
     }
     .stat-card:active { transform: translateY(0); }
@@ -156,11 +152,11 @@ export const prerender = true;
     .stat-card-value {
       font-family: 'Playfair Display', serif;
       font-size: 3rem;
-      color: var(--brown);
+      color: var(--eucalipto);
       line-height: 1;
     }
-    .stat-card-value.muted { color: rgba(44,24,16,0.3); }
-    .stat-card-value.gold  { color: var(--gold-dark); }
+    .stat-card-value.muted { color: color-mix(in srgb, var(--sombra) 30%, transparent); }
+    .stat-card-value.gold  { color: var(--salvia); }
 
     /* ── Bus: compacto ── */
     .bus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
@@ -169,9 +165,9 @@ export const prerender = true;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      background: var(--cream);
+      background: var(--blanco);
       border: 1px solid var(--border);
-      border-left: 3px solid var(--gold);
+      border-left: 3px solid var(--oro);
       border-radius: 6px;
       box-shadow: var(--card-shadow);
       padding: 0.8rem 1.1rem;
@@ -182,7 +178,7 @@ export const prerender = true;
       transition: box-shadow 0.15s, transform 0.1s;
     }
     .bus-card:hover {
-      box-shadow: 0 4px 14px rgba(44,24,16,0.12);
+      box-shadow: 0 4px 14px color-mix(in srgb, var(--sombra) 12%, transparent);
       transform: translateY(-2px);
     }
     .bus-card:active { transform: translateY(0); }
@@ -193,14 +189,14 @@ export const prerender = true;
       font-size: 0.6rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--gold-dark);
+      color: var(--salvia);
       font-weight: 700;
     }
     .bus-card-hora { font-size: 0.68rem; color: var(--text-soft); line-height: 1.4; }
     .bus-card-value {
       font-family: 'Playfair Display', serif;
       font-size: 2rem;
-      color: var(--brown);
+      color: var(--eucalipto);
       line-height: 1;
       flex-shrink: 0;
     }
@@ -212,9 +208,9 @@ export const prerender = true;
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      background: var(--cream);
+      background: var(--blanco);
       border: 1px solid var(--border);
-      border-left: 3px solid var(--gold);
+      border-left: 3px solid var(--oro);
       border-radius: 6px;
       box-shadow: var(--card-shadow);
       padding: 0.8rem 1.1rem;
@@ -224,16 +220,16 @@ export const prerender = true;
       font-size: 0.6rem;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--gold-dark);
+      color: var(--salvia);
       font-weight: 700;
     }
-    .row-mini-bar  { height: 3px; background: rgba(196,168,130,0.15); border-radius: 2px; margin-top: 5px; max-width: 260px; }
-    .row-mini-fill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.6s ease; }
+    .row-mini-bar  { height: 3px; background: color-mix(in srgb, var(--oro) 15%, transparent); border-radius: 2px; margin-top: 5px; max-width: 260px; }
+    .row-mini-fill { height: 100%; background: var(--oro); border-radius: 2px; transition: width 0.6s ease; }
 
     .row-card-count {
       font-family: 'Playfair Display', serif;
       font-size: 2rem;
-      color: var(--brown);
+      color: var(--eucalipto);
       line-height: 1;
       flex-shrink: 0;
       text-align: center;
@@ -241,7 +237,7 @@ export const prerender = true;
       border: none;
       padding: 0;
     }
-    .row-card-count.zero { color: rgba(44,24,16,0.22); }
+    .row-card-count.zero { color: color-mix(in srgb, var(--sombra) 22%, transparent); }
     /* Botón redondo: personas con intolerancia */
     button.row-card-count {
       cursor: pointer;
@@ -253,18 +249,18 @@ export const prerender = true;
       border-radius: 50%;
       font-size: 1.35rem;
       font-weight: 600;
-      color: var(--gold-dark);
-      background: var(--cream);
-      border: 1.5px solid var(--gold);
-      box-shadow: 0 2px 6px rgba(44,24,16,0.14), 0 1px 2px rgba(44,24,16,0.1);
+      color: var(--salvia);
+      background: var(--blanco);
+      border: 1.5px solid var(--oro);
+      box-shadow: 0 2px 6px color-mix(in srgb, var(--sombra) 14%, transparent), 0 1px 2px color-mix(in srgb, var(--sombra) 10%, transparent);
       transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
     }
     button.row-card-count:hover {
-      background: rgba(196,168,130,0.15);
-      box-shadow: 0 4px 10px rgba(44,24,16,0.18);
+      background: color-mix(in srgb, var(--oro) 15%, transparent);
+      box-shadow: 0 4px 10px color-mix(in srgb, var(--sombra) 18%, transparent);
       transform: translateY(-1px);
     }
-    button.row-card-count:active { transform: translateY(0); box-shadow: 0 1px 3px rgba(44,24,16,0.12); }
+    button.row-card-count:active { transform: translateY(0); box-shadow: 0 1px 3px color-mix(in srgb, var(--sombra) 12%, transparent); }
 
     /* ── Enlace al Sheet ── */
     .sheet-link-wrap { text-align: center; margin-top: 2.5rem; }
@@ -273,9 +269,9 @@ export const prerender = true;
       align-items: center;
       gap: 0.6rem;
       padding: 0.8rem 1.6rem;
-      background: var(--brown);
-      color: var(--gold);
-      border: 1px solid var(--brown);
+      background: var(--eucalipto);
+      color: var(--oro);
+      border: 1px solid var(--eucalipto);
       border-radius: 6px;
       text-decoration: none;
       font-size: 0.72rem;
@@ -284,7 +280,7 @@ export const prerender = true;
       transition: background 0.2s, color 0.2s;
       box-shadow: var(--card-shadow);
     }
-    .sheet-link:hover { background: var(--brown-mid); color: var(--ivory); }
+    .sheet-link:hover { background: var(--eucalipto-medio); color: var(--marfil); }
 
     .dash-updated { font-size: 0.65rem; color: var(--text-soft); text-align: center; margin-top: 1rem; letter-spacing: 0.05em; }
 
@@ -292,7 +288,7 @@ export const prerender = true;
     .people-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(30,15,8,0.55);
+      background: color-mix(in srgb, var(--eucalipto-noche) 55%, transparent);
       backdrop-filter: blur(3px);
       -webkit-backdrop-filter: blur(3px);
       display: none;
@@ -305,10 +301,10 @@ export const prerender = true;
     }
     .people-overlay.open { opacity: 1; }
     .people-modal {
-      background: var(--cream);
+      background: var(--blanco);
       border-radius: 8px;
-      border-top: 4px solid var(--gold);
-      box-shadow: 0 20px 60px rgba(44,24,16,0.3);
+      border-top: 4px solid var(--oro);
+      box-shadow: 0 20px 60px color-mix(in srgb, var(--sombra) 30%, transparent);
       max-width: 380px;
       width: 100%;
       max-height: 70vh;
@@ -329,7 +325,7 @@ export const prerender = true;
       font-family: 'Playfair Display', serif;
       font-size: 1.1rem;
       font-style: italic;
-      color: var(--brown);
+      color: var(--eucalipto);
       line-height: 1.3;
     }
     .people-modal-count {
@@ -349,7 +345,7 @@ export const prerender = true;
       flex-shrink: 0;
       transition: color 0.15s;
     }
-    .people-close:hover { color: var(--brown); }
+    .people-close:hover { color: var(--eucalipto); }
     .people-list {
       overflow-y: auto;
       padding: 0.25rem 1.25rem 1.25rem;
@@ -363,17 +359,17 @@ export const prerender = true;
       justify-content: space-between;
       gap: 0.6rem;
       padding: 0.6rem 0.85rem;
-      background: rgba(196,168,130,0.08);
-      border: 1px solid rgba(196,168,130,0.2);
+      background: color-mix(in srgb, var(--oro) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--oro) 20%, transparent);
       border-radius: 5px;
       font-size: 0.82rem;
-      color: var(--brown);
+      color: var(--eucalipto);
     }
     .people-nino {
       font-size: 0.6rem;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: rgba(44,24,16,0.4);
+      color: color-mix(in srgb, var(--sombra) 40%, transparent);
       flex-shrink: 0;
     }
     .people-empty {
@@ -397,7 +393,7 @@ export const prerender = true;
 
   <header class="dash-header">
     <div class="dash-logo-wrap">
-      <span class="dash-logo">Isabel <span style="font-style:normal;color:rgba(196,168,130,0.5)">&</span> Marcos</span>
+      <span class="dash-logo">Isabel <span style="font-style:normal;color:color-mix(in srgb, var(--oro) 50%, transparent)">&</span> Marcos</span>
       <span class="dash-logo-sub">Panel de confirmaciones</span>
     </div>
     <div class="dash-actions">

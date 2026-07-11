@@ -1,14 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Birthstone+Bounce:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700&family=WindSong:wght@400;500&display=swap');
 @import "tailwindcss";
 
 :root {
-  --ivory: #F9F5EF;
-  --cream: #F0E8DC;
-  --gold: #C4A882;
-  --gold-dark: #A88B65;
-  --brown: #5C4033;
-  --brown-light: #8B6F5E;
-  --text: #2C2416;
+  /* ── Paleta "hojas" — nombrada por su color real ── */
+  /* Fondos y claros */
+  --marfil:    #faf7f2;  /* blanco cálido — fondo principal */
+  --crema:     #f2eeea;  /* crema — fondo secundario */
+  --blanco:    #ffffff;  /* blanco puro — tarjetas */
+  /* Oro */
+  --oro:       #d7b77d;  /* oro cálido — acento decorativo */
+  --oro-claro: #e2bd7a;  /* oro claro — detalles sobre fondo oscuro */
+  /* Verdes */
+  --salvia:          #7f958b;  /* verde salvia — acentos, subtítulos, texto 2º */
+  --eucalipto:       #47635f;  /* eucalipto — títulos y texto */
+  --eucalipto-medio: #5f7d76;  /* eucalipto medio — hover/detalles */
+  --eucalipto-oscuro:#26332f;  /* eucalipto oscuro — fondos oscuros (footer, modales) */
+  --eucalipto-noche: #1b2521;  /* eucalipto noche — degradados y overlays oscuros */
+  --sombra:          #2f423f;  /* verde muy oscuro — sombras y overlays sutiles */
+  /* Tonos suaves de apoyo */
+  --menta:     #e1e6e1;  /* menta pálido */
+  --oliva:     #d7d5b1;  /* oliva pálido */
+  --khaki:     #bcab7c;  /* khaki */
 }
 
 * {
@@ -22,8 +34,8 @@ html {
 }
 
 body {
-  background-color: var(--ivory);
-  color: var(--text);
+  background-color: var(--marfil);
+  color: var(--eucalipto);
   font-family: 'Lato', sans-serif;
   font-weight: 300;
   overflow-x: hidden;
@@ -34,10 +46,24 @@ h1, h2, h3, h4 {
 }
 
 .section-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  color: var(--brown);
+  display: inline-block;
+  font-family: 'Birthstone Bounce', 'Dancing Script', cursive;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  color: var(--blanco);
+  background: var(--salvia);
+  padding: 0.15em 1.2em 0.3em;
   text-align: center;
+  line-height: 1.25;
+  /* Cinta con extremos en muesca (banner) */
+  clip-path: polygon(
+    0% 0%,
+    100% 0%,
+    calc(100% - 17px) 50%,
+    100% 100%,
+    0% 100%,
+    17px 50%
+  );
 }
 
 .section-subtitle {
@@ -46,7 +72,7 @@ h1, h2, h3, h4 {
   letter-spacing: 0.2em;
   text-transform: uppercase;
   font-size: 0.75rem;
-  color: var(--gold-dark);
+  color: var(--salvia);
   text-align: center;
 }
 
@@ -64,13 +90,13 @@ h1, h2, h3, h4 {
   flex: 1;
   max-width: 80px;
   height: 1px;
-  background: var(--gold);
+  background: var(--oro);
 }
 
 .divider {
   width: 60px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  background: linear-gradient(90deg, transparent, var(--oro), transparent);
   margin: 0 auto;
 }
 
@@ -79,10 +105,10 @@ h1, h2, h3, h4 {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--cream);
+  background: var(--crema);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--gold);
+  background: var(--oro);
   border-radius: 3px;
 }
 

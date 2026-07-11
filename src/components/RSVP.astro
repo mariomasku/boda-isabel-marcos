@@ -1,12 +1,10 @@
 ---
+import SectionTitle from './SectionTitle.astro';
 ---
 <section id="rsvp" class="rsvp-section">
   <div class="rsvp-container">
     <p class="section-subtitle gsap-fade">confirma tu asistencia</p>
-    <h2 class="section-title gsap-fade">¿Contamos contigo?</h2>
-    <div class="ornament gsap-fade">
-      <span style="color: var(--gold); font-size:1.2rem;">✦</span>
-    </div>
+    <SectionTitle>¿Contamos contigo?</SectionTitle>
     <p class="rsvp-intro gsap-fade">
       Por favor, confirma tu asistencia antes del <strong>1 de septiembre de 2026</strong>.
       <br>Si no vienes, también te agradeceremos si nos lo indicas.
@@ -200,7 +198,7 @@
 <style>
   .rsvp-section {
     padding: 6rem 1.5rem;
-    background: var(--cream);
+    background: var(--crema);
   }
 
   .rsvp-container {
@@ -214,7 +212,7 @@
 
   .rsvp-intro {
     text-align: center;
-    color: var(--brown-light);
+    color: var(--salvia);
     font-size: 0.95rem;
     line-height: 1.8;
     margin-bottom: 1rem;
@@ -236,13 +234,13 @@
   .form-group > label {
     font-family: 'Playfair Display', serif;
     font-size: 1rem;
-    color: var(--brown);
+    color: var(--eucalipto);
     font-weight: 400;
   }
 
   .form-hint {
     font-size: 0.82rem;
-    color: var(--brown-light);
+    color: var(--salvia);
     font-style: italic;
     line-height: 1.6;
   }
@@ -250,9 +248,9 @@
   .photo-hint {
     margin-top: 0.8rem;
     padding: 1.8rem 1.5rem;
-    background: rgba(196,168,130,0.12);
-    border: 1px solid rgba(196,168,130,0.28);
-    border-top: 3px solid var(--gold);
+    background: color-mix(in srgb, var(--oro) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--oro) 28%, transparent);
+    border-top: 3px solid var(--oro);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -270,7 +268,7 @@
   .photo-hint-text {
     font-family: 'Lato', sans-serif;
     font-size: 0.95rem;
-    color: var(--brown-light);
+    color: var(--salvia);
     line-height: 1.8;
     font-style: italic;
   }
@@ -281,14 +279,14 @@
     align-items: center;
     gap: 0.65rem;
     padding-top: 0.75rem;
-    border-top: 1px solid rgba(196,168,130,0.3);
+    border-top: 1px solid color-mix(in srgb, var(--oro) 30%, transparent);
     width: 100%;
   }
 
   .photo-hint-name {
     font-family: 'Playfair Display', serif;
     font-size: 1.05rem;
-    color: var(--brown);
+    color: var(--eucalipto);
     font-weight: 400;
     letter-spacing: 0.04em;
   }
@@ -296,8 +294,8 @@
   .photo-hint-tel {
     display: inline-block;
     padding: 0.65rem 2rem;
-    border: 1px solid var(--gold);
-    color: var(--gold-dark);
+    border: 1px solid var(--oro);
+    color: var(--salvia);
     text-decoration: none;
     font-family: 'Lato', sans-serif;
     font-size: 1.05rem;
@@ -306,7 +304,7 @@
   }
 
   .photo-hint-tel:hover {
-    background: var(--gold);
+    background: var(--oro);
     color: white;
   }
 
@@ -316,12 +314,12 @@
   select {
     width: 100%;
     padding: 0.9rem 1rem;
-    background: var(--ivory);
-    border: 1px solid rgba(196,168,130,0.5);
+    background: var(--marfil);
+    border: 1px solid color-mix(in srgb, var(--oro) 50%, transparent);
     border-radius: 0;
     font-family: 'Lato', sans-serif;
     font-size: 0.9rem;
-    color: var(--text);
+    color: var(--eucalipto);
     outline: none;
     transition: border-color 0.2s;
     appearance: none;
@@ -330,7 +328,7 @@
   input[type="text"]:focus,
   textarea:focus,
   select:focus {
-    border-color: var(--gold);
+    border-color: var(--oro);
   }
 
   textarea { resize: vertical; }
@@ -349,22 +347,22 @@
     gap: 0.7rem;
     cursor: pointer;
     padding: 0.7rem 1rem;
-    background: var(--ivory);
-    border: 1px solid rgba(196,168,130,0.3);
+    background: var(--marfil);
+    border: 1px solid color-mix(in srgb, var(--oro) 30%, transparent);
     transition: border-color 0.2s, background 0.2s;
     font-size: 0.9rem;
-    color: var(--text);
+    color: var(--eucalipto);
   }
 
   .radio-option:hover,
   .checkbox-option:hover {
-    border-color: var(--gold);
-    background: rgba(196,168,130,0.08);
+    border-color: var(--oro);
+    background: color-mix(in srgb, var(--oro) 8%, transparent);
   }
 
   .radio-option input,
   .checkbox-option input {
-    accent-color: var(--gold-dark);
+    accent-color: var(--salvia);
     width: 16px;
     height: 16px;
     flex-shrink: 0;
@@ -377,8 +375,8 @@
   .submit-btn {
     align-self: center;
     padding: 1rem 3rem;
-    background: var(--brown);
-    color: #F9F5EF;
+    background: var(--eucalipto);
+    color: var(--marfil);
     border: none;
     font-family: 'Lato', sans-serif;
     font-size: 0.85rem;
@@ -390,7 +388,7 @@
   }
 
   .submit-btn:hover {
-    background: var(--gold-dark);
+    background: var(--salvia);
     transform: translateY(-2px);
   }
 
@@ -420,8 +418,8 @@
     flex-direction: column;
     gap: 1.2rem;
     padding: 1.2rem;
-    background: rgba(196,168,130,0.08);
-    border-left: 2px solid var(--gold);
+    background: color-mix(in srgb, var(--oro) 8%, transparent);
+    border-left: 2px solid var(--oro);
   }
 
   .ninos-count-picker {
@@ -446,9 +444,9 @@
   }
 
   .form-message.success {
-    background: rgba(196,168,130,0.2);
-    border: 1px solid var(--gold);
-    color: var(--brown);
+    background: color-mix(in srgb, var(--oro) 20%, transparent);
+    border: 1px solid var(--oro);
+    color: var(--eucalipto);
   }
 
   .form-message.error {
@@ -478,27 +476,27 @@
   .ninos-count-btn {
     width: 56px;
     height: 56px;
-    border: 1.5px solid rgba(196,168,130,0.5);
-    background: var(--ivory);
+    border: 1.5px solid color-mix(in srgb, var(--oro) 50%, transparent);
+    background: var(--marfil);
     font-family: 'Playfair Display', serif;
     font-size: 1.25rem;
-    color: var(--brown);
+    color: var(--eucalipto);
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s, color 0.15s;
     flex-shrink: 0;
   }
-  .ninos-count-btn:active { background: rgba(196,168,130,0.18); }
+  .ninos-count-btn:active { background: color-mix(in srgb, var(--oro) 18%, transparent); }
   .ninos-count-btn.selected {
-    background: var(--brown);
-    color: var(--ivory);
-    border-color: var(--brown);
+    background: var(--eucalipto);
+    color: var(--marfil);
+    border-color: var(--eucalipto);
   }
 
   /* ── Intolerancias: elementos generados por JS (sin scoping de Astro) ── */
 
   .intol-person-card {
-    border: 1px solid rgba(196,168,130,0.35);
-    background: var(--ivory);
+    border: 1px solid color-mix(in srgb, var(--oro) 35%, transparent);
+    background: var(--marfil);
     overflow: hidden;
   }
 
@@ -517,12 +515,12 @@
     min-height: 56px; /* touch target */
   }
 
-  .intol-person-btn:active { background: rgba(196,168,130,0.12); }
+  .intol-person-btn:active { background: color-mix(in srgb, var(--oro) 12%, transparent); }
 
   .intol-person-name {
     font-family: 'Playfair Display', serif;
     font-size: 1rem;
-    color: var(--brown);
+    color: var(--eucalipto);
     flex: 1;
   }
 
@@ -531,9 +529,9 @@
     font-size: 0.58rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--gold-dark);
+    color: var(--salvia);
     padding: 0.2rem 0.55rem;
-    border: 1px solid rgba(196,168,130,0.4);
+    border: 1px solid color-mix(in srgb, var(--oro) 40%, transparent);
     white-space: nowrap;
   }
 
@@ -541,7 +539,7 @@
     font-family: 'Lato', sans-serif;
     font-size: 0.66rem;
     color: white;
-    background: var(--gold-dark);
+    background: var(--salvia);
     padding: 0.18rem 0.5rem;
     display: none;
     white-space: nowrap;
@@ -549,7 +547,7 @@
   .intol-count.visible { display: inline-block; }
 
   .intol-chevron {
-    color: rgba(196,168,130,0.7);
+    color: color-mix(in srgb, var(--oro) 70%, transparent);
     font-size: 0.65rem;
     transition: transform 0.25s ease;
     flex-shrink: 0;
@@ -564,13 +562,13 @@
     max-height: 0;
     overflow: hidden;
     padding: 0 0;
-    background: rgba(196,168,130,0.04);
+    background: color-mix(in srgb, var(--oro) 4%, transparent);
     transition: max-height 0.38s ease, padding 0.3s ease;
   }
   .intol-person-card.open .intol-panel {
     max-height: 900px;
     padding: 0.5rem 0 1rem;
-    border-top: 1px solid rgba(196,168,130,0.2);
+    border-top: 1px solid color-mix(in srgb, var(--oro) 20%, transparent);
   }
 
   /* Checkboxes: columna única, táctiles */
@@ -584,20 +582,20 @@
     gap: 0.75rem;
     font-family: 'Lato', sans-serif;
     font-size: 0.88rem;
-    color: var(--text);
+    color: var(--eucalipto);
     cursor: pointer;
     padding: 0.7rem 1rem;
-    border-bottom: 1px solid rgba(196,168,130,0.1);
+    border-bottom: 1px solid color-mix(in srgb, var(--oro) 10%, transparent);
     transition: background 0.15s;
     min-height: 48px; /* touch target */
   }
   .intol-check-label:last-child { border-bottom: none; }
-  .intol-check-label:active { background: rgba(196,168,130,0.09); }
+  .intol-check-label:active { background: color-mix(in srgb, var(--oro) 9%, transparent); }
   .intol-check-label input[type="checkbox"] {
     width: 18px;
     min-width: 18px;
     height: 18px;
-    accent-color: var(--gold-dark);
+    accent-color: var(--salvia);
     flex-shrink: 0;
     cursor: pointer;
   }
@@ -605,12 +603,12 @@
   .intol-otros-wrap {
     margin: 0.5rem 1rem 0.25rem;
     padding-top: 0.75rem;
-    border-top: 1px solid rgba(196,168,130,0.2);
+    border-top: 1px solid color-mix(in srgb, var(--oro) 20%, transparent);
   }
   .intol-otros-label {
     font-family: 'Lato', sans-serif;
     font-size: 0.82rem;
-    color: var(--brown-light);
+    color: var(--salvia);
     display: block;
     margin-bottom: 0.4rem;
   }
@@ -620,15 +618,15 @@
     width: 100%;
     box-sizing: border-box;
     padding: 0.85rem 1rem;
-    background: var(--ivory);
-    border: 1.5px solid rgba(196,168,130,0.55);
+    background: var(--marfil);
+    border: 1.5px solid color-mix(in srgb, var(--oro) 55%, transparent);
     font-family: 'Lato', sans-serif;
     font-size: 0.88rem;
-    color: var(--text);
+    color: var(--eucalipto);
     outline: none;
   }
   .intol-otros-wrap input[type="text"]:focus {
-    border-color: var(--gold);
+    border-color: var(--oro);
   }
 
   /* ── Niños: entradas dinámicas ── */
@@ -637,14 +635,14 @@
     flex-direction: column;
     gap: 0.45rem;
     padding: 1.1rem 1rem 1.2rem;
-    background: var(--ivory);
-    border: 1.5px solid rgba(196,168,130,0.45);
+    background: var(--marfil);
+    border: 1.5px solid color-mix(in srgb, var(--oro) 45%, transparent);
   }
 
   .nino-entry-title {
     font-family: 'Playfair Display', serif;
     font-size: 1rem;
-    color: var(--brown);
+    color: var(--eucalipto);
     margin-bottom: 0.2rem;
     display: block;
   }
@@ -654,7 +652,7 @@
     font-size: 0.78rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--brown-light);
+    color: var(--salvia);
     display: block;
     margin-top: 0.55rem;
   }
@@ -665,17 +663,17 @@
     box-sizing: border-box;
     padding: 0.88rem 1rem;
     background: white;
-    border: 1.5px solid rgba(196,168,130,0.55);
+    border: 1.5px solid color-mix(in srgb, var(--oro) 55%, transparent);
     font-family: 'Lato', sans-serif;
     font-size: 0.92rem;
-    color: var(--text);
+    color: var(--eucalipto);
     outline: none;
     appearance: none;
     -moz-appearance: textfield;
   }
   .nino-entry input[type="text"]:focus,
   .nino-entry input[type="number"]:focus {
-    border-color: var(--gold);
+    border-color: var(--oro);
   }
 </style>
 

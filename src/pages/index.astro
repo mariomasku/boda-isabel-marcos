@@ -12,7 +12,7 @@ import '../styles/global.css';
 
 <Layout>
   <nav id="navbar" class="navbar">
-    <div class="nav-names"><span class="dash-logo">Isabel <span style="font-style:normal;color:rgba(196,168,130,0.5)">&</span> Marcos</span></div>
+    <div class="nav-names"><span class="dash-logo">Isabel <span style="font-style:normal;color:color-mix(in srgb, var(--oro) 50%, transparent)">&</span> Marcos</span></div>
     <div class="nav-links">
       <a href="#detalles">El día</a>
       <a href="#autobus">Bús</a>
@@ -48,15 +48,15 @@ import '../styles/global.css';
   }
 
   .navbar.scrolled {
-    background: rgba(44, 24, 16, 0.92);
+    background: color-mix(in srgb, var(--sombra) 92%, transparent);
     backdrop-filter: blur(12px);
-    box-shadow: 0 1px 0 rgba(196,168,130,0.15);
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--oro) 15%, transparent);
   }
 
   .nav-names {
     font-family: 'Playfair Display', serif;
     font-size: 1rem;
-    color: #C4A882;
+    color: var(--oro);
     letter-spacing: 0;
     font-style: italic;
   }
@@ -67,7 +67,7 @@ import '../styles/global.css';
   }
 
   .nav-links a {
-    color: rgba(249,245,239,0.8);
+    color: color-mix(in srgb, var(--marfil) 80%, transparent);
     text-decoration: none;
     font-family: 'Lato', sans-serif;
     font-size: 0.78rem;
@@ -76,7 +76,7 @@ import '../styles/global.css';
     transition: color 0.2s;
   }
 
-  .nav-links a:hover { color: #C4A882; }
+  .nav-links a:hover { color: var(--oro); }
 
   @media (max-width: 480px) {
     .nav-links { gap: 1rem; }
@@ -155,6 +155,24 @@ import '../styles/global.css';
         y: 0,
         duration: 0.85,
         ease: 'power2.out',
+      }
+    );
+  });
+
+  // Filigranas ornamentales: se despliegan desde el centro al hacer scroll
+  gsap.utils.toArray<HTMLElement>('.gsap-filigrana').forEach((el) => {
+    gsap.fromTo(el,
+      { opacity: 0, scaleX: 0 },
+      {
+        opacity: 1,
+        scaleX: 1,
+        duration: 1.1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 90%',
+          toggleActions: 'play none none none',
+        },
       }
     );
   });
