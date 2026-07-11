@@ -23,7 +23,7 @@ const rgb = (hex: string) => ({
 // Colores de filas de datos (paleta Gsheets de global.css)
 const COLOR_INVITADO    = rgb('99bcac'); // --salvia-invitado
 const COLOR_ACOMPANANTE = rgb('badbcc'); // --salvia-acompanante
-const COLOR_NINO        = rgb('c4f2dd'); // --salvia-ninos
+const COLOR_NINO        = rgb('d8e7e0'); // --salvia-ninos
 
 // Paleta del tema "hojas" (equivalente a global.css)
 const EUCALIPTO = rgb('47635f'); // encabezados/títulos (fondo)
