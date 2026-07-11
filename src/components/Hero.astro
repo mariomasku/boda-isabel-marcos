@@ -3,7 +3,7 @@
 <section id="hero" class="hero-section">
   <div class="hero-bg parallax-hero-bg" style="background-image: url('/fotos/foto1.webp')"></div>
   <div class="hero-overlay"></div>
-  <div class="hero-content">
+  <div class="hero-top">
     <p class="hero-pre gsap-hero">nos casamos</p>
 
     <!-- Texto SVG: se dibuja letra a letra con stroke-dashoffset -->
@@ -36,8 +36,13 @@
       <span class="date-line"></span>
     </div>
     <p class="hero-place gsap-hero">Cortijo El Alamillo · Villarrubia, Córdoba</p>
+  </div>
 
-    <div class="countdown gsap-hero" id="countdown">
+  <div class="hero-countdown-title">
+    <p class="hero-pre gsap-hero">Quedan</p>
+  </div>
+  
+  <div class="countdown gsap-hero" id="countdown">
       <div class="countdown-item">
         <span class="countdown-number" id="cd-days">--</span>
         <span class="countdown-label">días</span>
@@ -58,7 +63,6 @@
         <span class="countdown-label">segundos</span>
       </div>
     </div>
-  </div>
 
   <div class="hero-scroll gsap-hero">
     <span>Desliza hacia arriba</span>
@@ -95,18 +99,20 @@
     );
   }
 
-  .hero-content {
-    position: relative;
+  /* Bloque de texto anclado a la parte alta (deja libre el centro) */
+  .hero-top {
+    position: absolute;
+    top: 10%;
+    left: 0;
+    right: 0;
     z-index: 1;
     text-align: center;
     color: #F9F5EF;
-    padding: 2rem;
-    paddgin-top: 0rem;
-    margin-top: -3rem;
+    padding: 0 1.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.2rem;
   }
 
   .hero-pre {
@@ -153,11 +159,23 @@
     text-transform: uppercase;
   }
 
-  .countdown {
+  /* Contador anclado abajo, ~20% por encima del indicador de scroll */
+
+  
+  .countdown, .hero-countdown-title {
+    position: absolute;
+    bottom: calc(11% + 2rem);
+    left: 0;
+    right: 0;
+    z-index: 1;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    margin-top: 0.5rem;
+  }
+
+  .hero-countdown-title{
+    bottom: calc(18% + 2rem);
   }
 
   .countdown-item {

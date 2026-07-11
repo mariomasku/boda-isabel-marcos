@@ -94,46 +94,27 @@
 <script>
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
 
-  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger, SplitText);
 
-  // Cada párrafo se revela a medida que entra en el viewport, atado al scroll
-  document.querySelectorAll<HTMLElement>('.welcome-text p').forEach((p) => {
-    gsap.fromTo(
-      p,
-      { opacity: 0, y: 22 },
-      {
-        opacity: 1,
-        y: 0,
-        ease: 'power1.out',
-        scrollTrigger: {
-          trigger: p,
-          start: 'top 92%',
-          end: 'top 42%',
-          scrub: 0.8,
-        },
-      }
-    );
-  });
-
-  // "el amor." — dibujo de trazo a mano alzada al llegar con el scroll
   document.fonts.ready.then(() => {
+    // ── Preparar "el amor." (estado inicial + función de dibujo) ──
+    // Se define primero para poder dispararlo al terminar el revelado de texto.
     const textEl = document.getElementById('amor-text') as SVGTextElement | null;
     const svgEl  = document.querySelector<SVGElement>('.amor-svg');
-    if (!textEl || !svgEl) return;
+    let drawAmor = () => {};
 
-    const len = textEl.getComputedTextLength() * 1.02;
-    textEl.setAttribute('stroke-dasharray', String(len));
-    textEl.setAttribute('stroke-dashoffset', String(len));
+    if (textEl && svgEl) {
+      const len = textEl.getComputedTextLength() * 1.02;
+      textEl.setAttribute('stroke-dasharray', String(len));
+      textEl.setAttribute('stroke-dashoffset', String(len));
+      const fillColor = getComputedStyle(svgEl).color;
+      let played = false;
 
-    // Leer el color real de --gold-dark del DOM para usarlo en GSAP
-    const fillColor = getComputedStyle(svgEl).color;
-
-    ScrollTrigger.create({
-      trigger: svgEl,
-      start: 'top 88%',
-      once: true,
-      onEnter: () => {
+      drawAmor = () => {
+        if (played) return;   // solo una vez
+        played = true;
         gsap.timeline()
           // Fase 1: se dibuja el trazo letra a letra (dashoffset no está en CSS → attr es seguro)
           .to(textEl, {
@@ -149,7 +130,38 @@
             ease: 'power2.out',
             onComplete: () => { textEl.style.stroke = 'none'; },
           }, '-=0.5');
-      },
-    });
+      };
+    }
+
+    // ── Revelado palabra a palabra atado al scroll ──
+    // Todas las palabras de todos los párrafos se animan en UNA sola línea de
+    // tiempo y en orden (revelado estrictamente secuencial). Al completarse el
+    // rango del scroll (onLeave), se dispara el dibujo de "el amor.".
+    const container = document.querySelector<HTMLElement>('.welcome-text');
+    if (container) {
+      const allWords: Element[] = [];
+      gsap.utils.toArray<HTMLElement>('.welcome-text p').forEach((p) => {
+        const split = new SplitText(p, { type: 'words' });
+        gsap.set(p, { opacity: 1 });          // el párrafo es visible…
+        allWords.push(...split.words);        // …y acumulamos sus palabras en orden
+      });
+
+      gsap.set(allWords, { opacity: 0.15 });  // todas empiezan apagadas
+      gsap.to(allWords, {
+        opacity: 1,
+        ease: 'none',
+        stagger: 0.5,        // cada palabra arranca a mitad de la anterior (cascada suave)
+        duration: 1,
+        scrollTrigger: {
+          trigger: container,
+          start: 'top 78%',
+          end: 'bottom 62%',
+          scrub: true,
+          onLeave: drawAmor,     // el texto ha terminado de revelarse → dibuja "el amor."
+        },
+      });
+    }
+
+    ScrollTrigger.refresh();
   });
 </script>

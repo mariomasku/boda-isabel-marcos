@@ -131,7 +131,21 @@ export const prerender = true;
       box-shadow: var(--card-shadow);
       padding: 1.2rem 0.9rem 1rem;
       text-align: center;
+      width: 100%;
+      font-family: inherit;
+      cursor: pointer;
+      transition: box-shadow 0.15s, transform 0.1s;
     }
+    .stat-card:hover {
+      box-shadow: 0 4px 14px rgba(44,24,16,0.12);
+      transform: translateY(-2px);
+    }
+    .stat-card:active { transform: translateY(0); }
+    .stat-card:disabled {
+      cursor: default;
+      opacity: 0.6;
+    }
+    .stat-card:disabled:hover { box-shadow: var(--card-shadow); transform: none; }
     .stat-card-label {
       font-size: 0.6rem;
       letter-spacing: 0.2em;
@@ -161,7 +175,19 @@ export const prerender = true;
       border-radius: 6px;
       box-shadow: var(--card-shadow);
       padding: 0.8rem 1.1rem;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      cursor: pointer;
+      transition: box-shadow 0.15s, transform 0.1s;
     }
+    .bus-card:hover {
+      box-shadow: 0 4px 14px rgba(44,24,16,0.12);
+      transform: translateY(-2px);
+    }
+    .bus-card:active { transform: translateY(0); }
+    .bus-card:disabled { cursor: default; opacity: 0.6; }
+    .bus-card:disabled:hover { box-shadow: var(--card-shadow); transform: none; }
     .bus-card-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
     .bus-card-label {
       font-size: 0.6rem;
@@ -350,6 +376,12 @@ export const prerender = true;
       color: rgba(44,24,16,0.4);
       flex-shrink: 0;
     }
+    .people-empty {
+      text-align: center;
+      color: var(--text-soft);
+      font-size: 0.82rem;
+      padding: 1rem 0.5rem;
+    }
 
     /* ── Responsive ── */
     @media (max-width: 580px) {
@@ -392,22 +424,22 @@ export const prerender = true;
           <div class="section-line"></div>
         </div>
         <div class="cards-grid">
-          <div class="stat-card">
+          <button type="button" class="stat-card" data-cat="confirmados">
             <p class="stat-card-label">Confirmados</p>
             <p class="stat-card-value gold" id="s-total">—</p>
-          </div>
-          <div class="stat-card">
+          </button>
+          <button type="button" class="stat-card" data-cat="noasisten">
             <p class="stat-card-label">No asisten</p>
             <p class="stat-card-value muted" id="s-no">—</p>
-          </div>
-          <div class="stat-card">
+          </button>
+          <button type="button" class="stat-card" data-cat="adultos">
             <p class="stat-card-label">Adultos</p>
             <p class="stat-card-value" id="s-adultos">—</p>
-          </div>
-          <div class="stat-card">
+          </button>
+          <button type="button" class="stat-card" data-cat="ninos">
             <p class="stat-card-label">Niños</p>
             <p class="stat-card-value" id="s-ninos">—</p>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -418,20 +450,20 @@ export const prerender = true;
           <div class="section-line"></div>
         </div>
         <div class="bus-grid">
-          <div class="bus-card">
+          <button type="button" class="bus-card" data-bus="ida">
             <div class="bus-card-info">
               <span class="bus-card-label">Plazas IDA</span>
               <span class="bus-card-hora">17:15h · Puente Genil → Cortijo</span>
             </div>
             <span class="bus-card-value" id="s-bus-ida">—</span>
-          </div>
-          <div class="bus-card">
+          </button>
+          <button type="button" class="bus-card" data-bus="vuelta">
             <div class="bus-card-info">
               <span class="bus-card-label">Plazas VUELTA</span>
               <span class="bus-card-hora">03:00h / 06:00h · Córdoba → P. Genil</span>
             </div>
             <span class="bus-card-value" id="s-bus-vuelta">—</span>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -497,12 +529,25 @@ export const prerender = true;
     // ── Modal de personas ───────────────────────────────────────
     const peopleOverlay = document.getElementById('people-overlay') as HTMLElement;
 
-    function openPeopleModal(nombre: string, personas: { nombre: string; nino: boolean }[]) {
-      document.getElementById('people-title')!.textContent = nombre;
+    type Persona = { nombre: string; nino: boolean; edad?: string; tag?: string };
+
+    function openPeopleModal(titulo: string, personas: Persona[], opts: { showAge?: boolean } = {}) {
+      document.getElementById('people-title')!.textContent = titulo;
       document.getElementById('people-count')!.textContent =
         personas.length === 1 ? '1 persona' : `${personas.length} personas`;
-      document.getElementById('people-list')!.innerHTML =
-        personas.map(p => `<div class="people-item">${p.nombre}${p.nino ? '<span class="people-nino">niño/a</span>' : ''}</div>`).join('');
+      document.getElementById('people-list')!.innerHTML = personas.length
+        ? personas.map(p => {
+            let tag = '';
+            if (p.tag) {
+              tag = `<span class="people-nino">${p.tag}</span>`;
+            } else if (opts.showAge && p.nino) {
+              tag = `<span class="people-nino">${p.edad ? p.edad + ' años' : 'niño/a'}</span>`;
+            } else if (p.nino) {
+              tag = '<span class="people-nino">niño/a</span>';
+            }
+            return `<div class="people-item">${p.nombre}${tag}</div>`;
+          }).join('')
+        : '<div class="people-empty">Sin registros todavía</div>';
       peopleOverlay.style.display = 'flex';
       peopleOverlay.getBoundingClientRect();
       peopleOverlay.classList.add('open');
@@ -552,6 +597,33 @@ export const prerender = true;
       set('s-no',         data.asistencia.noAsisten);
       set('s-bus-ida',    data.autobus.ida);
       set('s-bus-vuelta', data.autobus.vuelta);
+
+      // Tarjetas de asistencia → modal con la lista de personas de cada categoría
+      const asis = data.asistencia;
+      const catMap: Record<string, { titulo: string; lista: Persona[]; showAge?: boolean }> = {
+        confirmados: { titulo: 'Confirmados', lista: asis.listaConfirmados ?? [] },
+        adultos:     { titulo: 'Adultos',     lista: asis.listaAdultos ?? [] },
+        ninos:       { titulo: 'Niños',       lista: asis.listaNinos ?? [], showAge: true },
+        noasisten:   { titulo: 'No asisten',  lista: asis.listaNoAsisten ?? [] },
+      };
+      document.querySelectorAll<HTMLButtonElement>('.stat-card[data-cat]').forEach(card => {
+        const cfg = catMap[card.dataset.cat!];
+        if (!cfg) return;
+        card.disabled = cfg.lista.length === 0;
+        card.onclick = () => openPeopleModal(cfg.titulo, cfg.lista, { showAge: cfg.showAge });
+      });
+
+      // Tarjetas de autobús → modal con los invitados y sus plazas
+      const busMap: Record<string, { titulo: string; lista: Persona[] }> = {
+        ida:    { titulo: 'Plazas IDA · 17:15h',    lista: data.autobus.listaIda ?? [] },
+        vuelta: { titulo: 'Plazas VUELTA',          lista: data.autobus.listaVuelta ?? [] },
+      };
+      document.querySelectorAll<HTMLButtonElement>('.bus-card[data-bus]').forEach(card => {
+        const cfg = busMap[card.dataset.bus!];
+        if (!cfg) return;
+        card.disabled = cfg.lista.length === 0;
+        card.onclick = () => openPeopleModal(cfg.titulo, cfg.lista);
+      });
 
       // Intolerancias: filas-tarjeta; el contador es botón si hay personas
       const maxIntol = Math.max(1, ...data.intolerancias.map((i: any) => i.count));

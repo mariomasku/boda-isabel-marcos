@@ -43,18 +43,31 @@ export const GET: APIRoute = async () => {
     const res  = await sheets.spreadsheets.values.get({ spreadsheetId, range: 'RSVP!A2:M' });
     const rows = (res.data.values ?? []) as string[][];
 
-    // Col indices (0-based): C=2(ROL), E=4(ASISTENCIA), F=5(EDAD), G=6(INTOL), H=7(OTROS), I=8(BEBIDA), J=9(AUTOBUS), K=10(PLAZAS)
-    const si     = rows.filter(r => eq(r[4], 'Sí'));
-    const no     = rows.filter(r => eq(r[4], 'No')).length;
-    const adultos = si.filter(r => eq(r[2], 'Invitado') || eq(r[2], 'Acompañante')).length;
-    const ninos   = si.filter(r => eq(r[2], 'Niño/a')).length;
+    // Col indices (0-based): B=1(NOMBRE), C=2(ROL), E=4(ASISTENCIA), F=5(EDAD), G=6(INTOL), H=7(OTROS), I=8(BEBIDA), J=9(AUTOBUS), K=10(PLAZAS)
+    const isNino = (r: string[]) => eq(r[2], 'Niño/a');
+    const named  = (arr: string[][]) => arr.filter(r => r[1]);
 
-    const busIda    = si.reduce((s, r) => (eq(r[9], 'Ida y vuelta') || eq(r[9], 'Solo ida'))    ? s + (parseInt(r[10]) || 0) : s, 0);
-    const busVuelta = si.reduce((s, r) => (eq(r[9], 'Ida y vuelta') || eq(r[9], 'Solo vuelta')) ? s + (parseInt(r[10]) || 0) : s, 0);
+    const si       = rows.filter(r => eq(r[4], 'Sí'));
+    const noRows   = rows.filter(r => eq(r[4], 'No'));
+    const adultRows = si.filter(r => !isNino(r));
+    const ninoRows  = si.filter(r => isNino(r));
+
+    const idaRows    = si.filter(r => (eq(r[9], 'Ida y vuelta') || eq(r[9], 'Solo ida'))    && r[1]);
+    const vueltaRows = si.filter(r => (eq(r[9], 'Ida y vuelta') || eq(r[9], 'Solo vuelta')) && r[1]);
+    const sumPlazas  = (arr: string[][]) => arr.reduce((s, r) => s + (parseInt(r[10]) || 0), 0);
+    const busIda    = sumPlazas(idaRows);
+    const busVuelta = sumPlazas(vueltaRows);
+
+    // Persona de autobús: nombre + nº de plazas como etiqueta
+    const busPersona = (r: string[]) => {
+      const p = parseInt(r[10]) || 0;
+      return { nombre: r[1] ?? '', nino: false, tag: p === 1 ? '1 plaza' : `${p} plazas` };
+    };
 
     const toPersona = (r: string[], extra = '') => ({
       nombre: extra ? `${r[1] ?? ''} — ${extra}` : (r[1] ?? ''),
-      nino: eq(r[2], 'Niño/a'),
+      nino: isNino(r),
+      edad: r[5] ?? '',
     });
 
     const intolerancias = ALLERGENS.map(([token, label]) => {
@@ -77,8 +90,18 @@ export const GET: APIRoute = async () => {
     return new Response(JSON.stringify({
       ok: true,
       totalRegistros: totalRows,
-      asistencia: { total: si.length, adultos, ninos, noAsisten: no },
-      autobus: { ida: busIda, vuelta: busVuelta },
+      asistencia: {
+        total: si.length, adultos: adultRows.length, ninos: ninoRows.length, noAsisten: noRows.length,
+        listaConfirmados: named(si).map(r => toPersona(r)),
+        listaAdultos:     named(adultRows).map(r => toPersona(r)),
+        listaNinos:       named(ninoRows).map(r => toPersona(r)),
+        listaNoAsisten:   named(noRows).map(r => toPersona(r)),
+      },
+      autobus: {
+        ida: busIda, vuelta: busVuelta,
+        listaIda:    idaRows.map(busPersona),
+        listaVuelta: vueltaRows.map(busPersona),
+      },
       intolerancias: [...intolerancias, {
         nombre: 'Otros especificados',
         count: otros.length,
