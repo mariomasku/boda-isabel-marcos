@@ -1092,7 +1092,7 @@ import SectionTitle from './SectionTitle.astro';
         openSuccessModal();
       } else {
         console.error('RSVP error:', json);
-        throw new Error(json.debug || 'unknown');
+        throw new Error(json.error || 'unknown');
       }
     } catch (err) {
       console.error('RSVP submit error:', err);

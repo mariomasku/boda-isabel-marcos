@@ -550,9 +550,14 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
+    // El detalle completo solo queda en los logs del servidor (Vercel), nunca
+    // se expone al cliente para no filtrar información interna.
     const msg = err instanceof Error ? err.message : String(err);
     console.error('RSVP API error:', msg);
-    return new Response(JSON.stringify({ ok: false, debug: msg }), {
+    return new Response(JSON.stringify({
+      ok: false,
+      error: 'No se pudo guardar tu confirmación. Por favor, inténtalo de nuevo en unos minutos.',
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
