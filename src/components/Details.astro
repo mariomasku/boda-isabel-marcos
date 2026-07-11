@@ -241,8 +241,13 @@ import SectionTitle from './SectionTitle.astro';
 <style>
   .details-section {
     padding: 6rem 1.5rem 0;
-    background: var(--marfil);
     background: var(--crema);
+    background-image: url(../../public/img/fondo-floral2.webp);
+  }
+  
+  .details-section > * {
+    position: relative;
+    z-index: 1;
   }
 
   .container {
