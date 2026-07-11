@@ -21,6 +21,11 @@
   --menta:     #e1e6e1;  /* menta pálido */
   --oliva:     #d7d5b1;  /* oliva pálido */
   --khaki:     #bcab7c;  /* khaki */
+  /* Paleta de colores para Gsheets*/
+  --salvia-invitado: #99bcac; /* color invitado */
+  --salvia-acompanante: #badbcc; /* color invitado */
+  --salvia-ninos: #c4f2dd; /* color invitado */
+
 }
 
 * {
@@ -50,7 +55,7 @@ h1, h2, h3, h4 {
   font-family: 'Birthstone Bounce', 'Dancing Script', cursive;
   font-weight: 400;
   font-size: clamp(2.2rem, 6vw, 4rem);
-  color: var(--blanco);
+  color: var(--crema);
   background: var(--salvia);
   padding: 0.15em 1.2em 0.3em;
   text-align: center;

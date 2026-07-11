@@ -6,8 +6,8 @@ import SectionTitle from './SectionTitle.astro';
     <p class="section-subtitle gsap-fade">confirma tu asistencia</p>
     <SectionTitle>¿Contamos contigo?</SectionTitle>
     <p class="rsvp-intro gsap-fade">
-      Por favor, confirma tu asistencia antes del <strong>1 de septiembre de 2026</strong>.
-      <br>Si no vienes, también te agradeceremos si nos lo indicas.
+      Por favor, confirma tu asistencia antes del <strong><br>1 de septiembre de 2026</strong>.
+      <br><br>Si no vienes, también te agradeceremos si nos lo indicas.
     </p>
 
     <form
@@ -185,15 +185,27 @@ import SectionTitle from './SectionTitle.astro';
 
       <button type="submit" class="submit-btn">Enviar confirmación</button>
 
-      <div id="form-success" class="form-message success" style="display:none">
-        ¡Gracias! Hemos recibido tu confirmación. ¡Nos vemos el 3 de octubre! 🎉
-      </div>
       <div id="form-error" class="form-message error" style="display:none">
         Algo ha ido mal. Por favor, inténtalo de nuevo o escríbenos directamente.
       </div>
     </form>
   </div>
 </section>
+
+<!-- Modal: confirmación de envío exitoso -->
+<div class="success-overlay" id="success-overlay" style="display:none" role="dialog" aria-modal="true" aria-label="Confirmación recibida">
+  <div class="success-modal">
+    <div class="success-icon">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M8 12.5l2.5 2.5L16 9.5"/>
+      </svg>
+    </div>
+    <h2 class="success-title">¡Gracias!</h2>
+    <p class="success-text">Hemos recibido tu confirmación.<br>¡Nos vemos el 3 de octubre! 🎉</p>
+    <button type="button" class="success-accept" id="success-accept">Aceptar</button>
+  </div>
+</div>
 
 <style>
   .rsvp-section {
@@ -443,12 +455,6 @@ import SectionTitle from './SectionTitle.astro';
     border-radius: 0;
   }
 
-  .form-message.success {
-    background: color-mix(in srgb, var(--oro) 20%, transparent);
-    border: 1px solid var(--oro);
-    color: var(--eucalipto);
-  }
-
   .form-message.error {
     background: rgba(180,60,60,0.1);
     border: 1px solid #B44;
@@ -674,6 +680,81 @@ import SectionTitle from './SectionTitle.astro';
   .nino-entry input[type="text"]:focus,
   .nino-entry input[type="number"]:focus {
     border-color: var(--oro);
+  }
+
+  /* ── Modal: confirmación de envío exitoso ── */
+  .success-overlay {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, var(--eucalipto-noche) 82%, transparent);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    padding: 1rem;
+  }
+  .success-overlay.open { opacity: 1; }
+
+  .success-modal {
+    position: relative;
+    background: linear-gradient(160deg, var(--eucalipto-oscuro), var(--eucalipto-noche));
+    border: 1px solid color-mix(in srgb, var(--oro) 28%, transparent);
+    padding: 2.5rem 2rem 2rem;
+    max-width: 360px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    text-align: center;
+    transform: translateY(14px);
+    transition: transform 0.28s ease;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.65);
+  }
+  .success-overlay.open .success-modal { transform: translateY(0); }
+
+  .success-icon {
+    color: var(--oro);
+    margin-bottom: 0.3rem;
+  }
+
+  .success-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--marfil);
+    margin: 0;
+  }
+
+  .success-text {
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: color-mix(in srgb, var(--marfil) 80%, transparent);
+    margin: 0 0 0.5rem;
+  }
+
+  .success-accept {
+    width: 100%;
+    background: color-mix(in srgb, var(--oro) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--oro) 40%, transparent);
+    color: var(--oro);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .success-accept:hover {
+    background: color-mix(in srgb, var(--oro) 22%, transparent);
+    color: var(--marfil);
   }
 </style>
 
@@ -931,9 +1012,28 @@ import SectionTitle from './SectionTitle.astro';
   document.getElementById('nombre')?.addEventListener('input', refreshIntolList);
   document.getElementById('acompanante_nombre')?.addEventListener('input', refreshIntolList);
 
+  // ── Modal de confirmación de envío ──
+  const successOverlay = document.getElementById('success-overlay') as HTMLElement;
+
+  function openSuccessModal() {
+    successOverlay.style.display = 'flex';
+    successOverlay.getBoundingClientRect(); // forzar reflow para la transición
+    successOverlay.classList.add('open');
+  }
+
+  function closeSuccessModal() {
+    successOverlay.classList.remove('open');
+    successOverlay.addEventListener('transitionend', () => {
+      successOverlay.style.display = 'none';
+    }, { once: true });
+  }
+
+  document.getElementById('success-accept')?.addEventListener('click', closeSuccessModal);
+  successOverlay.addEventListener('click', (e) => { if (e.target === successOverlay) closeSuccessModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && successOverlay.classList.contains('open')) closeSuccessModal(); });
+
   // ── Form submit ──
   const form = document.getElementById('rsvp-form') as HTMLFormElement;
-  const successMsg = document.getElementById('form-success')!;
   const errorMsg   = document.getElementById('form-error')!;
 
   // Limpia todos los campos, incluido el estado dinámico (acordeones, pickers, campos generados)
@@ -986,11 +1086,10 @@ import SectionTitle from './SectionTitle.astro';
       const json = await res.json().catch(() => ({}));
       if (res.ok) {
         resetFormCompleto();
-        successMsg.style.display = 'block';
-        errorMsg.style.display   = 'none';
+        errorMsg.style.display = 'none';
         btn.textContent = 'Enviar confirmación';
         btn.disabled = false;
-        successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        openSuccessModal();
       } else {
         console.error('RSVP error:', json);
         throw new Error(json.debug || 'unknown');

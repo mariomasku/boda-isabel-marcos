@@ -13,17 +13,25 @@ const HEADERS = [
   'CANCIÓN', 'COMENTARIOS',
 ];
 
-// Colores para filas de datos
-const COLOR_INVITADO    = { red: 191/255, green: 175/255, blue: 146/255 }; // #c5c0b5
-const COLOR_ACOMPANANTE = { red: 201/255, green: 196/255, blue: 184/255 }; // #c9c7c1
-const COLOR_NINO        = { red: 1,       green: 1,       blue: 1       }; // blanco
+// Convierte un hex "rrggbb" al formato RGB 0-1 que usa la API de Sheets.
+const rgb = (hex: string) => ({
+  red:   parseInt(hex.slice(0, 2), 16) / 255,
+  green: parseInt(hex.slice(2, 4), 16) / 255,
+  blue:  parseInt(hex.slice(4, 6), 16) / 255,
+});
 
-// Paleta del tema
-const BROWN_DARK  = { red: 0.239, green: 0.169, blue: 0.102 }; // #3D2B1A
-const GOLD        = { red: 0.784, green: 0.663, blue: 0.431 }; // #C8A96E
-const GOLD_LIGHT  = { red: 0.918, green: 0.851, blue: 0.686 }; // #EAD9AF
-const CREAM       = { red: 0.941, green: 0.867, blue: 0.757 }; // #F0DDC1
-const WHITE       = { red: 1,     green: 1,     blue: 1     };
+// Colores de filas de datos (paleta Gsheets de global.css)
+const COLOR_INVITADO    = rgb('99bcac'); // --salvia-invitado
+const COLOR_ACOMPANANTE = rgb('badbcc'); // --salvia-acompanante
+const COLOR_NINO        = rgb('c4f2dd'); // --salvia-ninos
+
+// Paleta del tema "hojas" (equivalente a global.css)
+const EUCALIPTO = rgb('47635f'); // encabezados/títulos (fondo)
+const OLIVA     = rgb('d7d5b1'); // texto sobre encabezados
+const ORO       = rgb('d7b77d'); // acento (secciones RESUMEN)
+const SALVIA    = rgb('7f958b'); // gráfico
+const MENTA     = rgb('e1e6e1'); // sub-encabezados (fondo claro)
+const WHITE     = { red: 1, green: 1, blue: 1 };
 
 // ── Helpers ─────────────────────────────────────────────────
 // up(): valores controlados (ROL, ASISTENCIA, alérgenos, bebida, autobús)
@@ -244,11 +252,11 @@ async function applyTheme(
     // ── RSVP: cabecera ──
     {
       repeatCell: {
-        range: { sheetId: rsvpId, startRowIndex: 0, endRowIndex: 1 },
+        range: { sheetId: rsvpId, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: HEADERS.length },
         cell: {
           userEnteredFormat: {
-            backgroundColor: BROWN_DARK,
-            textFormat: { foregroundColor: CREAM, bold: true, fontSize: 9 },
+            backgroundColor: EUCALIPTO,
+            textFormat: { foregroundColor: OLIVA, bold: true, fontSize: 9 },
             horizontalAlignment: 'CENTER',
             verticalAlignment: 'MIDDLE',
           },
@@ -284,11 +292,11 @@ async function applyTheme(
     // RESUMEN: título
     {
       repeatCell: {
-        range: { sheetId: resId, startRowIndex: 0, endRowIndex: 1 },
+        range: { sheetId: resId, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: 2 },
         cell: {
           userEnteredFormat: {
-            backgroundColor: BROWN_DARK,
-            textFormat: { foregroundColor: CREAM, bold: true, fontSize: 14 },
+            backgroundColor: EUCALIPTO,
+            textFormat: { foregroundColor: OLIVA, bold: true, fontSize: 14 },
             horizontalAlignment: 'CENTER',
             verticalAlignment: 'MIDDLE',
           },
@@ -307,11 +315,11 @@ async function applyTheme(
     // RESUMEN: secciones
     ...SECTION_ROWS.map(r => ({
       repeatCell: {
-        range: { sheetId: resId, startRowIndex: r, endRowIndex: r + 1 },
+        range: { sheetId: resId, startRowIndex: r, endRowIndex: r + 1, startColumnIndex: 0, endColumnIndex: 2 },
         cell: {
           userEnteredFormat: {
-            backgroundColor: GOLD,
-            textFormat: { foregroundColor: BROWN_DARK, bold: true, fontSize: 10 },
+            backgroundColor: ORO,
+            textFormat: { foregroundColor: EUCALIPTO, bold: true, fontSize: 10 },
             verticalAlignment: 'MIDDLE',
           },
         },
@@ -329,11 +337,11 @@ async function applyTheme(
     // RESUMEN: sub-cabeceras
     ...SUBHEADER_ROWS.map(r => ({
       repeatCell: {
-        range: { sheetId: resId, startRowIndex: r, endRowIndex: r + 1 },
+        range: { sheetId: resId, startRowIndex: r, endRowIndex: r + 1, startColumnIndex: 0, endColumnIndex: 2 },
         cell: {
           userEnteredFormat: {
-            backgroundColor: GOLD_LIGHT,
-            textFormat: { foregroundColor: BROWN_DARK, bold: true, fontSize: 9 },
+            backgroundColor: MENTA,
+            textFormat: { foregroundColor: EUCALIPTO, bold: true, fontSize: 9 },
             horizontalAlignment: 'CENTER',
           },
         },
@@ -372,10 +380,10 @@ async function applyTheme(
     // RESUMEN: filas de datos con fondo crema alternado para intolerancias (14-28)
     ...Array.from({ length: 15 }, (_, i) => ({
       repeatCell: {
-        range: { sheetId: resId, startRowIndex: 14 + i, endRowIndex: 15 + i },
+        range: { sheetId: resId, startRowIndex: 14 + i, endRowIndex: 15 + i, startColumnIndex: 0, endColumnIndex: 2 },
         cell: {
           userEnteredFormat: {
-            backgroundColor: i % 2 === 0 ? WHITE : { red: 0.992, green: 0.984, blue: 0.965 },
+            backgroundColor: i % 2 === 0 ? WHITE : rgb('eef4f0'),
           },
         },
         fields: 'userEnteredFormat.backgroundColor',
@@ -390,7 +398,7 @@ async function applyTheme(
         chart: {
           spec: {
             title: 'Intolerancias y Alergias',
-            titleTextFormat: { bold: true, fontSize: 12, foregroundColor: BROWN_DARK },
+            titleTextFormat: { bold: true, fontSize: 12, foregroundColor: EUCALIPTO },
             basicChart: {
               chartType: 'COLUMN',
               legendPosition: 'NO_LEGEND',
@@ -420,7 +428,7 @@ async function applyTheme(
                   },
                 },
                 targetAxis: 'LEFT_AXIS',
-                color: GOLD,
+                color: SALVIA,
                 dataLabel: { type: 'DATA', textFormat: { fontSize: 8 } },
               }],
               headerCount: 1,
@@ -524,7 +532,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     const colorReqs = rowTypes.map((type, idx) => ({
       repeatCell: {
-        range: { sheetId: rsvpSheetId, startRowIndex: startRow + idx, endRowIndex: startRow + idx + 1 },
+        range: { sheetId: rsvpSheetId, startRowIndex: startRow + idx, endRowIndex: startRow + idx + 1, startColumnIndex: 0, endColumnIndex: HEADERS.length },
         cell: { userEnteredFormat: { backgroundColor: colorMap[type] } },
         fields: 'userEnteredFormat.backgroundColor',
       },

@@ -159,24 +159,6 @@ import '../styles/global.css';
     );
   });
 
-  // Filigranas ornamentales: se despliegan desde el centro al hacer scroll
-  gsap.utils.toArray<HTMLElement>('.gsap-filigrana').forEach((el) => {
-    gsap.fromTo(el,
-      { opacity: 0, scaleX: 0 },
-      {
-        opacity: 1,
-        scaleX: 1,
-        duration: 1.1,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: el,
-          start: 'top 90%',
-          toggleActions: 'play none none none',
-        },
-      }
-    );
-  });
-
   // Smooth scroll
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener('click', (e) => {

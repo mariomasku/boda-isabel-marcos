@@ -32,6 +32,12 @@ const { foto, height = '55vh', id = '' } = Astro.props;
   .parallax-overlay {
     position: absolute;
     inset: 0;
-    background: color-mix(in srgb, var(--eucalipto-noche) 25%, transparent);
+    /* Mismo velo que el Hero (.hero-overlay) */
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--eucalipto-noche) 72%, transparent) 0%,
+      color-mix(in srgb, var(--sombra) 65%, transparent) 50%,
+      color-mix(in srgb, var(--eucalipto-noche) 78%, transparent) 100%
+    );
   }
 </style>
