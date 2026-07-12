@@ -1,0 +1,814 @@
+---
+export const prerender = true;
+import '../styles/global.css';
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mesas · Isabel & Marcos</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style is:global>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --border:     color-mix(in srgb, var(--oro) 28%, transparent);
+      --text-soft:  color-mix(in srgb, var(--sombra) 55%, transparent);
+      --card-shadow: 0 1px 3px color-mix(in srgb, var(--sombra) 6%, transparent), 0 4px 12px color-mix(in srgb, var(--sombra) 4%, transparent);
+    }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--marfil);
+      min-height: 100vh;
+      color: var(--eucalipto);
+    }
+
+    /* ── Header (igual que dashboard) ── */
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: var(--eucalipto);
+      border-bottom: 2px solid var(--oro);
+    }
+    .dash-logo-wrap { display: flex; flex-direction: column; gap: 2px; }
+    .dash-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-style: italic;
+      color: var(--oro);
+    }
+    .dash-logo-sub {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--oro) 50%, transparent);
+    }
+    .dash-actions { display: flex; gap: 0.6rem; align-items: center; }
+    .btn-ghost {
+      padding: 0.4rem 0.9rem;
+      border: 1px solid color-mix(in srgb, var(--oro) 35%, transparent);
+      background: transparent;
+      color: color-mix(in srgb, var(--oro) 70%, transparent);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover { background: color-mix(in srgb, var(--oro) 12%, transparent); color: var(--oro); }
+    .btn-back-full  { display: inline; }
+    .btn-back-short { display: none; }
+
+    /* ── Main ── */
+    .dash-main { max-width: 780px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+    .dash-page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--eucalipto);
+      margin-bottom: 0.2rem;
+    }
+    .dash-page-sub {
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 2rem;
+    }
+
+    #m-loading, #m-error {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-soft);
+      font-size: 0.9rem;
+    }
+    #m-error { color: #b91c1c; }
+
+    /* ── Buscador global ── */
+    .search-box { position: relative; margin-bottom: 2.5rem; }
+    .search-input {
+      width: 100%;
+      padding: 0.85rem 1.1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--blanco);
+      box-shadow: var(--card-shadow);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.9rem;
+      color: var(--eucalipto);
+    }
+    .search-input:focus { outline: none; border-color: var(--oro); }
+    .search-input::placeholder { color: var(--text-soft); }
+    .search-results {
+      margin-top: 0.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 0.9rem;
+      background: var(--blanco);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--oro);
+      border-radius: 5px;
+      font-size: 0.85rem;
+    }
+    .search-result-tag {
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--salvia);
+      font-weight: 700;
+    }
+    .search-result-tag.sin-asignar { color: var(--text-soft); font-weight: 400; }
+
+    /* ── Section ── */
+    .dash-section { margin-bottom: 2.5rem; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .section-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--salvia);
+      font-weight: 700;
+    }
+    .section-line { flex: 1; height: 1px; background: var(--border); }
+
+    /* ── Botón crear mesa ── */
+    .btn-create {
+      display: block;
+      width: 100%;
+      padding: 0.9rem;
+      border: 1.5px dashed color-mix(in srgb, var(--oro) 55%, transparent);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--salvia);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-create:hover {
+      background: color-mix(in srgb, var(--oro) 8%, transparent);
+      border-color: var(--oro);
+    }
+
+    /* ── Tarjeta acordeón de mesa ── */
+    .mesa-list { display: flex; flex-direction: column; gap: 0.9rem; }
+    .mesa-card {
+      background: var(--blanco);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--oro);
+      border-radius: 6px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+    .mesa-card.nupcial { border-left-color: var(--oro); background: color-mix(in srgb, var(--oro) 6%, var(--blanco)); }
+
+    .mesa-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      width: 100%;
+      padding: 0.9rem 1.1rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+    }
+    .mesa-chevron { flex-shrink: 0; color: var(--salvia); transition: transform 0.2s; }
+    .mesa-chevron.open { transform: rotate(180deg); }
+    .mesa-card-title-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .mesa-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-style: italic;
+      color: var(--eucalipto);
+    }
+    .mesa-card-count {
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+    .mesa-card-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
+    .mesa-icon-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-soft);
+      padding: 0.35rem;
+      border-radius: 4px;
+      display: flex;
+      transition: color 0.15s, background 0.15s;
+    }
+    .mesa-icon-btn:hover { color: var(--eucalipto); background: color-mix(in srgb, var(--oro) 12%, transparent); }
+    .mesa-icon-btn.danger:hover { color: #b91c1c; }
+
+    .mesa-people {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+      border-top: 0px solid var(--border);
+    }
+    .mesa-people.open {
+      max-height: 600px;
+      border-top-width: 1px;
+    }
+    .mesa-people-inner { padding: 0.9rem 1.1rem 1.1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+    .mesa-person {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.8rem;
+      background: color-mix(in srgb, var(--oro) 8%, transparent);
+      border-radius: 5px;
+      font-size: 0.85rem;
+    }
+    .mesa-person-tag {
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--sombra) 40%, transparent);
+    }
+    .mesa-empty { text-align: center; color: var(--text-soft); font-size: 0.82rem; padding: 0.5rem; }
+
+    /* ── Modal de selección ── */
+    .sel-overlay {
+      position: fixed;
+      inset: 0;
+      background: color-mix(in srgb, var(--eucalipto-noche) 55%, transparent);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 1rem;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .sel-overlay.open { opacity: 1; }
+    .sel-modal {
+      background: var(--blanco);
+      border-radius: 8px;
+      border-top: 4px solid var(--oro);
+      box-shadow: 0 20px 60px color-mix(in srgb, var(--sombra) 30%, transparent);
+      max-width: 460px;
+      width: 100%;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(10px);
+      transition: transform 0.22s ease;
+    }
+    .sel-overlay.open .sel-modal { transform: translateY(0); }
+    .sel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.25rem 1.25rem 0.5rem;
+    }
+    .sel-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--eucalipto);
+    }
+    .sel-close {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-soft);
+      padding: 0.25rem;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .sel-close:hover { color: var(--eucalipto); }
+    .sel-body { padding: 0.5rem 1.25rem 1.25rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.9rem; }
+
+    .sel-field label {
+      display: block;
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--salvia);
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+    .sel-field input[type="text"] {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.85rem;
+      color: var(--eucalipto);
+      background: var(--marfil);
+    }
+    .sel-field input[type="text"]:focus { outline: none; border-color: var(--oro); }
+
+    .sel-count { font-size: 0.65rem; color: var(--text-soft); letter-spacing: 0.06em; }
+
+    .guest-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      max-height: 260px;
+      overflow-y: auto;
+      padding: 2px;
+    }
+    .guest-btn {
+      padding: 0.45rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--marfil);
+      color: var(--eucalipto);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .guest-btn:hover { border-color: var(--oro); }
+    .guest-btn.selected {
+      background: var(--oro);
+      border-color: var(--oro);
+      color: var(--blanco);
+      font-weight: 700;
+    }
+    .guest-empty { color: var(--text-soft); font-size: 0.82rem; padding: 0.5rem; }
+
+    .sel-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.6rem;
+      padding: 1rem 1.25rem 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    .btn-cancel {
+      padding: 0.65rem 1.2rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-soft);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .btn-cancel:hover { color: var(--eucalipto); }
+    .btn-save {
+      padding: 0.65rem 1.4rem;
+      border: 1px solid var(--eucalipto);
+      background: var(--eucalipto);
+      color: var(--oro);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.2s;
+    }
+    .btn-save:hover { background: var(--eucalipto-medio); }
+
+    /* ── Enlace al dashboard ── */
+    .sheet-link-wrap { text-align: center; margin-top: 2.5rem; }
+    .sheet-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.8rem 1.6rem;
+      background: var(--eucalipto);
+      color: var(--oro);
+      border: 1px solid var(--eucalipto);
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+      box-shadow: var(--card-shadow);
+    }
+    .sheet-link:hover { background: var(--eucalipto-medio); color: var(--marfil); }
+
+    @media (max-width: 580px) {
+      #logout-btn { display: none; }
+      .btn-back-full  { display: none; }
+      .btn-back-short { display: inline; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="dash-header">
+    <div class="dash-logo-wrap">
+      <span class="dash-logo">Isabel <span style="font-style:normal;color:color-mix(in srgb, var(--oro) 50%, transparent)">&</span> Marcos</span>
+      <span class="dash-logo-sub">Distribución de mesas</span>
+    </div>
+    <div class="dash-actions">
+      <a href="/dashboard" class="btn-ghost">
+        <span class="btn-back-full">← Panel</span>
+        <span class="btn-back-short">Volver</span>
+      </a>
+      <button class="btn-ghost" id="logout-btn">Salir</button>
+    </div>
+  </header>
+
+  <main class="dash-main">
+    <h1 class="dash-page-title">Mesas de la boda</h1>
+    <p class="dash-page-sub">Organiza el seating de invitados</p>
+
+    <div id="m-loading">Cargando datos…</div>
+    <div id="m-error" style="display:none"></div>
+
+    <div id="m-content" style="display:none">
+
+      <!-- Buscador global -->
+      <div class="search-box">
+        <input type="text" class="search-input" id="global-search" placeholder="Buscar invitado para ver su mesa…" autocomplete="off" />
+        <div class="search-results" id="global-search-results"></div>
+      </div>
+
+      <!-- Mesa nupcial -->
+      <div class="dash-section">
+        <div class="section-header">
+          <span class="section-label">Mesa nupcial</span>
+          <div class="section-line"></div>
+        </div>
+        <div id="nupcial-section"></div>
+      </div>
+
+      <!-- Mesas numeradas -->
+      <div class="dash-section">
+        <div class="section-header">
+          <span class="section-label">Mesas de invitados</span>
+          <div class="section-line"></div>
+        </div>
+        <div class="mesa-list" id="mesa-list"></div>
+        <button type="button" class="btn-create" id="btn-add-mesa" style="margin-top:0.9rem">+ Crear mesa</button>
+      </div>
+
+      <div class="sheet-link-wrap">
+        <a class="sheet-link" id="sheet-link" href="#" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="1" width="12" height="14" rx="1.5"/>
+            <path d="M5 5h6M5 8h6M5 11h6"/>
+          </svg>
+          Ver documento completo
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de selección de invitados -->
+  <div class="sel-overlay" id="sel-overlay" role="dialog" aria-modal="true">
+    <div class="sel-modal">
+      <div class="sel-header">
+        <p class="sel-title" id="sel-title">Mesa</p>
+        <button class="sel-close" id="sel-close" aria-label="Cerrar">
+          <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>
+        </button>
+      </div>
+      <div class="sel-body">
+        <div class="sel-field">
+          <label for="sel-nombre">Nombre de la mesa (opcional)</label>
+          <input type="text" id="sel-nombre" placeholder="p. ej. Familia, Amigos de la uni…" autocomplete="off" />
+        </div>
+        <div class="sel-field">
+          <label for="sel-search">Buscar invitado</label>
+          <input type="text" id="sel-search" placeholder="Escribe un nombre…" autocomplete="off" />
+        </div>
+        <div>
+          <p class="sel-count" id="sel-count">0 seleccionados</p>
+          <div class="guest-chips" id="guest-chips"></div>
+        </div>
+      </div>
+      <div class="sel-footer">
+        <button class="btn-cancel" id="sel-cancel">Cancelar</button>
+        <button class="btn-save" id="sel-save">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Auth guard ──────────────────────────────────────────────
+    if (sessionStorage.getItem('boda_auth') !== 'boda031026') {
+      window.location.replace('/');
+    }
+
+    document.getElementById('logout-btn')?.addEventListener('click', () => {
+      sessionStorage.removeItem('boda_auth');
+      window.location.href = '/';
+    });
+
+    // ── Tipos ────────────────────────────────────────────────────
+    type Guest = { row: number; nombre: string; rol: string; edad: string; mesa: string | null };
+    type Mesa  = { id: string; esNupcial: boolean; nombre: string; personas: Guest[] };
+    type Data  = { guests: Guest[]; mesas: Mesa[]; sheetUrl: string };
+
+    let data: Data | null = null;
+    const expanded = new Set<string>();
+
+    // ── Carga de datos ───────────────────────────────────────────
+    async function loadData() {
+      try {
+        const res  = await fetch('/api/mesas');
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error ?? 'Error desconocido');
+        data = json;
+        render();
+      } catch (err) {
+        document.getElementById('m-loading')!.style.display = 'none';
+        const errEl = document.getElementById('m-error')!;
+        errEl.style.display = 'block';
+        errEl.textContent = 'No se pudieron cargar los datos: ' + (err instanceof Error ? err.message : String(err));
+      }
+    }
+
+    function findMesa(id: string): Mesa | undefined {
+      return data?.mesas.find(m => m.id === id);
+    }
+
+    function nextTableId(): string {
+      const nums = (data?.mesas ?? [])
+        .filter(m => !m.esNupcial)
+        .map(m => parseInt(m.id, 10))
+        .filter(n => Number.isFinite(n));
+      return String(nums.length ? Math.max(...nums) + 1 : 1);
+    }
+
+    const escapeHtml = (s: string) => s.replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c] as string));
+
+    function personRow(p: Guest): string {
+      const tag = p.rol.trim().toUpperCase() === 'NIÑO/A' ? '<span class="mesa-person-tag">niño/a</span>' : '';
+      return `<div class="mesa-person">${escapeHtml(p.nombre)}${tag}</div>`;
+    }
+
+    function mesaCardHtml(mesa: Mesa): string {
+      const isOpen = expanded.has(mesa.id);
+      const titulo = mesa.esNupcial
+        ? 'Mesa nupcial'
+        : `Mesa ${mesa.id}${mesa.nombre ? ' · ' + escapeHtml(mesa.nombre) : ''}`;
+      const count  = mesa.personas.length === 1 ? '1 persona' : `${mesa.personas.length} personas`;
+      const body   = mesa.personas.length
+        ? mesa.personas.map(personRow).join('')
+        : '<div class="mesa-empty">Sin invitados asignados</div>';
+
+      return `
+        <div class="mesa-card${mesa.esNupcial ? ' nupcial' : ''}" data-id="${mesa.id}">
+          <button type="button" class="mesa-card-header" data-toggle="${mesa.id}">
+            <svg class="mesa-chevron${isOpen ? ' open' : ''}" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5l3 3 3-3"/></svg>
+            <div class="mesa-card-title-wrap">
+              <span class="mesa-card-title">${titulo}</span>
+              <span class="mesa-card-count">${count}</span>
+            </div>
+          </button>
+          <div class="mesa-card-actions" style="padding:0 1.1rem 0.6rem; justify-content:flex-end; display:flex;">
+            <button type="button" class="mesa-icon-btn" data-edit="${mesa.id}" title="Editar">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 2l3 3-8 8-3.5 1 1-3.5 8-8z"/></svg>
+            </button>
+            <button type="button" class="mesa-icon-btn danger" data-delete="${mesa.id}" title="Eliminar">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h10M6 4V2.5h4V4M4 4l.6 9a1 1 0 001 .9h4.8a1 1 0 001-.9L12 4"/></svg>
+            </button>
+          </div>
+          <div class="mesa-people${isOpen ? ' open' : ''}" data-people="${mesa.id}">
+            <div class="mesa-people-inner">${body}</div>
+          </div>
+        </div>`;
+    }
+
+    function render() {
+      if (!data) return;
+      document.getElementById('m-loading')!.style.display = 'none';
+      document.getElementById('m-content')!.style.display = 'block';
+
+      const nupcial = findMesa('NUPCIAL');
+      const nupcialSection = document.getElementById('nupcial-section')!;
+      nupcialSection.innerHTML = nupcial
+        ? mesaCardHtml(nupcial)
+        : '<button type="button" class="btn-create" id="btn-add-nupcial">+ Crear mesa nupcial</button>';
+
+      document.getElementById('btn-add-nupcial')?.addEventListener('click', () => openModal('NUPCIAL'));
+
+      const numeradas = data.mesas.filter(m => !m.esNupcial);
+      const mesaList  = document.getElementById('mesa-list')!;
+      mesaList.innerHTML = numeradas.length
+        ? numeradas.map(mesaCardHtml).join('')
+        : '<p class="mesa-empty">Todavía no hay mesas creadas</p>';
+
+      if (data.sheetUrl) (document.getElementById('sheet-link') as HTMLAnchorElement).href = data.sheetUrl;
+
+      renderGlobalSearch();
+    }
+
+    // ── Delegación de eventos sobre #m-content ──────────────────
+    document.getElementById('m-content')!.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+
+      const toggleBtn = target.closest<HTMLElement>('[data-toggle]');
+      if (toggleBtn) {
+        const id = toggleBtn.dataset.toggle!;
+        if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
+        const people   = document.querySelector<HTMLElement>(`.mesa-people[data-people="${id}"]`);
+        const chevron  = toggleBtn.querySelector('.mesa-chevron');
+        people?.classList.toggle('open', expanded.has(id));
+        chevron?.classList.toggle('open', expanded.has(id));
+        return;
+      }
+
+      const editBtn = target.closest<HTMLElement>('[data-edit]');
+      if (editBtn) { openModal(editBtn.dataset.edit!); return; }
+
+      const delBtn = target.closest<HTMLElement>('[data-delete]');
+      if (delBtn) { deleteMesa(delBtn.dataset.delete!); return; }
+    });
+
+    document.getElementById('btn-add-mesa')?.addEventListener('click', () => openModal(nextTableId()));
+
+    // ── Buscador global ──────────────────────────────────────────
+    function labelForMesa(mesa: string | null): string {
+      if (!mesa) return 'Sin asignar';
+      if (mesa === 'NUPCIAL') return 'Mesa nupcial';
+      const m = findMesa(mesa);
+      return `Mesa ${mesa}${m?.nombre ? ' · ' + m.nombre : ''}`;
+    }
+
+    function renderGlobalSearch() {
+      const input = document.getElementById('global-search') as HTMLInputElement;
+      const box   = document.getElementById('global-search-results')!;
+
+      const run = () => {
+        const q = input.value.trim().toLowerCase();
+        if (!q || !data) { box.innerHTML = ''; return; }
+        const matches = data.guests.filter(g => g.nombre.toLowerCase().includes(q));
+        box.innerHTML = matches.length
+          ? matches.map(g => {
+              const tagClass = g.mesa ? '' : ' sin-asignar';
+              return `<div class="search-result-item">
+                <span>${escapeHtml(g.nombre)}</span>
+                <span class="search-result-tag${tagClass}">${labelForMesa(g.mesa)}</span>
+              </div>`;
+            }).join('')
+          : '<div class="search-result-item"><span>Sin coincidencias</span></div>';
+      };
+
+      input.oninput = run;
+      run();
+    }
+
+    // ── Eliminar mesa ─────────────────────────────────────────────
+    async function deleteMesa(id: string) {
+      const mesa = findMesa(id);
+      const nombre = mesa?.esNupcial ? 'la mesa nupcial' : `la mesa ${id}${mesa?.nombre ? ' (' + mesa.nombre + ')' : ''}`;
+      if (!confirm(`¿Eliminar ${nombre}? Sus invitados quedarán sin asignar.`)) return;
+
+      try {
+        const res  = await fetch('/api/mesas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'delete', id }),
+        });
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error ?? 'Error desconocido');
+        expanded.delete(id);
+        await loadData();
+      } catch (err) {
+        alert('No se pudo eliminar: ' + (err instanceof Error ? err.message : String(err)));
+      }
+    }
+
+    // ── Modal de selección ────────────────────────────────────────
+    const selOverlay = document.getElementById('sel-overlay') as HTMLElement;
+    let modalId: string | null = null;
+    let selectedRows = new Set<number>();
+
+    function openModal(id: string) {
+      if (!data) return;
+      modalId = id;
+      const existing = findMesa(id);
+      const isNupcial = id === 'NUPCIAL';
+
+      document.getElementById('sel-title')!.textContent = existing
+        ? `Editar ${isNupcial ? 'mesa nupcial' : 'mesa ' + id}`
+        : `Nueva ${isNupcial ? 'mesa nupcial' : 'mesa ' + id}`;
+
+      const nombreInput = document.getElementById('sel-nombre') as HTMLInputElement;
+      nombreInput.value = existing?.nombre ?? (isNupcial ? 'Mesa nupcial' : '');
+
+      selectedRows = new Set((existing?.personas ?? []).map(p => p.row));
+
+      const searchInput = document.getElementById('sel-search') as HTMLInputElement;
+      searchInput.value = '';
+      searchInput.oninput = renderChips;
+
+      renderChips();
+
+      selOverlay.style.display = 'flex';
+      selOverlay.getBoundingClientRect();
+      selOverlay.classList.add('open');
+    }
+
+    function closeModal() {
+      selOverlay.classList.remove('open');
+      selOverlay.addEventListener('transitionend', () => {
+        selOverlay.style.display = 'none';
+      }, { once: true });
+      modalId = null;
+    }
+
+    function renderChips() {
+      if (!data || !modalId) return;
+      const q = (document.getElementById('sel-search') as HTMLInputElement).value.trim().toLowerCase();
+
+      const available = data.guests.filter(g =>
+        (!g.mesa || g.mesa === modalId) && g.nombre.toLowerCase().includes(q),
+      );
+
+      const chipsBox = document.getElementById('guest-chips')!;
+      chipsBox.innerHTML = available.length
+        ? available.map(g => `<button type="button" class="guest-btn${selectedRows.has(g.row) ? ' selected' : ''}" data-row="${g.row}">${escapeHtml(g.nombre)}</button>`).join('')
+        : '<p class="guest-empty">Sin invitados disponibles</p>';
+
+      chipsBox.querySelectorAll<HTMLButtonElement>('.guest-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const row = parseInt(btn.dataset.row!, 10);
+          if (selectedRows.has(row)) selectedRows.delete(row); else selectedRows.add(row);
+          btn.classList.toggle('selected', selectedRows.has(row));
+          updateSelCount();
+        });
+      });
+
+      updateSelCount();
+    }
+
+    function updateSelCount() {
+      const n = selectedRows.size;
+      document.getElementById('sel-count')!.textContent = n === 1 ? '1 seleccionado' : `${n} seleccionados`;
+    }
+
+    document.getElementById('sel-close')?.addEventListener('click', closeModal);
+    document.getElementById('sel-cancel')?.addEventListener('click', closeModal);
+    selOverlay.addEventListener('click', (e) => { if (e.target === selOverlay) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && selOverlay.classList.contains('open')) closeModal(); });
+
+    document.getElementById('sel-save')?.addEventListener('click', async () => {
+      if (!modalId) return;
+      const nombre = (document.getElementById('sel-nombre') as HTMLInputElement).value.trim();
+      const saveBtn = document.getElementById('sel-save') as HTMLButtonElement;
+      saveBtn.disabled = true;
+
+      try {
+        const res  = await fetch('/api/mesas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'save',
+            id: modalId === 'NUPCIAL' ? 'NUPCIAL' : parseInt(modalId, 10),
+            nombre,
+            rows: Array.from(selectedRows),
+          }),
+        });
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error ?? 'Error desconocido');
+        expanded.add(modalId);
+        closeModal();
+        await loadData();
+      } catch (err) {
+        alert('No se pudo guardar: ' + (err instanceof Error ? err.message : String(err)));
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
