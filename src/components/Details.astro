@@ -149,7 +149,6 @@ import SectionTitle from './SectionTitle.astro';
       src="https://maps.google.com/maps?q=Cortijo+El+Alamillo,+Villarrubia,+Córdoba,+Spain&output=embed&z=14"
       width="100%"
       height="400"
-      style="border:0"
       allowfullscreen
       loading="lazy"
       referrerpolicy="no-referrer-when-downgrade"
@@ -430,6 +429,7 @@ import SectionTitle from './SectionTitle.astro';
 
   .map-wrapper iframe {
     display: block;
+    border: 0;
     filter: grayscale(20%) contrast(1.05);
   }
 
@@ -459,6 +459,8 @@ import SectionTitle from './SectionTitle.astro';
       width: 330px;
       height: 330px;
       border-radius: 50%;
+      border: 3px solid var(--oro);
+      box-sizing: border-box;
       box-shadow: 0 6px 24px color-mix(in srgb, var(--sombra) 18%, transparent);
     }
     .timeline-v { padding-left: 1.2rem; padding-right: 1.2rem}
