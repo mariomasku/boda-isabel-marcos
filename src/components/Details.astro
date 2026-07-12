@@ -7,13 +7,13 @@ import SectionTitle from './SectionTitle.astro';
     <SectionTitle>El gran día</SectionTitle>
 
     <p class="event-date gsap-fade">Sábado · 3 de octubre · 2026</p>
-    <button class="cal-btn gsap-fade" id="cal-btn">
+    <!--<button class="cal-btn gsap-fade" id="cal-btn">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <rect x="1" y="3" width="14" height="12" rx="1.5"/>
         <path d="M1 7h14M5 1v4M11 1v4"/>
       </svg>
       Añadir a mi calendario
-    </button>
+    </button>-->
 
     <div class="timeline-v">
 
@@ -240,7 +240,7 @@ import SectionTitle from './SectionTitle.astro';
 
 <style>
   .details-section {
-    padding: 6rem 1.5rem 0;
+    padding: 6rem 1.5rem 5rem;
     background: var(--crema);
     background-image: url(../../public/img/fondo-floral2.webp);
   }
@@ -400,7 +400,7 @@ import SectionTitle from './SectionTitle.astro';
   .map-wrapper {
     width: 100%;
     max-width: 1000px;
-    margin: 0 auto 5rem;
+    margin: 0 auto;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 24px color-mix(in srgb, var(--sombra) 10%, transparent);
@@ -437,7 +437,30 @@ import SectionTitle from './SectionTitle.astro';
     .tl-icon-wrap { width: 100px; height: 100px; }
     .tl-icon { width: 60px; height: 60px; }
     .tl-left { width: 44px; }
-    .map-label { flex-direction: column; gap: 0.4rem; text-align: center; }
+    .map-wrapper {
+      box-shadow: none;
+      border-radius: 0;
+      overflow: visible;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: transparent;
+      margin-bottom: 0;
+    }
+    .map-label {
+      flex-direction: column;
+      gap: 0.4rem;
+      text-align: center;
+      border-top: none;
+      background: transparent;
+      padding: 0 0 1.2rem;
+    }
+    .map-wrapper iframe {
+      width: 330px;
+      height: 330px;
+      border-radius: 50%;
+      box-shadow: 0 6px 24px color-mix(in srgb, var(--sombra) 18%, transparent);
+    }
     .timeline-v { padding-left: 1.2rem; padding-right: 1.2rem}
   }
 </style>
