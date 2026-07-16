@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import '../styles/global.css';
+import AdminNav from '../components/AdminNav.astro';
 ---
 <!doctype html>
 <html lang="es">
@@ -38,6 +39,7 @@ import '../styles/global.css';
       background: var(--eucalipto);
       border-bottom: 2px solid var(--oro);
     }
+    .dash-logo-wrap-group { display: flex; align-items: center; gap: 0.85rem; }
     .dash-logo-wrap { display: flex; flex-direction: column; gap: 2px; }
     .dash-logo {
       font-family: 'Playfair Display', serif;
@@ -392,9 +394,12 @@ import '../styles/global.css';
 <body>
 
   <header class="dash-header">
-    <div class="dash-logo-wrap">
-      <span class="dash-logo">Isabel <span style="font-style:normal;color:color-mix(in srgb, var(--oro) 50%, transparent)">&</span> Marcos</span>
-      <span class="dash-logo-sub">Panel de confirmaciones</span>
+    <div class="dash-logo-wrap-group">
+      <AdminNav current="dashboard" />
+      <div class="dash-logo-wrap">
+        <span class="dash-logo">Isabel <span style="font-style:normal;color:color-mix(in srgb, var(--oro) 50%, transparent)">&</span> Marcos</span>
+        <span class="dash-logo-sub">Panel de confirmaciones</span>
+      </div>
     </div>
     <div class="dash-actions">
       <a href="/" class="btn-ghost">

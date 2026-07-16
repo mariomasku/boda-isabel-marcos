@@ -1,0 +1,526 @@
+---
+export const prerender = true;
+import '../../styles/global.css';
+import AdminNav from '../../components/AdminNav.astro';
+import { CATEGORIES, getCategory } from '../../lib/plannerConfig';
+
+export function getStaticPaths() {
+  return CATEGORIES.map(cat => ({ params: { id: cat.id } }));
+}
+
+const { id } = Astro.params;
+const cat = getCategory(id as string)!;
+---
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{cat.label} · Isabel & Marcos</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style is:global>
+    html { font-size: 17px; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --border:     color-mix(in srgb, var(--oro) 28%, transparent);
+      --text-soft:  color-mix(in srgb, var(--sombra) 55%, transparent);
+      --card-shadow: 0 1px 3px color-mix(in srgb, var(--sombra) 6%, transparent), 0 4px 12px color-mix(in srgb, var(--sombra) 4%, transparent);
+    }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--marfil);
+      min-height: 100vh;
+      color: var(--eucalipto);
+    }
+
+    /* ── Header ── */
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: var(--eucalipto);
+      border-bottom: 2px solid var(--oro);
+    }
+    .dash-logo-wrap-group { display: flex; align-items: center; gap: 0.85rem; }
+    .dash-logo-wrap { display: flex; flex-direction: column; gap: 2px; }
+    .dash-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-style: italic;
+      color: var(--oro);
+    }
+    .dash-logo-sub {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--oro) 50%, transparent);
+    }
+    .dash-actions { display: flex; gap: 0.6rem; align-items: center; }
+    .btn-ghost {
+      padding: 0.4rem 0.9rem;
+      border: 1px solid color-mix(in srgb, var(--oro) 35%, transparent);
+      background: transparent;
+      color: color-mix(in srgb, var(--oro) 70%, transparent);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover { background: color-mix(in srgb, var(--oro) 12%, transparent); color: var(--oro); }
+    .btn-back-full  { display: inline; }
+    .btn-back-short { display: none; }
+
+    /* ── Main ── */
+    .dash-main { max-width: 780px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+    .dash-page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--eucalipto);
+      margin-bottom: 0.2rem;
+    }
+    .dash-page-sub {
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 2rem;
+    }
+
+    #p-loading, #p-error {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-soft);
+      font-size: 0.9rem;
+    }
+    #p-error { color: #b91c1c; }
+
+    /* ── Botón crear ── */
+    .btn-create {
+      display: block;
+      width: 100%;
+      padding: 0.9rem;
+      border: 1.5px dashed color-mix(in srgb, var(--oro) 55%, transparent);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--salvia);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      margin-top: 0.9rem;
+    }
+    .btn-create:hover {
+      background: color-mix(in srgb, var(--oro) 8%, transparent);
+      border-color: var(--oro);
+    }
+
+    /* ── Tarjetas acordeón ── */
+    .planner-list { display: flex; flex-direction: column; gap: 0.9rem; }
+    .planner-empty { text-align: center; color: var(--text-soft); font-size: 0.82rem; padding: 1rem; }
+
+    .planner-card {
+      background: var(--blanco);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--oro);
+      border-radius: 6px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+    .planner-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      width: 100%;
+      padding: 0.9rem 1.1rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+    }
+    .planner-chevron { flex-shrink: 0; color: var(--salvia); transition: transform 0.2s; }
+    .planner-chevron.open { transform: rotate(180deg); }
+    .planner-card-title {
+      flex: 1;
+      min-width: 0;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-style: italic;
+      color: var(--eucalipto);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .planner-card-actions {
+      padding: 0 1.1rem 0.6rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .planner-icon-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text-soft);
+      padding: 0.35rem;
+      border-radius: 4px;
+      display: flex;
+      transition: color 0.15s, background 0.15s;
+    }
+    .planner-icon-btn:hover { color: #b91c1c; background: color-mix(in srgb, var(--oro) 12%, transparent); }
+
+    .planner-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+      border-top: 0px solid var(--border);
+    }
+    .planner-body.open {
+      max-height: 1400px;
+      border-top-width: 1px;
+    }
+    .planner-body-inner { padding: 1rem 1.1rem 1.2rem; display: flex; flex-direction: column; gap: 0.9rem; }
+
+    .planner-field label {
+      display: block;
+      font-size: 0.6rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--salvia);
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+    .planner-field input,
+    .planner-field select,
+    .planner-field textarea {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.85rem;
+      color: var(--eucalipto);
+      background: var(--marfil);
+    }
+    .planner-field textarea { min-height: 70px; resize: vertical; }
+    .planner-field input:focus,
+    .planner-field select:focus,
+    .planner-field textarea:focus { outline: none; border-color: var(--oro); }
+
+    .planner-form-actions { display: flex; justify-content: flex-end; }
+    .btn-save {
+      padding: 0.65rem 1.4rem;
+      border: 1px solid var(--eucalipto);
+      background: var(--eucalipto);
+      color: var(--oro);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.2s;
+    }
+    .btn-save:hover { background: var(--eucalipto-medio); }
+    .btn-save:disabled { opacity: 0.6; cursor: default; }
+
+    .planner-error {
+      color: #b91c1c;
+      font-size: 0.78rem;
+    }
+
+    @media (max-width: 580px) {
+      #logout-btn { display: none; }
+      .btn-back-full  { display: none; }
+      .btn-back-short { display: inline; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="dash-header">
+    <div class="dash-logo-wrap-group">
+      <AdminNav current={cat.id} />
+      <div class="dash-logo-wrap">
+        <span class="dash-logo">Isabel <span style="font-style:normal;color:color-mix(in srgb, var(--oro) 50%, transparent)">&</span> Marcos</span>
+        <span class="dash-logo-sub">{cat.label}</span>
+      </div>
+    </div>
+    <div class="dash-actions">
+      <a href="/dashboard" class="btn-ghost">
+        <span class="btn-back-full">← Panel</span>
+        <span class="btn-back-short">Volver</span>
+      </a>
+      <button class="btn-ghost" id="logout-btn">Salir</button>
+    </div>
+  </header>
+
+  <main class="dash-main">
+    <h1 class="dash-page-title">{cat.label}</h1>
+    <p class="dash-page-sub">Gestor de boda</p>
+
+    <div id="p-loading">Cargando datos…</div>
+    <div id="p-error" style="display:none"></div>
+
+    <div id="p-content" style="display:none">
+      <div class="planner-list" id="planner-list"></div>
+      <button type="button" class="btn-create" id="btn-add-item">+ Añadir</button>
+    </div>
+  </main>
+
+  <script define:vars={{ catId: cat.id, fieldsConfig: cat.fields }}>
+    window.__PLANNER_CAT__ = catId;
+    window.__PLANNER_FIELDS__ = fieldsConfig;
+  </script>
+
+  <script>
+    // ── Auth guard ──────────────────────────────────────────────
+    if (sessionStorage.getItem('boda_auth') !== 'boda031026') {
+      window.location.replace('/');
+    }
+
+    document.getElementById('logout-btn')?.addEventListener('click', () => {
+      sessionStorage.removeItem('boda_auth');
+      window.location.href = '/';
+    });
+
+    // ── Tipos ────────────────────────────────────────────────────
+    type FieldOption = { value: string; label: string };
+    type FieldType = 'text' | 'tel' | 'email' | 'url' | 'number' | 'textarea' | 'select';
+    type FieldConfig = { key: string; type: FieldType; label: string; options?: FieldOption[]; required?: boolean };
+    type Item = { _id: string; row: number | null; values: Record<string, string> };
+
+    const catId: string = (window as any).__PLANNER_CAT__;
+    const fields: FieldConfig[] = (window as any).__PLANNER_FIELDS__;
+
+    let items: Item[] = [];
+    const expanded = new Set<string>();
+
+    const escapeHtml = (s: string) => s.replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c] as string));
+
+    // ── Carga ────────────────────────────────────────────────────
+    async function loadItems() {
+      try {
+        const res  = await fetch(`/api/planner?cat=${encodeURIComponent(catId)}`);
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error ?? 'Error desconocido');
+        items = (json.items as { row: number; values: Record<string, string> }[])
+          .map(it => ({ _id: String(it.row), row: it.row, values: it.values }));
+        render();
+      } catch (err) {
+        document.getElementById('p-loading')!.style.display = 'none';
+        const errEl = document.getElementById('p-error')!;
+        errEl.style.display = 'block';
+        errEl.textContent = 'No se pudieron cargar los datos: ' + (err instanceof Error ? err.message : String(err));
+      }
+    }
+
+    // ── Render ───────────────────────────────────────────────────
+    function fieldHtml(item: Item, f: FieldConfig): string {
+      const val = item.values[f.key] ?? '';
+      const reqMark = f.required ? ' *' : '';
+      let control = '';
+      if (f.type === 'textarea') {
+        control = `<textarea data-field="${f.key}" data-id="${item._id}">${escapeHtml(val)}</textarea>`;
+      } else if (f.type === 'select') {
+        const opts = (f.options ?? []).map(o =>
+          `<option value="${escapeHtml(o.value)}"${o.value === val ? ' selected' : ''}>${escapeHtml(o.label)}</option>`,
+        ).join('');
+        control = `<select data-field="${f.key}" data-id="${item._id}"><option value="">—</option>${opts}</select>`;
+      } else {
+        control = `<input type="${f.type}" data-field="${f.key}" data-id="${item._id}" value="${escapeHtml(val)}" />`;
+      }
+      return `<div class="planner-field"><label>${escapeHtml(f.label)}${reqMark}</label>${control}</div>`;
+    }
+
+    function cardHtml(item: Item): string {
+      const isOpen  = expanded.has(item._id);
+      const summary = item.values[fields[0].key]?.trim() || '(sin completar)';
+      const body    = fields.map(f => fieldHtml(item, f)).join('');
+
+      return `
+        <div class="planner-card" data-id="${item._id}">
+          <button type="button" class="planner-card-header" data-toggle="${item._id}">
+            <svg class="planner-chevron${isOpen ? ' open' : ''}" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5l3 3 3-3"/></svg>
+            <span class="planner-card-title">${escapeHtml(summary)}</span>
+          </button>
+          <div class="planner-card-actions">
+            <button type="button" class="planner-icon-btn" data-delete="${item._id}" title="Eliminar">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h10M6 4V2.5h4V4M4 4l.6 9a1 1 0 001 .9h4.8a1 1 0 001-.9L12 4"/></svg>
+            </button>
+          </div>
+          <div class="planner-body${isOpen ? ' open' : ''}" data-body="${item._id}">
+            <div class="planner-body-inner">
+              ${body}
+              <p class="planner-error" data-error="${item._id}" style="display:none"></p>
+              <div class="planner-form-actions">
+                <button type="button" class="btn-save" data-save="${item._id}">Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function render() {
+      document.getElementById('p-loading')!.style.display = 'none';
+      document.getElementById('p-content')!.style.display = 'block';
+      const list = document.getElementById('planner-list')!;
+      list.innerHTML = items.length
+        ? items.map(cardHtml).join('')
+        : '<p class="planner-empty">Todavía no hay elementos</p>';
+    }
+
+    // ── Delegación de eventos ─────────────────────────────────────
+    document.getElementById('planner-list')!.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+
+      const toggleBtn = target.closest<HTMLElement>('[data-toggle]');
+      if (toggleBtn) {
+        const id = toggleBtn.dataset.toggle!;
+        const wasOpen = expanded.has(id);
+        expanded.clear();
+        if (!wasOpen) expanded.add(id);
+        document.querySelectorAll<HTMLElement>('.planner-card').forEach(card => {
+          const cid     = card.dataset.id!;
+          const body    = card.querySelector('.planner-body');
+          const chevron = card.querySelector('.planner-chevron');
+          const isOpen  = expanded.has(cid);
+          body?.classList.toggle('open', isOpen);
+          chevron?.classList.toggle('open', isOpen);
+        });
+        return;
+      }
+
+      const saveBtn = target.closest<HTMLElement>('[data-save]');
+      if (saveBtn) { saveItem(saveBtn.dataset.save!); return; }
+
+      const delBtn = target.closest<HTMLElement>('[data-delete]');
+      if (delBtn) { deleteItem(delBtn.dataset.delete!); return; }
+    });
+
+    function syncFieldValue(target: HTMLElement) {
+      const fieldEl = target.closest<HTMLElement>('[data-field]') as
+        (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement) | null;
+      if (!fieldEl) return;
+      const id  = fieldEl.dataset.id!;
+      const key = fieldEl.dataset.field!;
+      const item = items.find(i => i._id === id);
+      if (!item) return;
+      item.values[key] = fieldEl.value;
+    }
+    document.getElementById('planner-list')!.addEventListener('input', (e) => syncFieldValue(e.target as HTMLElement));
+    document.getElementById('planner-list')!.addEventListener('change', (e) => syncFieldValue(e.target as HTMLElement));
+
+    document.getElementById('btn-add-item')?.addEventListener('click', () => {
+      const tempId = `new-${Date.now()}`;
+      items.unshift({ _id: tempId, row: null, values: {} });
+      expanded.clear();
+      expanded.add(tempId);
+      render();
+    });
+
+    function showError(id: string, msg: string) {
+      const errEl = document.querySelector<HTMLElement>(`[data-error="${id}"]`);
+      if (!errEl) return;
+      errEl.textContent = msg;
+      errEl.style.display = 'block';
+    }
+    function clearError(id: string) {
+      const errEl = document.querySelector<HTMLElement>(`[data-error="${id}"]`);
+      if (errEl) errEl.style.display = 'none';
+    }
+
+    async function saveItem(id: string) {
+      const item = items.find(i => i._id === id);
+      if (!item) return;
+
+      const missing = fields.filter(f => f.required && !(item.values[f.key] ?? '').trim());
+      if (missing.length) {
+        showError(id, `Falta completar: ${missing.map(f => f.label).join(', ')}`);
+        return;
+      }
+      clearError(id);
+
+      const saveBtn = document.querySelector<HTMLButtonElement>(`[data-save="${id}"]`);
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Guardando...'; }
+
+      try {
+        const res  = await fetch('/api/planner', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cat: catId, action: 'save', row: item.row, values: item.values }),
+        });
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error ?? 'Error desconocido');
+
+        if (!item.row && json.row) {
+          item.row = json.row;
+          item._id = String(json.row);
+          expanded.delete(id);
+          expanded.add(item._id);
+        }
+        render();
+      } catch (err) {
+        showError(id, 'No se pudo guardar: ' + (err instanceof Error ? err.message : String(err)));
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Guardar'; }
+      }
+    }
+
+    async function deleteItem(id: string) {
+      const item = items.find(i => i._id === id);
+      if (!item) return;
+
+      if (!item.row) {
+        items = items.filter(i => i._id !== id);
+        expanded.delete(id);
+        render();
+        return;
+      }
+
+      if (!confirm('¿Eliminar este elemento?')) return;
+
+      try {
+        const res  = await fetch('/api/planner', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cat: catId, action: 'delete', row: item.row }),
+        });
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error ?? 'Error desconocido');
+
+        const deletedRow = item.row;
+        items = items
+          .filter(i => i._id !== id)
+          .map(i => {
+            if (i.row && deletedRow && i.row > deletedRow) {
+              const newRow = i.row - 1;
+              return { ...i, row: newRow, _id: String(newRow) };
+            }
+            return i;
+          });
+        expanded.delete(id);
+        render();
+      } catch (err) {
+        alert('No se pudo eliminar: ' + (err instanceof Error ? err.message : String(err)));
+      }
+    }
+
+    loadItems();
+  </script>
+</body>
+</html>
