@@ -183,6 +183,13 @@ import SectionTitle from './SectionTitle.astro';
 
       </div><!-- /#extras-si -->
 
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Correo electrónico *</label>
+        <input type="email" id="email" name="email" required placeholder="tucorreo@ejemplo.com" />
+        <p class="email-error" id="email-error" style="display:none">Ese correo ya ha sido registrado como invitado.</p>
+      </div>
+
       <button type="submit" class="submit-btn">Enviar confirmación</button>
 
       <div id="form-error" class="form-message error" style="display:none">
@@ -463,6 +470,16 @@ import SectionTitle from './SectionTitle.astro';
 
   /* ── Q6 Intolerancias ── */
   .intol-error {
+    display: none;
+    color: #b44;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.82rem;
+    margin-top: 0.4rem;
+    font-style: normal;
+  }
+
+  /* ── Email ── */
+  .email-error {
     display: none;
     color: #b44;
     font-family: 'Lato', sans-serif;
@@ -999,6 +1016,11 @@ import SectionTitle from './SectionTitle.astro';
     (document.getElementById('intol-error') as HTMLElement).style.display = 'none';
   }
 
+  // Ocultar mensaje de error de email al escribir
+  document.getElementById('email')?.addEventListener('input', () => {
+    (document.getElementById('email-error') as HTMLElement).style.display = 'none';
+  });
+
   document.getElementById('intol-si')?.addEventListener('change', () => {
     document.getElementById('intol-personas-wrap')!.style.display = 'block';
     document.getElementById('intol-error')!.style.display = 'none';
@@ -1045,6 +1067,7 @@ import SectionTitle from './SectionTitle.astro';
     (document.getElementById('bus-plazas-block') as HTMLElement).style.display = 'none';
     resetNinosCount();
     resetIntolerancias();
+    (document.getElementById('email-error') as HTMLElement).style.display = 'none';
     document.getElementById('bus-plazas-picker')!.innerHTML = '';
     (document.getElementById('bus_plazas') as HTMLInputElement).value = '';
   }
@@ -1087,9 +1110,16 @@ import SectionTitle from './SectionTitle.astro';
       if (res.ok) {
         resetFormCompleto();
         errorMsg.style.display = 'none';
+        (document.getElementById('email-error') as HTMLElement).style.display = 'none';
         btn.textContent = 'Enviar confirmación';
         btn.disabled = false;
         openSuccessModal();
+      } else if (res.status === 409 || json.code === 'DUPLICATE_EMAIL') {
+        const emailError = document.getElementById('email-error')!;
+        emailError.style.display = 'block';
+        emailError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        btn.textContent = 'Enviar confirmación';
+        btn.disabled = false;
       } else {
         console.error('RSVP error:', json);
         throw new Error(json.error || 'unknown');
