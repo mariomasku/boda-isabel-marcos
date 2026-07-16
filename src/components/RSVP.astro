@@ -183,10 +183,10 @@ import SectionTitle from './SectionTitle.astro';
 
       </div><!-- /#extras-si -->
 
-      <!-- Email -->
+      <!-- Email (opcional) -->
       <div class="form-group">
-        <label for="email">Correo electrónico *</label>
-        <input type="email" id="email" name="email" required placeholder="tucorreo@ejemplo.com" />
+        <label for="email">Correo electrónico (opcional)</label>
+        <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" />
         <p class="email-error" id="email-error" style="display:none">Ese correo ya ha sido registrado como invitado.</p>
       </div>
 
@@ -1081,7 +1081,9 @@ import SectionTitle from './SectionTitle.astro';
     if (asiste && !form.querySelector<HTMLInputElement>('input[name="tiene_intolerancias"]:checked')) {
       const errEl = document.getElementById('intol-error')!;
       errEl.style.display = 'block';
-      errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const rect = errEl.getBoundingClientRect();
+      const offset = window.scrollY + rect.top - window.innerHeight / 2 + rect.height / 2;
+      window.scrollTo(0, offset);
       return;
     }
 
@@ -1117,7 +1119,9 @@ import SectionTitle from './SectionTitle.astro';
       } else if (res.status === 409 || json.code === 'DUPLICATE_EMAIL') {
         const emailError = document.getElementById('email-error')!;
         emailError.style.display = 'block';
-        emailError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const rect = emailError.getBoundingClientRect();
+        const offset = window.scrollY + rect.top - window.innerHeight / 2 + rect.height / 2;
+        window.scrollTo(0, offset);
         btn.textContent = 'Enviar confirmación';
         btn.disabled = false;
       } else {
