@@ -238,20 +238,15 @@ export const prerender = true;
       text-align: center;
       color: var(--ds-yellow);
     }
-    /* Forma trapezoidal por ensanchamiento progresivo del ancho de cada
-       párrafo (estrecho arriba/título → ancho abajo/cierre), en vez de
-       recortar el texto ya compuesto: cada línea se ajusta (wrap) dentro
-       de su propia anchura, sin cortar ningún carácter y sin giro 3D. */
     .ds-crawl-text p { margin: 0 auto 2.2rem; }
-    /* Cada párrafo/título escala de forma independiente (JS calcula su
-       escala según su posición real en pantalla), por eso cada uno
-       necesita su propio origen de transformación. */
-    .ds-crawl-text > * { transform-origin: 50% 0%; }
-    .ds-crawl-text .cw-1 { max-width: 48%; }
-    .ds-crawl-text .cw-2 { max-width: 62%; }
-    .ds-crawl-text .cw-3 { max-width: 74%; }
-    .ds-crawl-text .cw-4 { max-width: 86%; }
-    .ds-crawl-text .cw-5 { max-width: 100%; }
+    /* GSAP SplitText divide cada párrafo/título en líneas (.crawl-line);
+       cada línea escala de forma independiente según su posición real en
+       pantalla, por eso necesita su propio origen de transformación. */
+    .ds-crawl-text .crawl-line { transform-origin: 50% 0%; }
+
+    .crawl-line p {
+      margin-bottom: 0;
+    }
     .ds-crawl-episode {
       font-family: Arial, Helvetica, sans-serif;
       font-weight: 700;
@@ -264,7 +259,6 @@ export const prerender = true;
       font-family: 'StarJedi', sans-serif;
       font-size: clamp(1.8rem, 6vw, 3.2rem);
       letter-spacing: 0.05em;
-      margin-bottom: 2.5rem;
     }
     .ds-crawl-text p {
       font-family: 'Arial Black', Arial, Helvetica, sans-serif;
@@ -274,7 +268,6 @@ export const prerender = true;
       font-size: clamp(1.35rem, 3.6vw, 2.1rem);
       line-height: 1.75;
       letter-spacing: 0.02em;
-      margin-bottom: 2.2rem;
     }
     .ds-crawl-final {
       font-family: 'Arial Black', Arial, Helvetica, sans-serif;
@@ -426,34 +419,35 @@ export const prerender = true;
         <div class="ds-crawl-text" id="crawl-text">
           <p class="ds-crawl-episode">Episodio I</p>
           <h2 class="ds-crawl-title">El gran día</h2>
-          <p class="cw-1">
+          <p>
             En un universo inmenso, donde millones de caminos nacen y
             desaparecen cada segundo, hay encuentros que desafían
             cualquier probabilidad.
           </p>
-          <p class="cw-2">
+          <p>
             Historias destinadas a cruzarse. Corazones destinados a
             encontrarse. Y personas destinadas a formar parte de algo
             mucho más grande que ellas mismas.
           </p>
-          <p class="cw-3">
+          <p>
             Durante años hemos recorrido nuestro propio viaje. Hemos
             superado obstáculos, celebrado victorias y descubierto que
             existe una fuerza capaz de vencer cualquier distancia: el
             amor compartido con quienes hacen que la vida merezca la pena.
           </p>
-          <p class="cw-4">
+          <p>
             Ahora llega el momento de escribir el capítulo más
             extraordinario de nuestra historia. Pero ninguna aventura
             épica está completa sin la tripulación que la hizo posible.
           </p>
-          <p class="cw-5">
+          <p>
             Por eso queremos que estés con nosotros. Da igual desde
             dónde partas o cuántos kilómetros tengas que recorrer.
             Ese día no existirán fronteras, relojes ni mapas. Solo un
             mismo destino, un mismo latido y un mismo motivo para
             celebrar.
           </p>
+          <br/>
           <h2 class="ds-crawl-title">
             Bienvenido al comienzo de nuestra historia.
           </h2>
@@ -487,7 +481,8 @@ export const prerender = true;
   <script>
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
-    gsap.registerPlugin(ScrollTrigger);
+    import { SplitText } from 'gsap/SplitText';
+    gsap.registerPlugin(ScrollTrigger, SplitText);
 
     // Audio: autoplay + botón de silencio
     const audio      = document.getElementById('theme-audio') as HTMLAudioElement;
@@ -584,21 +579,20 @@ export const prerender = true;
       },
     });
 
-    // Cada párrafo/título del crawl escala según SU PROPIA posición real en
-    // pantalla (no según el progreso global del scroll), para que todos
-    // aparezcan desde abajo con el mismo tamaño grande y solo se encojan
-    // al acercarse a la zona de desvanecido superior (42% de la pantalla).
-    // Se define antes del ScrollTrigger de abajo porque GSAP invoca
-    // onRefresh de forma síncrona al crear el trigger.
-    const crawlItems = Array.from(
-      document.querySelectorAll<HTMLElement>('#crawl-text > *')
-    );
-    const CRAWL_SHRINK_ZONE = 0.42;
+    // Cada LÍNEA del crawl (no cada párrafo entero) escala según SU PROPIA
+    // posición real en pantalla, para que todas aparezcan desde abajo con
+    // el mismo tamaño grande y solo se encojan, una a una, al acercarse a
+    // la zona de desvanecido superior. GSAP SplitText divide el texto en
+    // líneas reales (respeta el wrap actual del navegador).
+    const crawlTextEl = document.getElementById('crawl-text') as HTMLElement;
+    const CRAWL_SHRINK_ZONE = 0.6; // el encogido empieza al 60% de la pantalla (más abajo)
     const CRAWL_MIN_SCALE = 0.35;
+    let crawlLines: HTMLElement[] = [];
+    let crawlTween: gsap.core.Tween | null = null;
 
-    function updateCrawlItemScales() {
+    function updateCrawlLineScales() {
       const shrinkStart = window.innerHeight * CRAWL_SHRINK_ZONE;
-      crawlItems.forEach((el) => {
+      crawlLines.forEach((el) => {
         const top = el.getBoundingClientRect().top;
         let scale = 1;
         if (top <= 0) {
@@ -610,23 +604,49 @@ export const prerender = true;
         el.style.transform = `scale(${scale})`;
       });
     }
-    window.addEventListener('resize', updateCrawlItemScales);
 
-    // Crawl: el bloque de texto sube desde abajo (top:100% → -30%) sin
-    // escalarse como conjunto. La máscara .ds-crawl-viewport recorta el
-    // texto, y el degradado .ds-crawl-fade-top lo hace desaparecer al
-    // pasar el 42% superior de la pantalla (misma altura que esa zona).
-    gsap.set('#crawl-text', { top: '100%' });
-    gsap.to('#crawl-text', {
-      top: '-30%',
-      ease: 'none',
-      scrollTrigger: {
-        trigger: '#crawl-section',
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 1,
-        onUpdate: updateCrawlItemScales,
-        onRefresh: updateCrawlItemScales,
+    // El recorrido del scroll se calcula según la altura REAL del texto
+    // (que cambia con el tamaño de fuente y el ancho de pantalla), en vez
+    // de un porcentaje fijo. Así el bloque siempre sube lo suficiente para
+    // que la última línea llegue a pasar por completo, sin quedarse ningún
+    // párrafo oculto por debajo de la zona visible.
+    function rebuildCrawlScroll() {
+      crawlTween?.scrollTrigger?.kill();
+      crawlTween?.kill();
+
+      gsap.set('#crawl-text', { top: '100%' });
+      const contentHeight = crawlTextEl.scrollHeight;
+
+      crawlTween = gsap.to('#crawl-text', {
+        top: -(contentHeight + 80) + 'px',
+        ease: 'none',
+        // onUpdate va en el tween (no en el scrollTrigger): con scrub:1 el
+        // movimiento sigue suavizándose ~1s después de dejar de hacer
+        // scroll, y solo el onUpdate del propio tween se dispara en cada
+        // uno de esos fotogramas de "coasting" (el onUpdate del
+        // scrollTrigger solo se dispara con eventos de scroll reales).
+        onUpdate: updateCrawlLineScales,
+        scrollTrigger: {
+          trigger: '#crawl-section',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1,
+          onRefresh: updateCrawlLineScales,
+        },
+      });
+    }
+
+    // autoSplit re-divide en líneas automáticamente si cambia el ancho de
+    // pantalla o si las fuentes tardan en cargar; onSplit reconstruye el
+    // recorrido de scroll con las nuevas líneas cada vez que eso ocurre.
+    new SplitText(crawlTextEl, {
+      type: 'lines',
+      linesClass: 'crawl-line',
+      autoSplit: true,
+      onSplit(self) {
+        crawlLines = self.lines as HTMLElement[];
+        rebuildCrawlScroll();
+        ScrollTrigger.refresh();
       },
     });
 
