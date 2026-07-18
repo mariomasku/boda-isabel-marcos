@@ -481,15 +481,94 @@ export const prerender = true;
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
     gsap.registerPlugin(ScrollTrigger);
 
-    // Parallax suave del hero
+    // Audio: autoplay + botón de silencio
+    const audio      = document.getElementById('theme-audio') as HTMLAudioElement;
+    const audioBtn    = document.getElementById('audio-toggle')!;
+    const iconOn      = document.getElementById('icon-sound-on')!;
+    const iconOff     = document.getElementById('icon-sound-off')!;
+
+    function setIcon(playing: boolean) {
+      iconOn.style.display  = playing ? 'block' : 'none';
+      iconOff.style.display = playing ? 'none'  : 'block';
+    }
+
+    function startAudio() {
+      audio.volume = 0.5;
+      audio.play()
+        .then(() => setIcon(true))
+        .catch(() => setIcon(false));
+    }
+
+    // Intenta autoplay inmediatamente
+    startAudio();
+
+    // Si el usuario interactúa con la página antes del autoplay, vuelve a intentar
+    const startAudioOnce = () => {
+      startAudio();
+      document.removeEventListener('click', startAudioOnce);
+      document.removeEventListener('scroll', startAudioOnce);
+      document.removeEventListener('touchstart', startAudioOnce);
+    };
+    document.addEventListener('click', startAudioOnce);
+    document.addEventListener('scroll', startAudioOnce);
+    document.addEventListener('touchstart', startAudioOnce);
+
+    audioBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play().then(() => setIcon(true)).catch(() => {});
+      } else {
+        audio.pause();
+        setIcon(false);
+      }
+    });
+
+    // Animación del hero: letras suben suavemente + imagen fade out
+    gsap.set('.ds-hero-content', { y: 0, opacity: 1 });
+    gsap.to('.ds-hero-content', {
+      y: -120,
+      opacity: 0.3,
+      ease: 'power2.inOut',
+      scrollTrigger: {
+        trigger: '.ds-hero',
+        start: 'top top',
+        end: 'center top',
+        scrub: 1.2,
+      },
+    });
+
+    // Fade out de la imagen del hero
+    gsap.to('.ds-hero-bg', {
+      opacity: 0,
+      ease: 'power2.inOut',
+      scrollTrigger: {
+        trigger: '.ds-hero',
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 1.2,
+      },
+    });
+
+    // Parallax suave del hero (todavía mantiene movimiento suave)
     gsap.to('.parallax-hero-bg', {
-      yPercent: 20,
+      yPercent: 15,
       ease: 'none',
       scrollTrigger: {
         trigger: '.ds-hero',
         start: 'top top',
         end: 'bottom top',
         scrub: true,
+      },
+    });
+
+    // Parallax del fondo universe hacia abajo
+    gsap.to('.ds-crawl-bg', {
+      yPercent: -25,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.ds-crawl-section',
+        start: 'top center',
+        end: 'bottom center',
+        scrub: 1,
       },
     });
 
@@ -536,31 +615,6 @@ export const prerender = true;
     }
     updateCountdown();
     setInterval(updateCountdown, 1000);
-
-    // Audio: intento de autoplay + botón de silencio
-    const audio      = document.getElementById('theme-audio') as HTMLAudioElement;
-    const audioBtn    = document.getElementById('audio-toggle')!;
-    const iconOn      = document.getElementById('icon-sound-on')!;
-    const iconOff     = document.getElementById('icon-sound-off')!;
-
-    function setIcon(playing: boolean) {
-      iconOn.style.display  = playing ? 'block' : 'none';
-      iconOff.style.display = playing ? 'none'  : 'block';
-    }
-
-    audio.volume = 0.5;
-    audio.play()
-      .then(() => setIcon(true))
-      .catch(() => setIcon(false)); // el navegador bloqueó el autoplay con sonido
-
-    audioBtn.addEventListener('click', () => {
-      if (audio.paused) {
-        audio.play().then(() => setIcon(true)).catch(() => {});
-      } else {
-        audio.pause();
-        setIcon(false);
-      }
-    });
   </script>
 </body>
 </html>
