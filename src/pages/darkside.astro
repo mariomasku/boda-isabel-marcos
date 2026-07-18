@@ -213,10 +213,14 @@ export const prerender = true;
     }
     .ds-crawl-bg {
       position: absolute;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 130%;
       background-image: url('/img/universe.webp');
       background-size: cover;
-      background-position: center;
+      background-position: top center;
+      will-change: transform;
     }
     .ds-crawl-viewport {
       position: absolute;
@@ -239,6 +243,10 @@ export const prerender = true;
        recortar el texto ya compuesto: cada línea se ajusta (wrap) dentro
        de su propia anchura, sin cortar ningún carácter y sin giro 3D. */
     .ds-crawl-text p { margin: 0 auto 2.2rem; }
+    /* Cada párrafo/título escala de forma independiente (JS calcula su
+       escala según su posición real en pantalla), por eso cada uno
+       necesita su propio origen de transformación. */
+    .ds-crawl-text > * { transform-origin: 50% 0%; }
     .ds-crawl-text .cw-1 { max-width: 48%; }
     .ds-crawl-text .cw-2 { max-width: 62%; }
     .ds-crawl-text .cw-3 { max-width: 74%; }
@@ -263,8 +271,8 @@ export const prerender = true;
       font-weight: 900;
       -webkit-text-stroke: 0.6px currentColor;
       text-transform: uppercase;
-      font-size: clamp(1rem, 2.6vw, 1.5rem);
-      line-height: 1.9;
+      font-size: clamp(1.35rem, 3.6vw, 2.1rem);
+      line-height: 1.75;
       letter-spacing: 0.02em;
       margin-bottom: 2.2rem;
     }
@@ -560,33 +568,65 @@ export const prerender = true;
       },
     });
 
-    // Parallax del fondo universe hacia abajo
+    // Parallax del fondo universe: el fondo mide un 130% de alto y empieza
+    // encuadrado por arriba (background-position: top), así que al
+    // desplazarlo hacia arriba un 23% de su propia altura (= el 30% extra
+    // que sobresale por abajo) se recorre toda la imagen de arriba a abajo
+    // sin que en ningún momento se vea recortada ni aparezca hueco vacío.
     gsap.to('.ds-crawl-bg', {
-      yPercent: -25,
+      yPercent: -23,
       ease: 'none',
       scrollTrigger: {
         trigger: '.ds-crawl-section',
-        start: 'top center',
-        end: 'bottom center',
+        start: 'top top',
+        end: 'bottom bottom',
         scrub: 1,
       },
     });
 
-    // Crawl: el texto sube desde abajo (top:100%) y se va encogiendo
-    // (scale) a la vez, sin ningún giro 3D. La máscara .ds-crawl-viewport
-    // (clip-path trapezoidal) recorta el texto en un embudo, y el
-    // degradado .ds-crawl-fade-top lo hace desaparecer del todo al pasar
-    // el 15% superior de la pantalla.
-    gsap.set('#crawl-text', { top: '100%', scale: 1 });
+    // Cada párrafo/título del crawl escala según SU PROPIA posición real en
+    // pantalla (no según el progreso global del scroll), para que todos
+    // aparezcan desde abajo con el mismo tamaño grande y solo se encojan
+    // al acercarse a la zona de desvanecido superior (42% de la pantalla).
+    // Se define antes del ScrollTrigger de abajo porque GSAP invoca
+    // onRefresh de forma síncrona al crear el trigger.
+    const crawlItems = Array.from(
+      document.querySelectorAll<HTMLElement>('#crawl-text > *')
+    );
+    const CRAWL_SHRINK_ZONE = 0.42;
+    const CRAWL_MIN_SCALE = 0.35;
+
+    function updateCrawlItemScales() {
+      const shrinkStart = window.innerHeight * CRAWL_SHRINK_ZONE;
+      crawlItems.forEach((el) => {
+        const top = el.getBoundingClientRect().top;
+        let scale = 1;
+        if (top <= 0) {
+          scale = CRAWL_MIN_SCALE;
+        } else if (top < shrinkStart) {
+          const progress = top / shrinkStart;
+          scale = CRAWL_MIN_SCALE + (1 - CRAWL_MIN_SCALE) * progress;
+        }
+        el.style.transform = `scale(${scale})`;
+      });
+    }
+    window.addEventListener('resize', updateCrawlItemScales);
+
+    // Crawl: el bloque de texto sube desde abajo (top:100% → -30%) sin
+    // escalarse como conjunto. La máscara .ds-crawl-viewport recorta el
+    // texto, y el degradado .ds-crawl-fade-top lo hace desaparecer al
+    // pasar el 42% superior de la pantalla (misma altura que esa zona).
+    gsap.set('#crawl-text', { top: '100%' });
     gsap.to('#crawl-text', {
       top: '-30%',
-      scale: 0.18,
       ease: 'none',
       scrollTrigger: {
         trigger: '#crawl-section',
         start: 'top top',
         end: 'bottom bottom',
         scrub: 1,
+        onUpdate: updateCrawlItemScales,
+        onRefresh: updateCrawlItemScales,
       },
     });
 
