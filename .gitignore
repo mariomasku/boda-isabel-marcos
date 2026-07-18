@@ -24,3 +24,7 @@ pnpm-debug.log*
 .idea/
 .vercel
 .env*
+
+#ficheros md
+FUNCIONADIDAD-EMAIL-RSVP.md
+FUNCIONADIDAD-GESTOR-BODA.md
