@@ -17,6 +17,11 @@ export const prerender = true;
       src: url('/fonts/StarJedi.woff2') format('woff2');
       font-display: swap;
     }
+    @font-face {
+      font-family: 'Starjhol';
+      src: url('/fonts/Starjhol.ttf') format('truetype');
+      font-display: swap;
+    }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -79,9 +84,6 @@ export const prerender = true;
     .ds-hero {
       position: relative;
       height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       overflow: hidden;
     }
     .ds-hero-bg {
@@ -103,8 +105,17 @@ export const prerender = true;
       );
     }
     .ds-hero-content {
-      position: relative;
+      position: absolute;
+      inset: 0;
       z-index: 1;
+    }
+    /* Bloque de texto anclado a la parte alta (deja libre el centro), igual
+       que en la página principal */
+    .ds-hero-top {
+      position: absolute;
+      top: 10%;
+      left: 0;
+      right: 0;
       text-align: center;
       padding: 0 1.5rem;
       display: flex;
@@ -132,6 +143,7 @@ export const prerender = true;
       display: flex;
       align-items: center;
       gap: 1.1rem;
+      font-weight: 300;
     }
     .ds-hero-date-line { width: 50px; height: 1px; background: var(--ds-yellow); }
     .ds-hero-date-text {
@@ -143,25 +155,31 @@ export const prerender = true;
     }
     .ds-hero-place {
       font-family: 'Lato', sans-serif;
-      font-weight: 300;
+      font-weight: 600;
       letter-spacing: 0.15em;
       font-size: clamp(0.75rem, 1.8vw, 0.95rem);
       color: var(--ds-yellow-dim);
       text-transform: uppercase;
     }
 
-    .ds-countdown {
+    /* Contador anclado abajo, igual que en la página principal */
+    .ds-countdown,
+    .ds-hero-countdown-title {
+      position: absolute;
+      bottom: calc(11% + 2rem);
+      left: 0;
+      right: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      margin-top: 0.5rem;
     }
+    .ds-hero-countdown-title { bottom: calc(18% + 2rem); }
     .ds-countdown-item { display: flex; flex-direction: column; align-items: center; min-width: 62px; }
     .ds-countdown-number {
-      font-family: 'StarJedi', sans-serif;
+      font-family: 'Starjhol', sans-serif;
       font-size: clamp(1.5rem, 5vw, 2.4rem);
-      color: var(--ds-white);
+      color: var(--ds-yellow);
       line-height: 1;
     }
     .ds-countdown-label {
@@ -238,22 +256,24 @@ export const prerender = true;
       text-align: center;
       color: var(--ds-yellow);
     }
-    .ds-crawl-text p { margin: 0 auto 2.2rem; }
+    .ds-crawl-text p,
+    .ds-crawl-text h2 { margin: 0; }
     /* GSAP SplitText divide cada párrafo/título en líneas (.crawl-line);
        cada línea escala de forma independiente según su posición real en
        pantalla, por eso necesita su propio origen de transformación. */
     .ds-crawl-text .crawl-line { transform-origin: 50% 0%; }
 
-    .crawl-line p {
-      margin-bottom: 0;
-    }
+    /* Solo la ÚLTIMA línea de cada párrafo/título real lleva separación,
+       para que haya espacio entre párrafos pero las líneas de un mismo
+       párrafo queden pegadas entre sí. */
+    .crawl-line.crawl-line-last { margin-bottom: 1.8rem; }
+
     .ds-crawl-episode {
       font-family: Arial, Helvetica, sans-serif;
-      font-weight: 700;
+      font-weight: 400;
       font-size: clamp(1rem, 2.6vw, 1.3rem);
       letter-spacing: 0.3em;
       text-transform: uppercase;
-      margin-bottom: 1rem;
     }
     .ds-crawl-title {
       font-family: 'StarJedi', sans-serif;
@@ -275,7 +295,6 @@ export const prerender = true;
       -webkit-text-stroke: 0.6px currentColor;
       font-size: clamp(1.4rem, 4vw, 2.2rem) !important;
       letter-spacing: 0.15em !important;
-      margin-top: 1rem;
     }
     .ds-crawl-fade-top {
       position: absolute;
@@ -294,26 +313,131 @@ export const prerender = true;
       pointer-events: none;
     }
 
-    /* ── Sección mapa (tras el crawl) ── */
-    .ds-map-section {
-      background: var(--ds-bg);
-      padding: 5rem 1.5rem 6rem;
-      text-align: center;
-    }
-    .ds-map-pre {
+    /* ── Utilidad: fade-in genérico al hacer scroll ── */
+    .ds-fade { opacity: 0; }
+
+    /* ── Cabeceras de sección reutilizables ── */
+    .ds-section-pre {
       font-family: 'Lato', sans-serif;
       font-weight: 300;
       font-size: clamp(0.8rem, 2vw, 0.95rem);
       color: var(--ds-yellow);
       letter-spacing: 0.3em;
       text-transform: uppercase;
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.4rem;
+      text-align: center;
     }
-    .ds-map-title {
-      font-family: 'StarJedi', sans-serif;
+    .ds-section-title {
+      font-family: 'Starjhol', sans-serif;
       font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+      color: var(--ds-yellow);
+      text-align: center;
+      margin-bottom: 1rem;
+      font-weight: 400;
+    }
+
+    /* ── Sección Itinerario (timeline) ── */
+    .ds-timeline-section {
+      background: var(--ds-bg);
+      padding: 6rem 1.5rem 4rem;
+    }
+    .ds-timeline-container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .ds-event-date {
+      font-family: 'Lato', sans-serif;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      color: var(--ds-yellow-dim);
+      font-size: clamp(0.85rem, 2vw, 1rem);
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .ds-tl {
+      margin: 2.5rem auto 0;
+      width: 100%;
+      max-width: 600px;
+    }
+    .ds-tl-item { display: flex; gap: 1.6rem; }
+    .ds-tl-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      width: 64px;
+    }
+    .ds-tl-icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--ds-bg-2);
+      border: 1px solid color-mix(in srgb, var(--ds-yellow) 40%, transparent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ds-tl-icon {
+      width: 32px;
+      height: 32px;
+      filter: invert(1) opacity(0.85);
+    }
+    .ds-tl-stem {
+      flex: 1;
+      width: 1px;
+      min-height: 20px;
+      background: var(--ds-yellow);
+      opacity: 0.35;
+      margin: 6px 0;
+    }
+    .ds-tl-right {
+      padding-top: 0.6rem;
+      padding-bottom: 1.3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .ds-tl-time {
+      font-family: 'StarJedi', sans-serif;
+      font-size: 1.1rem;
       color: var(--ds-white);
-      margin-bottom: 2.5rem;
+      line-height: 1.3;
+    }
+    .ds-tl-label {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.74rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ds-yellow-dim);
+      line-height: 1.6;
+      margin: 0;
+    }
+    .ds-tl-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: var(--ds-yellow);
+      text-decoration: none;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-bottom: 1px solid color-mix(in srgb, var(--ds-yellow) 40%, transparent);
+      padding-bottom: 1px;
+      margin-top: 0.3rem;
+      width: fit-content;
+    }
+    .ds-tl-link:hover { color: var(--ds-white); }
+
+    /* ── Sección mapa (tras el itinerario) ── */
+    .ds-map-section {
+      background: var(--ds-bg);
+      padding: 1rem 1.5rem 6rem;
+      text-align: center;
     }
     .ds-map-wrap {
       max-width: 900px;
@@ -344,9 +468,700 @@ export const prerender = true;
       filter: grayscale(60%) invert(92%) contrast(90%);
     }
 
+    /* ── Fotos parallax entre secciones ── */
+    .ds-photo-section {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+    .ds-photo-bg {
+      position: absolute;
+      inset: -20% 0;
+      background-size: cover;
+      background-position: center;
+      will-change: transform;
+    }
+    .ds-photo-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        160deg,
+        color-mix(in srgb, var(--ds-bg-2) 72%, transparent) 0%,
+        color-mix(in srgb, var(--ds-bg) 55%, transparent) 50%,
+        color-mix(in srgb, var(--ds-bg-2) 78%, transparent) 100%
+      );
+    }
+    /* Cuando .ds-photo-section se reutiliza sobre una sección con contenido
+       real (no solo un divisor decorativo), ese contenido debe quedar por
+       encima de las capas absolutas de fondo/overlay. */
+    .ds-photo-section > *:not(.ds-photo-bg):not(.ds-photo-overlay) {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Sección Transporte (bus) ── */
+    .ds-bus-section {
+      background: var(--ds-bg-2);
+      padding: 6rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .ds-bus-container {
+      max-width: 700px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+    .ds-bus-intro {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.92rem;
+      text-align: center;
+      line-height: 1.8;
+      color: var(--ds-yellow-dim);
+      max-width: 480px;
+      margin-top: 0.25rem;
+    }
+    .ds-bus-heading {
+      font-family: 'Lato', sans-serif;
+      font-size: 1rem;
+      color: var(--ds-white);
+      text-align: center;
+      max-width: 520px;
+      margin: 2.25rem auto 0.25rem;
+      line-height: 1.6;
+    }
+    .ds-bus-ida-wrap {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      max-width: 420px;
+      margin-top: 1.5rem;
+    }
+    .ds-bus-ida-wrap .ds-bus-card { flex: 1; }
+    .ds-bus-routes {
+      display: flex;
+      align-items: stretch;
+      gap: 1.5rem;
+      margin: 1rem 0;
+      width: 100%;
+      max-width: 580px;
+      justify-content: center;
+    }
+    .ds-bus-card {
+      flex: 1;
+      background: var(--ds-bg);
+      border: 1px solid color-mix(in srgb, var(--ds-yellow) 30%, transparent);
+      border-radius: 6px;
+      padding: 1.8rem 1.5rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .ds-bus-card:hover { border-color: var(--ds-yellow); transform: translateY(-2px); }
+    .ds-bus-direction {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.58rem;
+      letter-spacing: 0.3em;
+      color: var(--ds-yellow);
+      font-weight: 700;
+    }
+    .ds-bus-route {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.85rem;
+      color: var(--ds-white);
+      line-height: 1.4;
+    }
+    .ds-bus-time {
+      font-family: 'StarJedi', sans-serif;
+      font-size: 1.5rem;
+      color: var(--ds-yellow);
+      margin-top: 0.25rem;
+    }
+    @media (max-width: 580px) {
+      .ds-bus-routes { flex-direction: column; }
+    }
+
+    /* ── Sección RSVP ── */
+    .ds-rsvp-section {
+      background: var(--ds-bg);
+      padding: 6rem 1.5rem;
+    }
+    .ds-rsvp-container {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .ds-rsvp-intro {
+      text-align: center;
+      color: var(--ds-yellow-dim);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.92rem;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+    .ds-rsvp-form { width: 100%; display: flex; flex-direction: column; gap: 2rem; }
+    .ds-form-group { display: flex; flex-direction: column; gap: 0.6rem; }
+    .ds-form-group > label {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.95rem;
+      color: var(--ds-white);
+      font-weight: 400;
+    }
+    .ds-form-hint {
+      font-size: 0.82rem;
+      color: var(--ds-yellow-dim);
+      font-style: italic;
+      line-height: 1.6;
+    }
+    .ds-photo-hint {
+      margin-top: 0.8rem;
+      padding: 1.8rem 1.5rem;
+      background: color-mix(in srgb, var(--ds-yellow) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--ds-yellow) 25%, transparent);
+      border-top: 3px solid var(--ds-yellow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      text-align: center;
+    }
+    .ds-photo-hint-icon { width: 44px; height: 44px; filter: invert(1) opacity(0.85); }
+    .ds-photo-hint-text {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.92rem;
+      color: var(--ds-yellow-dim);
+      line-height: 1.8;
+      font-style: italic;
+    }
+    .ds-photo-hint-contact {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.65rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid color-mix(in srgb, var(--ds-yellow) 25%, transparent);
+      width: 100%;
+    }
+    .ds-photo-hint-name {
+      font-family: 'StarJedi', sans-serif;
+      font-size: 0.95rem;
+      color: var(--ds-white);
+    }
+    .ds-photo-hint-tel {
+      display: inline-block;
+      padding: 0.6rem 1.8rem;
+      border: 1px solid var(--ds-yellow);
+      color: var(--ds-yellow);
+      text-decoration: none;
+      font-family: 'Lato', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      transition: background 0.2s, color 0.2s;
+    }
+    .ds-photo-hint-tel:hover { background: var(--ds-yellow); color: var(--ds-bg-2); }
+
+    .ds-rsvp-section input[type="text"],
+    .ds-rsvp-section input[type="email"],
+    .ds-rsvp-section input[type="number"],
+    .ds-rsvp-section textarea {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      background: var(--ds-bg-2);
+      border: 1px solid color-mix(in srgb, var(--ds-yellow) 40%, transparent);
+      border-radius: 0;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.9rem;
+      color: var(--ds-white);
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+    }
+    .ds-rsvp-section input[type="text"]:focus,
+    .ds-rsvp-section textarea:focus { border-color: var(--ds-yellow); }
+    .ds-rsvp-section textarea { resize: vertical; }
+
+    .ds-radio-group, .ds-checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .ds-radio-option, .ds-checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      cursor: pointer;
+      padding: 0.7rem 1rem;
+      background: var(--ds-bg-2);
+      border: 1px solid color-mix(in srgb, var(--ds-yellow) 22%, transparent);
+      transition: border-color 0.2s, background 0.2s;
+      font-size: 0.9rem;
+      color: var(--ds-white);
+    }
+    .ds-radio-option:hover, .ds-checkbox-option:hover {
+      border-color: var(--ds-yellow);
+      background: color-mix(in srgb, var(--ds-yellow) 8%, transparent);
+    }
+    .ds-radio-option input, .ds-checkbox-option input {
+      accent-color: var(--ds-yellow);
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+    .ds-conditional { margin-top: 0.5rem; }
+
+    .ds-submit-btn {
+      align-self: center;
+      padding: 1rem 3rem;
+      background: var(--ds-yellow);
+      color: var(--ds-bg-2);
+      border: none;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      margin-top: 1rem;
+      font-weight: 700;
+    }
+    .ds-submit-btn:hover { background: var(--ds-white); transform: translateY(-2px); }
+
+    .ds-extras-si {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      width: 100%;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: max-height 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.45s ease;
+    }
+    .ds-extras-si.visible { max-height: 9000px; opacity: 1; pointer-events: auto; }
+
+    .ds-ninos-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      padding: 1.2rem;
+      background: color-mix(in srgb, var(--ds-yellow) 6%, transparent);
+      border-left: 2px solid var(--ds-yellow);
+    }
+    .ds-ninos-count-picker { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem; }
+    #ds-ninos-names-container { display: flex; flex-direction: column; gap: 1rem; }
+
+    .ds-form-message { text-align: center; padding: 1rem; font-size: 0.9rem; }
+    .ds-form-message.error { background: rgba(255,107,107,0.08); border: 1px solid #ff6b6b; color: #ff9d9d; }
+
+    .ds-intol-error, .ds-email-error {
+      display: none;
+      color: #ff9d9d;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.82rem;
+      margin-top: 0.4rem;
+    }
+    .ds-intol-personas-wrap { display: none; margin-top: 0.75rem; }
+    .ds-intol-personas-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    /* ── Footer ── */
+    .ds-footer-section {
+      padding: 5rem 1.5rem 3rem;
+      background: linear-gradient(160deg, var(--ds-bg-2), #000);
+      text-align: center;
+    }
+    .ds-footer-container {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .ds-footer-names {
+      font-family: 'StarJedi', sans-serif;
+      font-size: clamp(1.6rem, 5vw, 2.6rem);
+      color: var(--ds-white);
+      text-transform: lowercase;
+    }
+    .ds-footer-amp { color: var(--ds-yellow); }
+    .ds-footer-date {
+      font-family: 'Lato', sans-serif;
+      font-weight: 300;
+      letter-spacing: 0.4em;
+      color: var(--ds-yellow-dim);
+      font-size: 0.9rem;
+    }
+    .ds-footer-contacts { display: flex; align-items: center; gap: 1rem; margin: 0.5rem 0; }
+    .ds-contact-item { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+    .ds-contact-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--ds-yellow);
+      font-family: 'Lato', sans-serif;
+    }
+    .ds-contact-item a {
+      color: color-mix(in srgb, var(--ds-white) 80%, transparent);
+      text-decoration: none;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    .ds-contact-item a:hover { color: var(--ds-yellow); }
+    .ds-contact-sep { color: color-mix(in srgb, var(--ds-yellow) 30%, transparent); font-size: 1.5rem; margin-bottom: 0.5rem; }
+
+    .ds-lock-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--ds-yellow);
+      padding: 0.4rem;
+      margin-top: 0.75rem;
+      transition: color 0.25s, opacity 0.25s;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ds-lock-btn:hover { opacity: 1; }
+
+    .ds-footer-copy {
+      margin-top: 0.25rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      color: color-mix(in srgb, var(--ds-yellow) 55%, transparent);
+      font-style: italic;
+      letter-spacing: 0.1em;
+    }
+    .ds-footer-dev {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.62rem;
+      color: color-mix(in srgb, var(--ds-yellow) 55%, transparent);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-top: 0.1rem;
+    }
+
     @media (max-width: 480px) {
       .ds-crawl-section { height: 420vh; }
+      .ds-tl-left { width: 52px; }
+      .ds-tl-icon-wrap { width: 52px; height: 52px; }
+      .ds-tl-icon { width: 26px; height: 26px; }
+      .ds-map-wrap {
+        box-shadow: none;
+        border-radius: 0;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: transparent;
+      }
+      .ds-map-wrap iframe {
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        border: 3px solid var(--ds-yellow);
+        box-sizing: border-box;
+      }
     }
+  </style>
+
+  <!-- Estilos genéricos generados dinámicamente por el JS del formulario RSVP -->
+  <style is:global>
+    .ds-count-btn {
+      width: 56px;
+      height: 56px;
+      border: 1.5px solid color-mix(in srgb, var(--ds-yellow) 45%, transparent);
+      background: var(--ds-bg-2);
+      font-family: 'StarJedi', sans-serif;
+      font-size: 1rem;
+      color: var(--ds-white);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .ds-count-btn:active { background: color-mix(in srgb, var(--ds-yellow) 18%, transparent); }
+    .ds-count-btn.selected {
+      background: var(--ds-yellow);
+      color: var(--ds-bg-2);
+      border-color: var(--ds-yellow);
+    }
+
+    .ds-intol-person-card {
+      border: 1px solid color-mix(in srgb, var(--ds-yellow) 30%, transparent);
+      background: var(--ds-bg-2);
+      overflow: hidden;
+    }
+    .ds-intol-person-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 1rem 1rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: background 0.2s;
+      min-height: 56px;
+      color: var(--ds-white);
+    }
+    .ds-intol-person-btn:active { background: color-mix(in srgb, var(--ds-yellow) 10%, transparent); }
+    .ds-intol-person-name { font-family: 'Lato', sans-serif; font-size: 0.95rem; color: var(--ds-white); flex: 1; }
+    .ds-intol-person-badge {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ds-yellow-dim);
+      padding: 0.2rem 0.55rem;
+      border: 1px solid color-mix(in srgb, var(--ds-yellow) 35%, transparent);
+      white-space: nowrap;
+    }
+    .ds-intol-count {
+      font-family: 'Lato', sans-serif;
+      font-size: 0.66rem;
+      color: var(--ds-bg-2);
+      background: var(--ds-yellow);
+      padding: 0.18rem 0.5rem;
+      display: none;
+      white-space: nowrap;
+    }
+    .ds-intol-count.visible { display: inline-block; }
+    .ds-intol-chevron {
+      color: color-mix(in srgb, var(--ds-yellow) 70%, transparent);
+      font-size: 0.65rem;
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+    }
+    .ds-intol-person-card.open .ds-intol-chevron { transform: rotate(180deg); }
+    .ds-intol-panel {
+      display: flex;
+      flex-direction: column;
+      max-height: 0;
+      overflow: hidden;
+      padding: 0;
+      background: color-mix(in srgb, var(--ds-yellow) 4%, transparent);
+      transition: max-height 0.38s ease, padding 0.3s ease;
+    }
+    .ds-intol-person-card.open .ds-intol-panel {
+      max-height: 900px;
+      padding: 0.5rem 0 1rem;
+      border-top: 1px solid color-mix(in srgb, var(--ds-yellow) 18%, transparent);
+    }
+    .ds-intol-checkboxes { display: flex; flex-direction: column; }
+    .ds-intol-check-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: 'Lato', sans-serif;
+      font-size: 0.88rem;
+      color: var(--ds-white);
+      cursor: pointer;
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid color-mix(in srgb, var(--ds-yellow) 10%, transparent);
+      transition: background 0.15s;
+      min-height: 48px;
+    }
+    .ds-intol-check-label:last-child { border-bottom: none; }
+    .ds-intol-check-label:active { background: color-mix(in srgb, var(--ds-yellow) 9%, transparent); }
+    .ds-intol-check-label input[type="checkbox"] {
+      width: 18px; min-width: 18px; height: 18px;
+      accent-color: var(--ds-yellow); flex-shrink: 0; cursor: pointer;
+    }
+    .ds-intol-otros-wrap {
+      margin: 0.5rem 1rem 0.25rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid color-mix(in srgb, var(--ds-yellow) 18%, transparent);
+    }
+    .ds-intol-otros-label { font-family: 'Lato', sans-serif; font-size: 0.82rem; color: var(--ds-yellow-dim); display: block; margin-bottom: 0.4rem; }
+    .ds-intol-otros-wrap input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.85rem 1rem;
+      background: var(--ds-bg-2);
+      border: 1.5px solid color-mix(in srgb, var(--ds-yellow) 40%, transparent);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.88rem;
+      color: var(--ds-white);
+      outline: none;
+    }
+    .ds-intol-otros-wrap input[type="text"]:focus { border-color: var(--ds-yellow); }
+
+    .ds-nino-entry {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      padding: 1.1rem 1rem 1.2rem;
+      background: var(--ds-bg-2);
+      border: 1.5px solid color-mix(in srgb, var(--ds-yellow) 30%, transparent);
+    }
+    .ds-nino-entry-title { font-family: 'Lato', sans-serif; font-size: 0.95rem; color: var(--ds-white); margin-bottom: 0.2rem; display: block; }
+    .ds-nino-campo-label {
+      font-family: 'Lato', sans-serif; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--ds-yellow-dim); display: block; margin-top: 0.55rem;
+    }
+    .ds-nino-entry input[type="text"], .ds-nino-entry input[type="number"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.88rem 1rem;
+      background: var(--ds-bg);
+      border: 1.5px solid color-mix(in srgb, var(--ds-yellow) 40%, transparent);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.92rem;
+      color: var(--ds-white);
+      outline: none;
+      appearance: none;
+    }
+    .ds-nino-entry input:focus { border-color: var(--ds-yellow); }
+
+    /* ── Modal éxito RSVP ── */
+    .ds-success-overlay {
+      position: fixed;
+      inset: 0;
+      background: color-mix(in srgb, #000 82%, transparent);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      padding: 1rem;
+    }
+    .ds-success-overlay.open { opacity: 1; }
+    .ds-success-modal {
+      position: relative;
+      background: linear-gradient(160deg, var(--ds-bg-2), #000);
+      border: 1px solid color-mix(in srgb, var(--ds-yellow) 30%, transparent);
+      padding: 2.5rem 2rem 2rem;
+      max-width: 360px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      text-align: center;
+      transform: translateY(14px);
+      transition: transform 0.28s ease;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.65);
+    }
+    .ds-success-overlay.open .ds-success-modal { transform: translateY(0); }
+    .ds-success-icon { color: var(--ds-yellow); margin-bottom: 0.3rem; }
+    .ds-success-title { font-family: 'StarJedi', sans-serif; font-size: 1.3rem; color: var(--ds-white); margin: 0; }
+    .ds-success-text { font-family: 'Lato', sans-serif; font-size: 0.9rem; line-height: 1.6; color: color-mix(in srgb, var(--ds-white) 80%, transparent); margin: 0 0 0.5rem; }
+    .ds-success-accept {
+      width: 100%;
+      background: color-mix(in srgb, var(--ds-yellow) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--ds-yellow) 45%, transparent);
+      color: var(--ds-yellow);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .ds-success-accept:hover { background: color-mix(in srgb, var(--ds-yellow) 22%, transparent); color: var(--ds-white); }
+
+    /* ── Modal acceso privado (footer) ── */
+    .ds-login-overlay {
+      position: fixed;
+      inset: 0;
+      background: color-mix(in srgb, #000 82%, transparent);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      padding: 1rem;
+    }
+    .ds-login-overlay.open { opacity: 1; }
+    .ds-login-modal {
+      position: relative;
+      background: linear-gradient(160deg, var(--ds-bg-2), #000);
+      border: 1px solid color-mix(in srgb, var(--ds-yellow) 28%, transparent);
+      padding: 2.5rem 2rem 2rem;
+      max-width: 340px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      transform: translateY(14px);
+      transition: transform 0.28s ease;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.65);
+    }
+    .ds-login-overlay.open .ds-login-modal { transform: translateY(0); }
+    .ds-login-close {
+      position: absolute;
+      top: 0.9rem;
+      right: 0.9rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: color-mix(in srgb, var(--ds-yellow) 45%, transparent);
+      padding: 0.25rem;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+    .ds-login-close:hover { color: var(--ds-yellow); }
+    .ds-login-icon { color: var(--ds-yellow); margin-bottom: 0.4rem; }
+    .ds-login-title { font-family: 'StarJedi', sans-serif; font-size: 1.15rem; color: var(--ds-white); margin: 0; }
+    .ds-login-sub {
+      font-size: 0.65rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: color-mix(in srgb, var(--ds-yellow) 55%, transparent);
+      margin-bottom: 0.75rem;
+    }
+    .ds-login-form { width: 100%; display: flex; flex-direction: column; gap: 0.75rem; }
+    .ds-login-field input {
+      width: 100%;
+      background: color-mix(in srgb, var(--ds-white) 5%, transparent);
+      border: 1px solid color-mix(in srgb, var(--ds-yellow) 25%, transparent);
+      padding: 0.8rem 1rem;
+      color: var(--ds-white);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .ds-login-field input::placeholder { color: color-mix(in srgb, var(--ds-white) 30%, transparent); }
+    .ds-login-field input:focus { border-color: color-mix(in srgb, var(--ds-yellow) 60%, transparent); }
+    .ds-login-error { font-size: 0.75rem; color: #ff9d9d; text-align: center; min-height: 1em; }
+    .ds-login-submit {
+      width: 100%;
+      background: color-mix(in srgb, var(--ds-yellow) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--ds-yellow) 40%, transparent);
+      color: var(--ds-yellow);
+      font-family: 'Lato', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      margin-top: 0.25rem;
+    }
+    .ds-login-submit:hover { background: color-mix(in srgb, var(--ds-yellow) 22%, transparent); color: var(--ds-white); }
   </style>
 </head>
 <body>
@@ -373,14 +1188,20 @@ export const prerender = true;
     <div class="ds-hero-bg parallax-hero-bg"></div>
     <div class="ds-hero-overlay"></div>
     <div class="ds-hero-content">
-      <p class="ds-hero-pre">nos casamos</p>
-      <h1 class="ds-hero-names">isabel<br>&amp; Marcos</h1>
-      <div class="ds-hero-date">
-        <span class="ds-hero-date-line"></span>
-        <span class="ds-hero-date-text">03 · 10 · 2026</span>
-        <span class="ds-hero-date-line"></span>
+      <div class="ds-hero-top">
+        <p class="ds-hero-pre">nos casamos</p>
+        <h1 class="ds-hero-names">isabel<br>&amp; Marcos</h1>
+        <div class="ds-hero-date">
+          <span class="ds-hero-date-line"></span>
+          <span class="ds-hero-date-text">03 · 10 · 2026</span>
+          <span class="ds-hero-date-line"></span>
+        </div>
+        <p class="ds-hero-place">Cortijo El Alamillo · Villarrubia, Córdoba</p>
       </div>
-      <p class="ds-hero-place">Cortijo El Alamillo · Villarrubia, Córdoba</p>
+
+      <div class="ds-hero-countdown-title">
+        <p class="ds-hero-place">Quedan</p>
+      </div>
 
       <div class="ds-countdown" id="ds-countdown">
         <div class="ds-countdown-item">
@@ -406,7 +1227,7 @@ export const prerender = true;
     </div>
 
     <div class="ds-hero-scroll">
-      <span>Desliza hacia arriba</span>
+      <span>DESLIZA HACIA ARRIBA</span>
       <div class="ds-scroll-line"></div>
     </div>
   </section>
@@ -418,7 +1239,7 @@ export const prerender = true;
       <div class="ds-crawl-viewport">
         <div class="ds-crawl-text" id="crawl-text">
           <p class="ds-crawl-episode">Episodio I</p>
-          <h2 class="ds-crawl-title" style="margin-bottom:2.2rem;">El gran día</h2>
+          <h2 class="ds-crawl-title">El gran día</h2>
           <p>
             En un universo inmenso, donde millones de caminos nacen y
             desaparecen cada segundo, hay encuentros que desafían
@@ -458,10 +1279,122 @@ export const prerender = true;
     </div>
   </section>
 
+  <!-- ── Itinerario / timeline ── -->
+  <section class="ds-timeline-section ds-photo-section" id="detalles">
+    <div class="ds-photo-bg" style="background-image:url('/img/universe.webp')"></div>
+    <div class="ds-photo-overlay"></div>
+    <div class="ds-timeline-container">
+      <p class="ds-section-pre ds-fade">la travesía</p>
+      <h2 class="ds-section-title ds-fade">El itinerario</h2>
+      <p class="ds-event-date ds-fade">Sábado · 3 de octubre · 2026</p>
+
+      <div class="ds-tl">
+        <div class="ds-tl-item">
+          <div class="ds-tl-left">
+            <div class="ds-tl-icon-wrap">
+              <img src="/icons/position.svg" alt="" class="ds-tl-icon" aria-hidden="true" />
+            </div>
+            <div class="ds-tl-stem"></div>
+          </div>
+          <div class="ds-tl-right">
+            <time class="ds-tl-time">17:15h</time>
+            <p class="ds-tl-label">Salida de autocar<br>Puente Genil · Córdoba</p>
+          </div>
+        </div>
+
+        <div class="ds-tl-item">
+          <div class="ds-tl-left">
+            <div class="ds-tl-icon-wrap">
+              <img src="/icons/anillos.svg" alt="" class="ds-tl-icon" aria-hidden="true" />
+            </div>
+            <div class="ds-tl-stem"></div>
+          </div>
+          <div class="ds-tl-right">
+            <time class="ds-tl-time">19:00h</time>
+            <p class="ds-tl-label">Ceremonia</p>
+            <a href="#mapa" class="ds-tl-link">
+              <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M8 1a5 5 0 0 1 5 5c0 4-5 9-5 9S3 10 3 6a5 5 0 0 1 5-5z"/>
+                <circle cx="8" cy="6" r="2"/>
+              </svg>
+              Cortijo El Alamillo
+            </a>
+          </div>
+        </div>
+
+        <div class="ds-tl-item">
+          <div class="ds-tl-left">
+            <div class="ds-tl-icon-wrap">
+              <img src="/icons/coctel.svg" alt="" class="ds-tl-icon" aria-hidden="true" />
+            </div>
+            <div class="ds-tl-stem"></div>
+          </div>
+          <div class="ds-tl-right">
+            <time class="ds-tl-time">20:00h</time>
+            <p class="ds-tl-label">Cóctel</p>
+          </div>
+        </div>
+
+        <div class="ds-tl-item">
+          <div class="ds-tl-left">
+            <div class="ds-tl-icon-wrap">
+              <img src="/icons/fotos.svg" alt="" class="ds-tl-icon" aria-hidden="true" />
+            </div>
+            <div class="ds-tl-stem"></div>
+          </div>
+          <div class="ds-tl-right">
+            <time class="ds-tl-time">21:30h</time>
+            <p class="ds-tl-label">Cena</p>
+          </div>
+        </div>
+
+        <div class="ds-tl-item">
+          <div class="ds-tl-left">
+            <div class="ds-tl-icon-wrap">
+              <img src="/icons/bus.svg" alt="" class="ds-tl-icon" aria-hidden="true" />
+            </div>
+            <div class="ds-tl-stem"></div>
+          </div>
+          <div class="ds-tl-right">
+            <time class="ds-tl-time">03:00h</time>
+            <p class="ds-tl-label">Primer autocar<br>Córdoba · Puente Genil</p>
+          </div>
+        </div>
+
+        <div class="ds-tl-item">
+          <div class="ds-tl-left">
+            <div class="ds-tl-icon-wrap">
+              <img src="/icons/bus.svg" alt="" class="ds-tl-icon" aria-hidden="true" />
+            </div>
+            <div class="ds-tl-stem"></div>
+          </div>
+          <div class="ds-tl-right">
+            <time class="ds-tl-time">06:00h</time>
+            <p class="ds-tl-label">Segundo autocar<br>Córdoba · Puente Genil</p>
+          </div>
+        </div>
+
+        <div class="ds-tl-item">
+          <div class="ds-tl-left">
+            <div class="ds-tl-icon-wrap">
+              <img src="/icons/ceremonia.svg" alt="" class="ds-tl-icon" aria-hidden="true" />
+            </div>
+          </div>
+          <div class="ds-tl-right">
+            <time class="ds-tl-time">06:00h</time>
+            <p class="ds-tl-label">Fin de fiesta</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ── Mapa ── -->
-  <section class="ds-map-section">
-    <p class="ds-map-pre">Coordenadas de aterrizaje</p>
-    <h2 class="ds-map-title">Cómo llegar</h2>
+  <section class="ds-map-section ds-photo-section" id="mapa">
+    <div class="ds-photo-bg" style="background-image:url('/img/universe.webp')"></div>
+    <div class="ds-photo-overlay"></div>
+    <p class="ds-section-pre">Coordenadas de aterrizaje</p>
+    <h2 class="ds-section-title" style="margin-bottom:2.5rem;">Cómo llegar</h2>
     <div class="ds-map-wrap">
       <div class="ds-map-label">
         <span>📍 Cortijo El Alamillo · Villarrubia, Córdoba</span>
@@ -477,6 +1410,337 @@ export const prerender = true;
       ></iframe>
     </div>
   </section>
+
+  <!-- ── Foto parallax 1 ── -->
+  <div class="ds-photo-section" style="height:60vh">
+    <div class="ds-photo-bg" style="background-image:url('/fotos/foto2-darkside.webp')"></div>
+    <div class="ds-photo-overlay"></div>
+  </div>
+
+  <!-- ── Transporte ── -->
+  <section class="ds-bus-section ds-photo-section" id="autobus">
+    <div class="ds-photo-bg" style="background-image:url('/img/universe.webp')"></div>
+    <div class="ds-photo-overlay"></div>
+    <div class="ds-bus-container">
+      <p class="ds-section-pre ds-fade">para los de Puente Genil</p>
+      <h2 class="ds-section-title ds-fade">Transporte</h2>
+      <p class="ds-bus-intro ds-fade">
+        Ponemos a vuestra disposición un autobús para los invitados de Puente Genil.
+        Podéis indicar si lo necesitáis en el formulario de confirmación.
+      </p>
+
+      <div class="ds-bus-ida-wrap">
+        <div class="ds-bus-card">
+          <div class="ds-bus-direction">IDA</div>
+          <div class="ds-bus-route">Puente Genil → Cortijo El Alamillo</div>
+          <div class="ds-bus-direction">SALIDA DESDE EL LIDL</div>
+          <div class="ds-bus-time">17:15h</div>
+        </div>
+      </div>
+
+      <p class="ds-bus-heading ds-fade">
+        Hay dos opciones de vuelta para que podáis elegir la que mejor os venga.
+      </p>
+
+      <div class="ds-bus-routes">
+        <div class="ds-bus-card">
+          <div class="ds-bus-direction">VUELTA · PRIMER AUTOCAR</div>
+          <div class="ds-bus-route">Cortijo El Alamillo → Puente Genil</div>
+          <div class="ds-bus-direction">LLEGADA A LIDL PUENTE GENIL</div>
+          <div class="ds-bus-time">03:00h</div>
+        </div>
+
+        <div class="ds-bus-card">
+          <div class="ds-bus-direction">VUELTA · SEGUNDO AUTOCAR</div>
+          <div class="ds-bus-route">Cortijo El Alamillo → Puente Genil</div>
+          <div class="ds-bus-direction">LLEGADA A LIDL PUENTE GENIL</div>
+          <div class="ds-bus-time">06:00h</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Foto parallax 2 ── -->
+  <div class="ds-photo-section" style="height:60vh">
+    <div class="ds-photo-bg" style="background-image:url('/fotos/foto3-darkside.webp')"></div>
+    <div class="ds-photo-overlay"></div>
+  </div>
+
+  <!-- ── RSVP ── -->
+  <section class="ds-rsvp-section ds-photo-section" id="rsvp">
+    <div class="ds-photo-bg" style="background-image:url('/img/universe.webp')"></div>
+    <div class="ds-photo-overlay"></div>
+    <div class="ds-rsvp-container">
+      <p class="ds-section-pre ds-fade">confirma tu asistencia</p>
+      <h2 class="ds-section-title ds-fade">¿Contamos contigo?</h2>
+      <p class="ds-rsvp-intro ds-fade">
+        Por favor, confirma tu asistencia antes del <strong><br>1 de septiembre de 2026</strong>.
+        <br><br>Si no vienes, también te agradeceremos si nos lo indicas.
+      </p>
+
+      <form id="ds-rsvp-form" class="ds-rsvp-form ds-fade" method="POST">
+        <!-- 1. Nombre -->
+        <div class="ds-form-group">
+          <label for="ds-nombre">1. Nombre completo y apellidos *</label>
+          <input type="text" id="ds-nombre" name="nombre" required placeholder="Tu nombre completo" />
+        </div>
+
+        <!-- 2. Asistencia -->
+        <div class="ds-form-group">
+          <label>2. ¿Asistirás a nuestra boda? *</label>
+          <div class="ds-radio-group">
+            <label class="ds-radio-option">
+              <input type="radio" name="asistencia" value="Sí, ¡allí estaré!" required />
+              <span>Sí, ¡allí estaré!</span>
+            </label>
+            <label class="ds-radio-option">
+              <input type="radio" name="asistencia" value="No, me lo perderé con todo el dolor de mi corazón" />
+              <span>No, me lo perderé con todo el dolor de mi corazón</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="ds-extras-si" class="ds-extras-si">
+
+        <!-- 3. Acompañante -->
+        <div class="ds-form-group">
+          <label>3. ¿Vienes con acompañante?</label>
+          <div class="ds-radio-group" id="ds-acompanante-radios">
+            <label class="ds-radio-option">
+              <input type="radio" name="acompanante" value="si" id="ds-acomp-si" />
+              <span>Sí</span>
+            </label>
+            <label class="ds-radio-option">
+              <input type="radio" name="acompanante" value="no" id="ds-acomp-no" />
+              <span>No</span>
+            </label>
+          </div>
+          <div class="ds-conditional" id="ds-acomp-nombre-block" style="display:none">
+            <input type="text" id="ds-acompanante_nombre" name="acompanante_nombre" placeholder="Nombre completo de tu acompañante" />
+          </div>
+        </div>
+
+        <!-- 4. Niños -->
+        <div class="ds-form-group">
+          <label>4. ¿Traes niños?</label>
+          <div class="ds-radio-group">
+            <label class="ds-radio-option">
+              <input type="radio" name="ninos" value="si" id="ds-ninos-si" />
+              <span>Sí</span>
+            </label>
+            <label class="ds-radio-option">
+              <input type="radio" name="ninos" value="no" id="ds-ninos-no" />
+              <span>No</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 5. Datos niños -->
+        <div id="ds-ninos-block" style="display:none" class="ds-ninos-wrapper">
+          <div class="ds-form-group">
+            <label>5. ¿Cuántos niños traes?</label>
+            <div class="ds-ninos-count-picker" id="ds-ninos-count-picker">
+              <button type="button" class="ds-count-btn" data-value="1">1</button>
+              <button type="button" class="ds-count-btn" data-value="2">2</button>
+              <button type="button" class="ds-count-btn" data-value="3">3</button>
+              <button type="button" class="ds-count-btn" data-value="4">4</button>
+              <button type="button" class="ds-count-btn" data-value="5">5</button>
+            </div>
+            <input type="hidden" name="ninos_count" id="ds-ninos_count" />
+          </div>
+          <div id="ds-ninos-names-container"></div>
+        </div>
+
+        <!-- 6. Intolerancias -->
+        <div class="ds-form-group">
+          <label>6. ¿Algún miembro de tu grupo tiene alguna intolerancia o alergia alimentaria? *</label>
+          <div class="ds-radio-group">
+            <label class="ds-radio-option">
+              <input type="radio" name="tiene_intolerancias" value="no" id="ds-intol-no" />
+              <span>No, ninguno tiene alergias ni intolerancias</span>
+            </label>
+            <label class="ds-radio-option">
+              <input type="radio" name="tiene_intolerancias" value="si" id="ds-intol-si" />
+              <span>Sí, alguien de mi grupo tiene intolerancias o alergias</span>
+            </label>
+          </div>
+          <p class="ds-intol-error" id="ds-intol-error">Por favor, indica si hay o no alergias en tu grupo antes de continuar.</p>
+          <div id="ds-intol-personas-wrap" class="ds-intol-personas-wrap">
+            <p class="ds-form-hint" style="margin-bottom:0.5rem">Selecciona cada persona para indicar sus restricciones alimentarias:</p>
+            <div id="ds-intol-personas-list" class="ds-intol-personas-list"></div>
+          </div>
+        </div>
+
+        <!-- 7. Bebida -->
+        <div class="ds-form-group">
+          <label>7. ¿Qué bebida no puede faltar en la barra libre?</label>
+          <div class="ds-checkbox-group">
+            <label class="ds-checkbox-option">
+              <input type="checkbox" name="bebida" value="Whisky" />
+              <span>Whisky</span>
+            </label>
+            <label class="ds-checkbox-option">
+              <input type="checkbox" name="bebida" value="Ginebra" />
+              <span>Ginebra</span>
+            </label>
+            <label class="ds-checkbox-option">
+              <input type="checkbox" name="bebida" value="Ron" />
+              <span>Ron</span>
+            </label>
+            <label class="ds-checkbox-option">
+              <input type="checkbox" name="bebida" value="Vodka" />
+              <span>Vodka</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 8. Autobús -->
+        <div class="ds-form-group">
+          <label>8. Para los de Puente Genil: ¿necesitarás el autobús?</label>
+          <div class="ds-radio-group" id="ds-bus-radios">
+            <label class="ds-radio-option">
+              <input type="radio" name="autobus" value="Ida y vuelta" id="ds-bus-idavuelta" />
+              <span>Sí, ida y vuelta</span>
+            </label>
+            <label class="ds-radio-option">
+              <input type="radio" name="autobus" value="Solo ida" />
+              <span>Solo ida</span>
+            </label>
+            <label class="ds-radio-option">
+              <input type="radio" name="autobus" value="Solo vuelta" />
+              <span>Solo vuelta</span>
+            </label>
+            <label class="ds-radio-option">
+              <input type="radio" name="autobus" value="No lo necesitaré" id="ds-bus-no" />
+              <span>No lo necesitaré</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 9. Plazas autobús -->
+        <div class="ds-form-group ds-conditional" id="ds-bus-plazas-block" style="display:none">
+          <label>9. ¿Cuántas plazas necesitarías?</label>
+          <div class="ds-ninos-count-picker" id="ds-bus-plazas-picker"></div>
+          <input type="hidden" name="bus_plazas" id="ds-bus_plazas" />
+        </div>
+
+        <!-- 10. Canción -->
+        <div class="ds-form-group">
+          <label for="ds-cancion">10. ¿Qué canción no puede faltar en la pista de baile?</label>
+          <input type="text" id="ds-cancion" name="cancion" placeholder="¡Esa que hace que lo des todo!" />
+        </div>
+
+        <!-- 11. Comentarios -->
+        <div class="ds-form-group">
+          <label for="ds-comentarios">11. ¿Tienes alguna otra duda o comentario?</label>
+          <textarea id="ds-comentarios" name="comentarios" rows="4" placeholder="Cuéntanos..."></textarea>
+          <div class="ds-photo-hint">
+            <img src="/icons/fotos.svg" alt="" aria-hidden="true" class="ds-photo-hint-icon" />
+            <p class="ds-photo-hint-text">Si tienes pensado hacernos una sorpresa durante la cena, por favor, ponte en contacto con nuestro fotógrafo para que pueda captar ese momento tan especial.</p>
+            <div class="ds-photo-hint-contact">
+              <strong class="ds-photo-hint-name">Rafael Badía</strong>
+              <a href="tel:+34637352642" class="ds-photo-hint-tel">637 35 26 42</a>
+            </div>
+          </div>
+        </div>
+
+        </div><!-- /#ds-extras-si -->
+
+        <!-- Email -->
+        <div class="ds-form-group">
+          <label for="ds-email">Correo electrónico (opcional)</label>
+          <input type="email" id="ds-email" name="email" placeholder="tucorreo@ejemplo.com" />
+          <p class="ds-email-error" id="ds-email-error" style="display:none">Ese correo ya ha sido registrado como invitado.</p>
+        </div>
+
+        <button type="submit" class="ds-submit-btn">Enviar confirmación</button>
+
+        <div id="ds-form-error" class="ds-form-message error" style="display:none">
+          Algo ha ido mal. Por favor, inténtalo de nuevo o escríbenos directamente.
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Modal: confirmación de envío exitoso -->
+  <div class="ds-success-overlay" id="ds-success-overlay" style="display:none" role="dialog" aria-modal="true" aria-label="Confirmación recibida">
+    <div class="ds-success-modal">
+      <div class="ds-success-icon">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M8 12.5l2.5 2.5L16 9.5"/>
+        </svg>
+      </div>
+      <h2 class="ds-success-title">¡Gracias!</h2>
+      <p class="ds-success-text">Hemos recibido tu confirmación.<br>¡Nos vemos el 3 de octubre! 🎉</p>
+      <button type="button" class="ds-success-accept" id="ds-success-accept">Aceptar</button>
+    </div>
+  </div>
+
+  <!-- ── Foto parallax 3 ── -->
+  <div class="ds-photo-section" style="height:50vh">
+    <div class="ds-photo-bg" style="background-image:url('/fotos/foto4-darkside.webp')"></div>
+    <div class="ds-photo-overlay"></div>
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer class="ds-footer-section ds-photo-section">
+    <div class="ds-photo-bg" style="background-image:url('/img/universe.webp')"></div>
+    <div class="ds-photo-overlay"></div>
+    <div class="ds-footer-container">
+      <div class="ds-footer-names ds-fade">isabel <span class="ds-footer-amp">&amp;</span> Marcos</div>
+      <div class="ds-footer-date ds-fade">03 · 10 · 2026</div>
+      <div class="ds-footer-contacts ds-fade">
+        <div class="ds-contact-item">
+          <span class="ds-contact-label">Isabel</span>
+          <a href="tel:+34658350693">658 35 06 93</a>
+        </div>
+        <div class="ds-contact-sep">·</div>
+        <div class="ds-contact-item">
+          <span class="ds-contact-label">Marcos</span>
+          <a href="tel:+34675474544">675 47 45 44</a>
+        </div>
+      </div>
+
+      <button class="ds-lock-btn" id="ds-lock-btn" aria-label="Acceso privado novios">
+        <svg width="14" height="16" viewBox="0 0 14 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="1" y="7" width="12" height="8" rx="1.5"/>
+          <path d="M4 7V5a3 3 0 0 1 6 0v2"/>
+        </svg>
+      </button>
+
+      <p class="ds-footer-copy ds-fade">Hecho con amor para el día más especial</p>
+      <p class="ds-footer-dev ds-fade">Desarrollo maskudev</p>
+    </div>
+  </footer>
+
+  <!-- Modal: acceso privado -->
+  <div class="ds-login-overlay" id="ds-login-overlay" style="display:none" role="dialog" aria-modal="true" aria-label="Acceso privado">
+    <div class="ds-login-modal">
+      <button class="ds-login-close" id="ds-login-close" aria-label="Cerrar">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>
+      </button>
+      <div class="ds-login-icon">
+        <svg width="22" height="26" viewBox="0 0 14 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="7" width="12" height="8" rx="1.5"/>
+          <path d="M4 7V5a3 3 0 0 1 6 0v2"/>
+          <circle cx="7" cy="11" r="1" fill="currentColor" stroke="none"/>
+        </svg>
+      </div>
+      <h2 class="ds-login-title">Acceso privado</h2>
+      <p class="ds-login-sub">Para los novios</p>
+      <form class="ds-login-form" id="ds-login-form" autocomplete="off">
+        <div class="ds-login-field">
+          <input type="text" id="ds-login-user" name="login-user" placeholder="Usuario" autocomplete="username" autocapitalize="none" spellcheck="false" />
+        </div>
+        <div class="ds-login-field">
+          <input type="password" id="ds-login-pass" name="login-pass" placeholder="Contraseña" autocomplete="current-password" />
+        </div>
+        <p class="ds-login-error" id="ds-login-error"></p>
+        <button type="submit" class="ds-login-submit">Acceder</button>
+      </form>
+    </div>
+  </div>
 
   <script>
     import { gsap } from 'gsap';
@@ -585,10 +1849,12 @@ export const prerender = true;
     // la zona de desvanecido superior. GSAP SplitText divide el texto en
     // líneas reales (respeta el wrap actual del navegador).
     const crawlTextEl = document.getElementById('crawl-text') as HTMLElement;
+    const crawlBlocks = Array.from(crawlTextEl.children) as HTMLElement[];
     const CRAWL_SHRINK_ZONE = 0.6; // el encogido empieza al 60% de la pantalla (más abajo)
     const CRAWL_MIN_SCALE = 0.35;
     let crawlLines: HTMLElement[] = [];
     let crawlTween: gsap.core.Tween | null = null;
+    const crawlBlockLines = new Map<HTMLElement, HTMLElement[]>();
 
     function updateCrawlLineScales() {
       const shrinkStart = window.innerHeight * CRAWL_SHRINK_ZONE;
@@ -636,18 +1902,120 @@ export const prerender = true;
       });
     }
 
-    // autoSplit re-divide en líneas automáticamente si cambia el ancho de
-    // pantalla o si las fuentes tardan en cargar; onSplit reconstruye el
-    // recorrido de scroll con las nuevas líneas cada vez que eso ocurre.
-    new SplitText(crawlTextEl, {
-      type: 'lines',
-      linesClass: 'crawl-line',
-      autoSplit: true,
-      onSplit(self) {
-        crawlLines = self.lines as HTMLElement[];
-        rebuildCrawlScroll();
-        ScrollTrigger.refresh();
-      },
+    // Cada bloque original (párrafo o título) se divide en líneas por
+    // separado: así sabemos cuál es la ÚLTIMA línea de cada párrafo real
+    // y solo a esa le añadimos separación (el resto de líneas queda
+    // pegado, sin espacio extra entre ellas).
+    crawlBlocks.forEach((block) => {
+      new SplitText(block, {
+        type: 'lines',
+        linesClass: 'crawl-line',
+        autoSplit: true,
+        onSplit(self) {
+          const lines = self.lines as HTMLElement[];
+          lines.forEach((line, i) => {
+            line.classList.toggle('crawl-line-last', i === lines.length - 1);
+          });
+          crawlBlockLines.set(block, lines);
+          crawlLines = crawlBlocks.flatMap((b) => crawlBlockLines.get(b) ?? []);
+          rebuildCrawlScroll();
+          ScrollTrigger.refresh();
+        },
+      });
+    });
+
+    // Fade-in genérico al hacer scroll, para el resto de secciones
+    gsap.utils.toArray<HTMLElement>('.ds-fade').forEach((el) => {
+      gsap.fromTo(el,
+        { opacity: 0, y: 35 },
+        {
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 88%',
+            toggleActions: 'play none none none',
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.85,
+          ease: 'power2.out',
+        }
+      );
+    });
+
+    // Itinerario: cada ítem entra desde los lados
+    gsap.utils.toArray<HTMLElement>('.ds-tl-item').forEach((item) => {
+      const left  = item.querySelector<HTMLElement>('.ds-tl-left');
+      const right = item.querySelector<HTMLElement>('.ds-tl-right');
+
+      gsap.set(item, { opacity: 0 });
+      if (left)  gsap.set(left,  { x: -18, opacity: 0 });
+      if (right) gsap.set(right, { x:  18, opacity: 0 });
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: item,
+          start: 'top 86%',
+          toggleActions: 'play none none reverse',
+        },
+      });
+
+      tl.to(item,  { opacity: 1, duration: 0.01 })
+        .to(left,  { x: 0, opacity: 1, duration: 0.45, ease: 'power2.out' }, 0)
+        .to(right, { x: 0, opacity: 1, duration: 0.45, ease: 'power2.out' }, 0.1);
+    });
+
+    // Fotos parallax intermedias
+    gsap.utils.toArray<HTMLElement>('.ds-photo-section').forEach((section) => {
+      const bg = section.querySelector<HTMLElement>('.ds-photo-bg');
+      if (!bg) return;
+      gsap.fromTo(bg,
+        { yPercent: -15, scale: 1.0 },
+        {
+          yPercent: 15,
+          scale: 1.3,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        }
+      );
+    });
+
+    // Autobús: tarjetas entran desde arriba/lados
+    gsap.fromTo('.ds-bus-ida-wrap .ds-bus-card',
+      { opacity: 0, y: 30 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '.ds-bus-ida-wrap',
+          start: 'top 85%',
+          toggleActions: 'play none none reverse',
+        },
+      }
+    );
+
+    gsap.utils.toArray<HTMLElement>('.ds-bus-routes .ds-bus-card').forEach((card, i) => {
+      gsap.fromTo(card,
+        { opacity: 0, x: i === 0 ? -50 : 50 },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.7,
+          delay: i === 1 ? 0.15 : 0,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: '.ds-bus-routes',
+            start: 'top 82%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      );
     });
 
     // Cuenta atrás
@@ -675,6 +2043,404 @@ export const prerender = true;
     }
     updateCountdown();
     setInterval(updateCountdown, 1000);
+  </script>
+
+  <!-- ── Lógica del formulario RSVP (idéntica a la versión clara) ── -->
+  <script>
+    const extrasSi = document.getElementById('ds-extras-si')!;
+    document.querySelectorAll<HTMLInputElement>('#ds-rsvp-form input[name="asistencia"]').forEach((el) => {
+      el.addEventListener('change', () => {
+        const asiste = el.value.startsWith('Sí');
+        extrasSi.classList.toggle('visible', asiste);
+        if (!asiste) {
+          (document.getElementById('ds-acomp-nombre-block') as HTMLElement).style.display = 'none';
+          (document.getElementById('ds-ninos-block') as HTMLElement).style.display = 'none';
+          resetNinosCount();
+          (document.getElementById('ds-bus-plazas-block') as HTMLElement).style.display = 'none';
+          document.querySelectorAll<HTMLInputElement>('#ds-extras-si input[type="radio"], #ds-extras-si input[type="checkbox"]')
+            .forEach(i => { i.checked = false; });
+          resetIntolerancias();
+        }
+      });
+    });
+
+    const acSi    = document.getElementById('ds-acomp-si') as HTMLInputElement;
+    const acNo    = document.getElementById('ds-acomp-no') as HTMLInputElement;
+    const acBlock = document.getElementById('ds-acomp-nombre-block')!;
+    acSi?.addEventListener('change', () => { acBlock.style.display = 'block'; refreshIntolList(); buildBusPlazasBtns(); });
+    acNo?.addEventListener('change', () => { acBlock.style.display = 'none';  refreshIntolList(); buildBusPlazasBtns(); });
+
+    const ninosSi    = document.getElementById('ds-ninos-si') as HTMLInputElement;
+    const ninosNo    = document.getElementById('ds-ninos-no') as HTMLInputElement;
+    const ninosBlock = document.getElementById('ds-ninos-block')!;
+    ninosSi?.addEventListener('change', () => { ninosBlock.style.display = 'flex'; refreshIntolList(); });
+    ninosNo?.addEventListener('change', () => {
+      ninosBlock.style.display = 'none';
+      resetNinosCount();
+      refreshIntolList();
+    });
+
+    function buildNinoFields(count: number) {
+      const container = document.getElementById('ds-ninos-names-container')!;
+      container.innerHTML = '';
+      for (let i = 1; i <= count; i++) {
+        const group = document.createElement('div');
+        group.className = 'ds-nino-entry';
+        group.innerHTML = `
+          <span class="ds-nino-entry-title">Niño/a ${i}</span>
+          <span class="ds-nino-campo-label">Nombre</span>
+          <input type="text" name="nino_${i}_nombre" id="ds-nino_${i}_nombre" placeholder="Nombre completo" required />
+          <span class="ds-nino-campo-label">Edad</span>
+          <input type="number" name="nino_${i}_edad" placeholder="Años (0–17)" min="0" max="17" required />
+        `;
+        container.appendChild(group);
+        document.getElementById(`ds-nino_${i}_nombre`)?.addEventListener('input', refreshIntolList);
+      }
+      refreshIntolList();
+    }
+
+    function resetNinosCount() {
+      document.querySelectorAll<HTMLButtonElement>('#ds-ninos-count-picker .ds-count-btn').forEach(b => b.classList.remove('selected'));
+      (document.getElementById('ds-ninos_count') as HTMLInputElement).value = '';
+      document.getElementById('ds-ninos-names-container')!.innerHTML = '';
+    }
+
+    document.getElementById('ds-ninos-count-picker')?.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.ds-count-btn');
+      if (!btn) return;
+      const val = btn.dataset.value ?? '';
+      document.querySelectorAll<HTMLButtonElement>('#ds-ninos-count-picker .ds-count-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      (document.getElementById('ds-ninos_count') as HTMLInputElement).value = val;
+      buildNinoFields(parseInt(val) || 0);
+      buildBusPlazasBtns();
+    });
+
+    function getTotalPersonas(): number {
+      let total = 1;
+      if ((document.getElementById('ds-acomp-si') as HTMLInputElement)?.checked) total += 1;
+      total += parseInt((document.getElementById('ds-ninos_count') as HTMLInputElement)?.value || '0') || 0;
+      return total;
+    }
+
+    function buildBusPlazasBtns() {
+      const picker  = document.getElementById('ds-bus-plazas-picker')!;
+      const hidden  = document.getElementById('ds-bus_plazas') as HTMLInputElement;
+      const current = hidden?.value ?? '';
+      const total   = getTotalPersonas();
+      picker.innerHTML = '';
+      for (let i = 1; i <= total; i++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ds-count-btn' + (String(i) === current ? ' selected' : '');
+        btn.dataset.value = String(i);
+        btn.textContent = String(i);
+        picker.appendChild(btn);
+      }
+      if (current && parseInt(current) > total) hidden.value = '';
+    }
+
+    document.getElementById('ds-bus-plazas-picker')?.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.ds-count-btn');
+      if (!btn) return;
+      const val = btn.dataset.value ?? '';
+      document.querySelectorAll<HTMLButtonElement>('#ds-bus-plazas-picker .ds-count-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      (document.getElementById('ds-bus_plazas') as HTMLInputElement).value = val;
+    });
+
+    const busPlazasBlock = document.getElementById('ds-bus-plazas-block')!;
+    document.querySelectorAll('#ds-rsvp-form input[name="autobus"]').forEach((el) => {
+      el.addEventListener('change', (e) => {
+        const val = (e.target as HTMLInputElement).value;
+        if (val !== 'No lo necesitaré') {
+          busPlazasBlock.style.display = 'flex';
+          buildBusPlazasBtns();
+        } else {
+          busPlazasBlock.style.display = 'none';
+          (document.getElementById('ds-bus_plazas') as HTMLInputElement).value = '';
+        }
+      });
+    });
+
+    const INTOL_ITEMS: [string, string][] = [
+      ['GLUTEN',       'Gluten (celiaquía o sensibilidad al gluten)'],
+      ['LACTOSA',      'Lactosa / lácteos'],
+      ['HUEVO',        'Huevo'],
+      ['FRUTOS_SECOS', 'Frutos secos (almendras, nueces, avellanas, etc.)'],
+      ['CACAHUETE',    'Cacahuete'],
+      ['MARISCO',      'Marisco'],
+      ['PESCADO',      'Pescado'],
+      ['SOJA',         'Soja'],
+      ['SESAMO',       'Sésamo'],
+      ['MOSTAZA',      'Mostaza'],
+      ['APIO',         'Apio'],
+      ['SULFITOS',     'Sulfitos (vino, frutos secos tratados, etc.)'],
+      ['ALTRAMUCES',   'Altramuces (lupino)'],
+      ['MOLUSCOS',     'Moluscos (mejillones, almejas, pulpo, calamar, etc.)'],
+    ];
+
+    function getGroupPersons() {
+      const persons: { id: string; nombre: string; badge: string }[] = [];
+      const nombreInv = (document.getElementById('ds-nombre') as HTMLInputElement)?.value?.trim() || 'Tú';
+      persons.push({ id: 'invitado', nombre: nombreInv, badge: 'Invitado/a' });
+      if ((document.getElementById('ds-acomp-si') as HTMLInputElement)?.checked) {
+        const acN = (document.getElementById('ds-acompanante_nombre') as HTMLInputElement)?.value?.trim() || 'Acompañante';
+        persons.push({ id: 'acompanante', nombre: acN, badge: 'Acompañante' });
+      }
+      if ((document.getElementById('ds-ninos-si') as HTMLInputElement)?.checked) {
+        const cnt = parseInt((document.getElementById('ds-ninos_count') as HTMLSelectElement)?.value) || 0;
+        for (let i = 1; i <= cnt; i++) {
+          const nn = (document.getElementById(`ds-nino_${i}_nombre`) as HTMLInputElement)?.value?.trim() || `Niño/a ${i}`;
+          persons.push({ id: `nino_${i}`, nombre: nn, badge: 'Niño/a' });
+        }
+      }
+      return persons;
+    }
+
+    function buildCheckboxGrid(personId: string) {
+      return `<div class="ds-intol-checkboxes">
+        ${INTOL_ITEMS.map(([val, label]) =>
+          `<label class="ds-intol-check-label"><input type="checkbox" name="intol_${personId}" value="${val}" />${label}</label>`
+        ).join('')}
+      </div>
+      <div class="ds-intol-otros-wrap">
+        <span class="ds-intol-otros-label">Otros:</span>
+        <input type="text" name="intol_${personId}_otros" placeholder="Especifica otros alérgenos..." />
+      </div>`;
+    }
+
+    function saveIntolSelections() {
+      const saved: Record<string, string[]> = {};
+      document.querySelectorAll<HTMLInputElement>('#ds-rsvp-form [name^="intol_"]').forEach(el => {
+        if (el.type === 'checkbox' && el.checked) (saved[el.name] ??= []).push(el.value);
+        else if (el.type === 'text' && el.value)   saved[el.name] = [el.value];
+      });
+      return saved;
+    }
+
+    function restoreIntolSelections(saved: Record<string, string[]>) {
+      Object.entries(saved).forEach(([name, values]) => {
+        document.querySelectorAll<HTMLInputElement>(`#ds-rsvp-form [name="${name}"]`).forEach(el => {
+          if (el.type === 'checkbox') el.checked = values.includes(el.value);
+          else if (el.type === 'text') el.value = values[0] ?? '';
+        });
+      });
+    }
+
+    function updateCountBadge(personId: string) {
+      const count = document.querySelectorAll<HTMLInputElement>(`input[name="intol_${personId}"]:checked`).length;
+      const badge = document.querySelector<HTMLElement>(`#ds-intol-card-${personId} .ds-intol-count`);
+      if (!badge) return;
+      badge.textContent = count > 0 ? `${count} seleccionada${count !== 1 ? 's' : ''}` : '';
+      badge.classList.toggle('visible', count > 0);
+    }
+
+    function refreshIntolList() {
+      if (!(document.getElementById('ds-intol-si') as HTMLInputElement)?.checked) return;
+      const saved   = saveIntolSelections();
+      const persons = getGroupPersons();
+      const list    = document.getElementById('ds-intol-personas-list')!;
+      list.innerHTML = persons.map(p => `
+        <div class="ds-intol-person-card" id="ds-intol-card-${p.id}">
+          <button type="button" class="ds-intol-person-btn" data-pid="${p.id}">
+            <span class="ds-intol-person-name">${p.nombre}</span>
+            <span class="ds-intol-person-badge">${p.badge}</span>
+            <span class="ds-intol-count"></span>
+            <span class="ds-intol-chevron">▼</span>
+          </button>
+          <div class="ds-intol-panel">${buildCheckboxGrid(p.id)}</div>
+        </div>`).join('');
+
+      list.querySelectorAll<HTMLButtonElement>('.ds-intol-person-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const card   = btn.closest('.ds-intol-person-card')!;
+          const isOpen = card.classList.contains('open');
+          list.querySelectorAll('.ds-intol-person-card').forEach(c => c.classList.remove('open'));
+          if (!isOpen) card.classList.add('open');
+        });
+      });
+      list.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach(cb => {
+        const pid = cb.name.replace('intol_', '');
+        cb.addEventListener('change', () => updateCountBadge(pid));
+      });
+
+      restoreIntolSelections(saved);
+      persons.forEach(p => updateCountBadge(p.id));
+    }
+
+    function resetIntolerancias() {
+      (document.getElementById('ds-intol-no') as HTMLInputElement).checked = false;
+      (document.getElementById('ds-intol-si') as HTMLInputElement).checked = false;
+      document.getElementById('ds-intol-personas-wrap')!.style.display = 'none';
+      document.getElementById('ds-intol-personas-list')!.innerHTML = '';
+      (document.getElementById('ds-intol-error') as HTMLElement).style.display = 'none';
+    }
+
+    document.getElementById('ds-email')?.addEventListener('input', () => {
+      (document.getElementById('ds-email-error') as HTMLElement).style.display = 'none';
+    });
+
+    document.getElementById('ds-intol-si')?.addEventListener('change', () => {
+      document.getElementById('ds-intol-personas-wrap')!.style.display = 'block';
+      document.getElementById('ds-intol-error')!.style.display = 'none';
+      refreshIntolList();
+    });
+    document.getElementById('ds-intol-no')?.addEventListener('change', () => {
+      document.getElementById('ds-intol-personas-wrap')!.style.display = 'none';
+      document.getElementById('ds-intol-error')!.style.display = 'none';
+    });
+
+    document.getElementById('ds-nombre')?.addEventListener('input', refreshIntolList);
+    document.getElementById('ds-acompanante_nombre')?.addEventListener('input', refreshIntolList);
+
+    const successOverlay = document.getElementById('ds-success-overlay') as HTMLElement;
+
+    function openSuccessModal() {
+      successOverlay.style.display = 'flex';
+      successOverlay.getBoundingClientRect();
+      successOverlay.classList.add('open');
+    }
+
+    function closeSuccessModal() {
+      successOverlay.classList.remove('open');
+      successOverlay.addEventListener('transitionend', () => {
+        successOverlay.style.display = 'none';
+      }, { once: true });
+    }
+
+    document.getElementById('ds-success-accept')?.addEventListener('click', closeSuccessModal);
+    successOverlay.addEventListener('click', (e) => { if (e.target === successOverlay) closeSuccessModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && successOverlay.classList.contains('open')) closeSuccessModal(); });
+
+    const form = document.getElementById('ds-rsvp-form') as HTMLFormElement;
+    const errorMsg   = document.getElementById('ds-form-error')!;
+
+    function resetFormCompleto() {
+      form.reset();
+      extrasSi.classList.remove('visible');
+      (document.getElementById('ds-acomp-nombre-block') as HTMLElement).style.display = 'none';
+      (document.getElementById('ds-ninos-block') as HTMLElement).style.display = 'none';
+      (document.getElementById('ds-bus-plazas-block') as HTMLElement).style.display = 'none';
+      resetNinosCount();
+      resetIntolerancias();
+      (document.getElementById('ds-email-error') as HTMLElement).style.display = 'none';
+      document.getElementById('ds-bus-plazas-picker')!.innerHTML = '';
+      (document.getElementById('ds-bus_plazas') as HTMLInputElement).value = '';
+    }
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = form.querySelector('.ds-submit-btn') as HTMLButtonElement;
+
+      const asiste = form.querySelector<HTMLInputElement>('input[name="asistencia"]:checked')?.value?.startsWith('Sí');
+      if (asiste && !form.querySelector<HTMLInputElement>('input[name="tiene_intolerancias"]:checked')) {
+        const errEl = document.getElementById('ds-intol-error')!;
+        errEl.style.display = 'block';
+        const rect = errEl.getBoundingClientRect();
+        const offset = window.scrollY + rect.top - window.innerHeight / 2 + rect.height / 2;
+        window.scrollTo(0, offset);
+        return;
+      }
+
+      btn.textContent = 'Enviando...';
+      btn.disabled = true;
+
+      try {
+        const fd = new FormData(form);
+        const data: Record<string, string | string[]> = {};
+        fd.forEach((value, key) => {
+          const existing = data[key];
+          if (existing !== undefined) {
+            data[key] = Array.isArray(existing) ? [...existing, String(value)] : [existing, String(value)];
+          } else {
+            data[key] = String(value);
+          }
+        });
+
+        const res = await fetch('/api/rsvp', {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        const json = await res.json().catch(() => ({}));
+        if (res.ok) {
+          resetFormCompleto();
+          errorMsg.style.display = 'none';
+          (document.getElementById('ds-email-error') as HTMLElement).style.display = 'none';
+          btn.textContent = 'Enviar confirmación';
+          btn.disabled = false;
+          openSuccessModal();
+        } else if (res.status === 409 || json.code === 'DUPLICATE_EMAIL') {
+          const emailError = document.getElementById('ds-email-error')!;
+          emailError.style.display = 'block';
+          const rect = emailError.getBoundingClientRect();
+          const offset = window.scrollY + rect.top - window.innerHeight / 2 + rect.height / 2;
+          window.scrollTo(0, offset);
+          btn.textContent = 'Enviar confirmación';
+          btn.disabled = false;
+        } else {
+          console.error('RSVP error:', json);
+          throw new Error(json.error || 'unknown');
+        }
+      } catch (err) {
+        console.error('RSVP submit error:', err);
+        errorMsg.style.display = 'block';
+        btn.textContent = 'Enviar confirmación';
+        btn.disabled = false;
+      }
+    });
+  </script>
+
+  <!-- ── Acceso privado (footer) ── -->
+  <script>
+    const USERS: Record<string, string> = {
+      marcos: '031026',
+      isabel: '031026',
+      admin:  '031026',
+    };
+
+    const overlay   = document.getElementById('ds-login-overlay') as HTMLElement;
+    const closeBtn  = document.getElementById('ds-login-close')!;
+    const lockBtn   = document.getElementById('ds-lock-btn')!;
+    const loginForm = document.getElementById('ds-login-form') as HTMLFormElement;
+    const userInput = document.getElementById('ds-login-user') as HTMLInputElement;
+    const passInput = document.getElementById('ds-login-pass') as HTMLInputElement;
+    const errorEl   = document.getElementById('ds-login-error')!;
+
+    function openModal() {
+      overlay.style.display = 'flex';
+      overlay.getBoundingClientRect();
+      overlay.classList.add('open');
+      setTimeout(() => userInput.focus(), 80);
+    }
+
+    function closeModal() {
+      overlay.classList.remove('open');
+      overlay.addEventListener('transitionend', () => {
+        overlay.style.display = 'none';
+      }, { once: true });
+    }
+
+    lockBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = userInput.value.toLowerCase().trim();
+      const pass = passInput.value.trim();
+      if (USERS[user] !== undefined && USERS[user] === pass) {
+        sessionStorage.setItem('boda_auth', 'boda031026');
+        window.location.href = '/dashboard';
+      } else {
+        errorEl.textContent = 'Usuario o contraseña incorrectos';
+        passInput.value = '';
+        passInput.focus();
+      }
+    });
   </script>
 </body>
 </html>

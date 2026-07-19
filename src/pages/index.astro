@@ -20,6 +20,8 @@ import '../styles/global.css';
     </div>
   </nav>
 
+  <button type="button" id="darkside-toggle" class="darkside-toggle-btn">✦ El lado Jedi</button>
+
   <main>
     <Hero />
     <Welcome />
@@ -81,6 +83,36 @@ import '../styles/global.css';
   @media (max-width: 480px) {
     .nav-links { gap: 1rem; }
     .nav-links a { font-size: 0.7rem; }
+  }
+
+  .darkside-toggle-btn {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.3rem;
+    border-radius: 24px;
+    background: color-mix(in srgb, var(--eucalipto-noche) 88%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid color-mix(in srgb, var(--oro) 45%, transparent);
+    color: var(--oro);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+  }
+
+  .darkside-toggle-btn:hover { background: color-mix(in srgb, var(--oro) 16%, transparent); color: var(--marfil); }
+  .darkside-toggle-btn:active { transform: scale(0.95); }
+
+  @media (max-width: 480px) {
+    .darkside-toggle-btn { bottom: 1rem; right: 1rem; padding: 0.6rem 1rem; font-size: 0.65rem; }
   }
 </style>
 
@@ -157,6 +189,13 @@ import '../styles/global.css';
         ease: 'power2.out',
       }
     );
+  });
+
+  // Botón para cambiar al diseño Star Wars, con confirmación previa
+  document.getElementById('darkside-toggle')?.addEventListener('click', () => {
+    if (window.confirm('¿Quieres ver la invitación de otra galaxia?')) {
+      window.location.href = '/darkside';
+    }
   });
 
   // Smooth scroll
