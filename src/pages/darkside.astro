@@ -1516,13 +1516,13 @@ export const prerender = true;
             </label>
           </div>
           <div class="ds-conditional" id="ds-acomp-nombre-block" style="display:none">
-            <input type="text" id="ds-acompanante_nombre" name="acompanante_nombre" placeholder="Nombre completo de tu acompañante *" required />
+            <input type="text" id="ds-acompanante_nombre" name="acompanante_nombre" placeholder="Nombre completo de tu acompañante *" />
           </div>
         </div>
 
         <!-- 4. Niños -->
         <div class="ds-form-group">
-          <label>4. ¿Traes niños?</label>
+          <label>4. ¿Traes niños? *</label>
           <div class="ds-radio-group">
             <label class="ds-radio-option">
               <input type="radio" name="ninos" value="si" id="ds-ninos-si" />
@@ -2052,8 +2052,14 @@ export const prerender = true;
       el.addEventListener('change', () => {
         const asiste = el.value.startsWith('Sí');
         extrasSi.classList.toggle('visible', asiste);
+        const ninosSiEl = document.getElementById('ds-ninos-si') as HTMLInputElement;
+        // "¿Traes niños?" solo es obligatorio mientras el bloque de extras esté visible (asiste = Sí):
+        // al estar dentro de #ds-extras-si (colapsado, no display:none), un required permanente
+        // bloquearía en silencio el envío cuando el invitado responde que no asistirá.
+        ninosSiEl.required = asiste;
         if (!asiste) {
           (document.getElementById('ds-acomp-nombre-block') as HTMLElement).style.display = 'none';
+          (document.getElementById('ds-acompanante_nombre') as HTMLInputElement).required = false;
           (document.getElementById('ds-ninos-block') as HTMLElement).style.display = 'none';
           resetNinosCount();
           (document.getElementById('ds-bus-plazas-block') as HTMLElement).style.display = 'none';
@@ -2067,8 +2073,9 @@ export const prerender = true;
     const acSi    = document.getElementById('ds-acomp-si') as HTMLInputElement;
     const acNo    = document.getElementById('ds-acomp-no') as HTMLInputElement;
     const acBlock = document.getElementById('ds-acomp-nombre-block')!;
-    acSi?.addEventListener('change', () => { acBlock.style.display = 'block'; refreshIntolList(); buildBusPlazasBtns(); });
-    acNo?.addEventListener('change', () => { acBlock.style.display = 'none';  refreshIntolList(); buildBusPlazasBtns(); });
+    const acNombreEl = document.getElementById('ds-acompanante_nombre') as HTMLInputElement;
+    acSi?.addEventListener('change', () => { acBlock.style.display = 'block'; acNombreEl.required = true;  refreshIntolList(); buildBusPlazasBtns(); });
+    acNo?.addEventListener('change', () => { acBlock.style.display = 'none';  acNombreEl.required = false; refreshIntolList(); buildBusPlazasBtns(); });
 
     const ninosSi    = document.getElementById('ds-ninos-si') as HTMLInputElement;
     const ninosNo    = document.getElementById('ds-ninos-no') as HTMLInputElement;
@@ -2320,6 +2327,8 @@ export const prerender = true;
       form.reset();
       extrasSi.classList.remove('visible');
       (document.getElementById('ds-acomp-nombre-block') as HTMLElement).style.display = 'none';
+      (document.getElementById('ds-acompanante_nombre') as HTMLInputElement).required = false;
+      (document.getElementById('ds-ninos-si') as HTMLInputElement).required = false;
       (document.getElementById('ds-ninos-block') as HTMLElement).style.display = 'none';
       (document.getElementById('ds-bus-plazas-block') as HTMLElement).style.display = 'none';
       resetNinosCount();

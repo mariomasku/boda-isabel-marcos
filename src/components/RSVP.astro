@@ -53,13 +53,13 @@ import SectionTitle from './SectionTitle.astro';
           </label>
         </div>
         <div class="conditional" id="acomp-nombre-block" style="display:none">
-          <input type="text" id="acompanante_nombre" name="acompanante_nombre" placeholder="Nombre completo de tu acompañante *" required />
+          <input type="text" id="acompanante_nombre" name="acompanante_nombre" placeholder="Nombre completo de tu acompañante *" />
         </div>
       </div>
 
       <!-- 4. Niños -->
       <div class="form-group">
-        <label>4. ¿Traes niños?</label>
+        <label>4. ¿Traes niños? *</label>
         <div class="radio-group">
           <label class="radio-option">
             <input type="radio" name="ninos" value="si" id="ninos-si" />
@@ -782,8 +782,14 @@ import SectionTitle from './SectionTitle.astro';
     el.addEventListener('change', () => {
       const asiste = el.value.startsWith('Sí');
       extrasSi.classList.toggle('visible', asiste);
+      const ninosSiEl = document.getElementById('ninos-si') as HTMLInputElement;
+      // "¿Traes niños?" solo es obligatorio mientras el bloque de extras esté visible (asiste = Sí):
+      // al estar dentro de #extras-si (colapsado, no display:none), un required permanente
+      // bloquearía en silencio el envío cuando el invitado responde que no asistirá.
+      ninosSiEl.required = asiste;
       if (!asiste) {
         (document.getElementById('acomp-nombre-block') as HTMLElement).style.display = 'none';
+        (document.getElementById('acompanante_nombre') as HTMLInputElement).required = false;
         (document.getElementById('ninos-block') as HTMLElement).style.display = 'none';
         resetNinosCount();
         (document.getElementById('bus-plazas-block') as HTMLElement).style.display = 'none';
@@ -798,8 +804,9 @@ import SectionTitle from './SectionTitle.astro';
   const acSi    = document.getElementById('acomp-si') as HTMLInputElement;
   const acNo    = document.getElementById('acomp-no') as HTMLInputElement;
   const acBlock = document.getElementById('acomp-nombre-block')!;
-  acSi?.addEventListener('change', () => { acBlock.style.display = 'block'; refreshIntolList(); buildBusPlazasBtns(); });
-  acNo?.addEventListener('change', () => { acBlock.style.display = 'none';  refreshIntolList(); buildBusPlazasBtns(); });
+  const acNombreEl = document.getElementById('acompanante_nombre') as HTMLInputElement;
+  acSi?.addEventListener('change', () => { acBlock.style.display = 'block'; acNombreEl.required = true;  refreshIntolList(); buildBusPlazasBtns(); });
+  acNo?.addEventListener('change', () => { acBlock.style.display = 'none';  acNombreEl.required = false; refreshIntolList(); buildBusPlazasBtns(); });
 
   // ── Toggle niños block ──
   const ninosSi    = document.getElementById('ninos-si') as HTMLInputElement;
@@ -1063,6 +1070,8 @@ import SectionTitle from './SectionTitle.astro';
     form.reset();
     extrasSi.classList.remove('visible');
     (document.getElementById('acomp-nombre-block') as HTMLElement).style.display = 'none';
+    (document.getElementById('acompanante_nombre') as HTMLInputElement).required = false;
+    (document.getElementById('ninos-si') as HTMLInputElement).required = false;
     (document.getElementById('ninos-block') as HTMLElement).style.display = 'none';
     (document.getElementById('bus-plazas-block') as HTMLElement).style.display = 'none';
     resetNinosCount();
