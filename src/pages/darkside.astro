@@ -1504,7 +1504,7 @@ export const prerender = true;
 
         <!-- 3. Acompañante -->
         <div class="ds-form-group">
-          <label>3. ¿Vienes con acompañante?</label>
+          <label>3. ¿Vienes con acompañante / pareja / cónyuge?</label>
           <div class="ds-radio-group" id="ds-acompanante-radios">
             <label class="ds-radio-option">
               <input type="radio" name="acompanante" value="si" id="ds-acomp-si" />
@@ -1516,7 +1516,7 @@ export const prerender = true;
             </label>
           </div>
           <div class="ds-conditional" id="ds-acomp-nombre-block" style="display:none">
-            <input type="text" id="ds-acompanante_nombre" name="acompanante_nombre" placeholder="Nombre completo de tu acompañante" />
+            <input type="text" id="ds-acompanante_nombre" name="acompanante_nombre" placeholder="Nombre completo de tu acompañante *" required />
           </div>
         </div>
 
@@ -1648,7 +1648,7 @@ export const prerender = true;
 
         <!-- Email -->
         <div class="ds-form-group">
-          <label for="ds-email">Correo electrónico (opcional)</label>
+          <label for="ds-email">Correo electrónico (para informaros de cositas)</label>
           <input type="email" id="ds-email" name="email" placeholder="tucorreo@ejemplo.com" />
           <p class="ds-email-error" id="ds-email-error" style="display:none">Ese correo ya ha sido registrado como invitado.</p>
         </div>
