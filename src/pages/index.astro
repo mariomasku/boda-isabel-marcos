@@ -122,6 +122,18 @@ import '../styles/global.css';
 
   gsap.registerPlugin(ScrollTrigger);
 
+  // ── Fix iOS/iPhone: evitar el salto al top al rellenar el formulario ──
+  // Al enfocar un campo, el teclado de iOS abre/cierra y dispara un evento
+  // 'resize'. Por defecto ScrollTrigger reacciona recalculando posiciones y
+  // provoca que la página salte al inicio (el teclado ocupa >25% del alto, así
+  // que ignoreMobileResize no basta). Quitamos 'resize' de los eventos de
+  // auto-refresh y refrescamos solo en rotación real (orientationchange NO se
+  // dispara al abrir el teclado).
+  ScrollTrigger.config({ autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load' });
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => ScrollTrigger.refresh(), 300);
+  });
+
   // Navbar scroll effect
   const navbar = document.getElementById('navbar')!;
   window.addEventListener('scroll', () => {
